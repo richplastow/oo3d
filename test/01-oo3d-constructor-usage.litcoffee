@@ -21,4 +21,15 @@
       ªO
       -> new Main
 
+
+
+
+      "Config exceptions"
+      tudor.throw
+
+
+      "`config.$main` must not be a number"
+      "If set, config.$main must be HTMLCanvasElement not number"
+      -> new Main { $main:123 }
+
     ]
