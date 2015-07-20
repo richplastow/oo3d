@@ -1,0 +1,41 @@
+{
+  "name": "oo3d",
+  "version": "0.0.1",
+  "description": "The Oopish WebGL library",
+  "main": "build/oo3d.js",
+  "directories": {
+    "doc": "doc",
+    "test": "test",
+    "example": "usage"
+  },
+  "devDependencies": {
+    "apage": "latest",
+    "coffee-script": "latest",
+    "nodemon": "latest"
+  },
+  "dependencies": {
+  },
+  "keywords": [
+    "CoffeeScript",
+    "3D",
+    "Oopish",
+    "WebGL",
+    "Library"
+  ],
+  "scripts": {
+    "hi": "open .; open index.html; open test/run-test.html; subl .",
+    "make": "node bin/akaybe-build",
+    "index": "node_modules/apage/bin/apage -i README.md doc/*.md -o index.html -p \"`cat node_modules/apage/build/plugin/*.js`\"",
+    "test": "node test/run-test.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/richplastow/oo3d.git"
+  },
+  "author": "Rich Plastow <rich@richplastow.com> (http://richplastow.com/)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/richplastow/oo3d/issues"
+  },
+  "homepage": "http://oo3d.richplastow.com/"
+}
