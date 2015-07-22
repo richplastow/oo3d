@@ -96,7 +96,7 @@ If that fails, show an error alert. [From MDN’s article.](https://goo.gl/DYPEV
         catch
         if ! @gl
           alert "Unable to initialize WebGL. Your browser may not support it."
-
+        #ª @gl.getSupportedExtensions()
 
 
 
@@ -192,6 +192,7 @@ Xx.
 [From MDN’s second WebGL article, again.](https://goo.gl/q6YFNe)  
 
       render: ->
+        if ! @gl then throw Error "The WebGL rendering context is #{ªtype @gl}"
         @gl.vertexAttribPointer @vpAttribute, 3, @gl.FLOAT, false, 0, 0
         @gl.drawArrays @gl.TRIANGLES, 0, 3
 

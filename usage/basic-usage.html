@@ -6,18 +6,51 @@
   <script src="../build/oo3d.js"></script>
   <script>
     addEventListener('load', function () {
-      var
-        oo3d = new Oo3d({
-          $main: document.getElementById('main')
-        })
-      ;
-      oo3d.render();
+      try {
+        var
+          $error = document.getElementById('error'),
+          oo3d = new Oo3d({
+            $main: document.getElementById('main')
+          })
+        ;
+        oo3d.render();
+      } catch (error) {
+        $error.innerHTML = error;
+        $error.className = ''; // remove '.hidden'
+      }
     });
   </script>
+  <style>
+    #main {
+      position: absolute;
+      top:     0;
+      left:    0;
+      width:  100%;
+      height: 100%;
+    }
+    #error {
+      position: absolute;
+      box-sizing: border-box;
+      bottom:  0;
+      left:    5%;
+      width:  90%;
+      padding: 1rem;
+      font-family: monaco, monospace;
+      background-color: #933;
+      color: #fff;
+      transition: all 0.5s;
+      opacity: 1;
+    }
+    #error.hidden {
+      padding-bottom: 0;
+      opacity: 0;
+    }
+  </style>
 </head>
 <body>
   <h1>Oo3d Basic Usage</h1>
   <a href="../index.html">Home</a>
   <canvas id="main"></canvas>
+  <div id="error" class="hidden"></div>
 </body>
 </html>
