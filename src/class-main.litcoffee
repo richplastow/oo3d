@@ -24,7 +24,7 @@ Properties
 
 
 #### `$main <HTMLCanvasElement|null>`
-Xx. @todo describe
+The `<CANVAS>` element which will display the 3D scene. 
 
         @$main = config.$main or null
         if @$main and ('htmlcanvaselement' != ªtype @$main) then throw Error """
@@ -63,10 +63,10 @@ Xx.
         @shaderProgram = null
 
 
-#### `buffer <WebGLBuffer|null>`
-Xx. 
+#### `buffer <array of WebGLBuffers>`
+Contains all current buffers. 
 
-        @buffer = null
+        @buffers = []
 
 
 
@@ -82,11 +82,6 @@ Initialize the instance, if `@$main` has been defined.
             @initCanvas()
             @initShaders()
             @initShaderProgram()
-            @initBuffer new Float32Array [
-                0.0,  0.8,  0.0
-               -0.9, -0.8,  0.0
-                0.7, -0.9,  0.0
-              ]
 
 
 
@@ -104,9 +99,10 @@ If that fails, show an error alert. [From MDN’s article.](https://goo.gl/DYPEV
           @gl =
             @$main.getContext 'webgl' or @$main.getContext 'experimental-webgl'
         catch
-        if ! @gl
-          alert "Unable to initialize WebGL. Your browser may not support it."
+        if ! @gl then throw Error """
+          Unable to initialize WebGL. Your browser may not support it."""
         #ª @gl.getSupportedExtensions()
+
 
 
 
@@ -128,7 +124,7 @@ Set the canvas context background to black, and set various WebGL parameters.
 
 
 #### `initShaders()`
-Create the two types of shader, and compile them with the proper source code.  
+Create the two types of shader. Compile them from source code defined below.  
 [From MDN’s second WebGL article.](https://goo.gl/q6YFNe)  
 
       initShaders: ->
@@ -173,16 +169,11 @@ Xx.
         @aVertexPosRef = @gl.getAttribLocation @shaderProgram, 'aVertexPos'
         @gl.enableVertexAttribArray @aVertexPosRef
 
-Xx. 
-
-        #@uColorRef = @gl.getUniformLocation @shaderProgram, 'uColor'
-        #@gl.uniform4fv @aVertexColorRef, new Float32Array(0.8,0.2,0.3,0.7)
-
 
 
 
 #### `initBuffer()`
-- `vertices <Float32Array>`  an array of x, y, z points (each -1 to +1)
+- `vertices <array>`  an array of x, y, z points (each -1 to +1)
 
 Xx.  
 ‘Clipspace’ coordinates always go from -1 to +1, regardless of the canvas size. 
@@ -192,9 +183,36 @@ Xx.
 
 Create the buffer, and add the vertices to it. 
 
-        @buffer = @gl.createBuffer()
-        @gl.bindBuffer @gl.ARRAY_BUFFER, @buffer
-        @gl.bufferData @gl.ARRAY_BUFFER, vertices, @gl.STATIC_DRAW
+        @buffers.push @gl.createBuffer()
+        @gl.bindBuffer @gl.ARRAY_BUFFER, @buffers[0]
+        @gl.bufferData @gl.ARRAY_BUFFER, new Float32Array(vertices), @gl.STATIC_DRAW
+
+
+
+
+#### `addBuffer()`
+- `<integer>`         index of the newly added buffer in `@buffers`
+- `vertices <array>`  an array of x, y, z points (each -1 to +1)
+
+Xx.  
+‘Clipspace’ coordinates always go from -1 to +1, regardless of canvas size.  
+[From MDN’s second WebGL article, again.](https://goo.gl/q6YFNe)  
+
+      addBuffer: (vertices) ->
+
+Get the index of the newly added buffer. 
+
+        index = @buffers.length
+
+Instantiate a `WebGLBuffer`, and add the vertices to it. 
+
+        @buffers.push @gl.createBuffer()
+        @gl.bindBuffer @gl.ARRAY_BUFFER, @buffers[index]
+        @gl.bufferData @gl.ARRAY_BUFFER, new Float32Array(vertices), @gl.STATIC_DRAW
+
+Return the index of the newly added buffer in `@buffers`. 
+
+        index
 
 
 
@@ -205,8 +223,11 @@ Xx.
 
       render: ->
         if ! @gl then throw Error "The WebGL rendering context is #{ªtype @gl}"
-        @gl.vertexAttribPointer @aVertexPosRef, 3, @gl.FLOAT, false, 0, 0
-        @gl.drawArrays @gl.TRIANGLES, 0, 3
+        index = @buffers.length
+        while index--
+          @gl.bindBuffer @gl.ARRAY_BUFFER, @buffers[index]
+          @gl.vertexAttribPointer @aVertexPosRef, 3, @gl.FLOAT, false, 0, 0
+          @gl.drawArrays @gl.TRIANGLES, 0, 3
 
 
 
@@ -219,18 +240,6 @@ Functions
 Many WebGL tutorials read these strings from `<SCRIPT>` elements. But for 
 simplicity, `initShaders()` just grabs the strings from these functions. 
 
-    #getVertexSource = -> """
-    #  attribute vec3 aVertexPos;
-
-    #  uniform mat4 uMVMatrix;
-    #  uniform mat4 uPMatrix;
-    #  
-    #  void main(void) {
-    #    gl_Position = uPMatrix * uMVMatrix * vec4(aVertexPos, 1.0);
-    #  }
-    #  """
-
-
     getVertexSource = -> """
       attribute vec2 aVertexPos;
 
@@ -241,33 +250,6 @@ simplicity, `initShaders()` just grabs the strings from these functions.
         vColor = gl_Position * vec4(4,4,4,4); // send to the fragment shader
       }
       """
-
-    #getFragmentSource = -> """
-    #  void main(void) {
-    #    gl_FragColor = vec4(0.2,1,0,0.7); // green
-    #  }
-    #  """
-
-
-    #getFragmentSource = -> """
-    #  precision mediump float;
-
-    #  varying vec2 vPosition;
-    #  uniform sampler2D webcam;
-
-    #  float wave(float x, float amount) {
-    #    return (sin(x * amount) + 1.) * .5;
-    #  }
-
-    #  void main() {
-    #    vec4 color = texture2D(webcam, vPosition);
-    #    gl_FragColor.r = wave(color.r, 10.);
-    #    gl_FragColor.g = wave(color.g, 20.);
-    #    gl_FragColor.b = wave(color.b, 40.);
-    #    gl_FragColor.a = 1.;
-    #  }
-    #  """
-
 
     getFragmentSource = -> """
       precision mediump float; // boilerplate for mobile-friendly shaders

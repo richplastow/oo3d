@@ -8,17 +8,23 @@
     addEventListener('load', function () {
       try {
         var
-          $error = document.getElementById('error'),
-          oo3d = new Oo3d({
+          $error = document.getElementById('error')
+         ,oo3d = new Oo3d({
             $main: document.getElementById('main')
           })
+         ,tri0 = oo3d.addBuffer([
+            0.0,  0.3,  0.0,
+           -0.4, -0.5,  0.0,
+            0.8, -0.3,  0.0,
+          ])
+         ,tri1 = oo3d.addBuffer([
+            1.0, -0.3,  0.0,
+            0.4,  0.5,  0.0,
+            0.2,  0.3,  0.0,
+          ])
         ;
-        oo3d.initBuffer(new Float32Array([
-          0.0,  0.3,  0.0,
-         -0.4, -0.5,  0.0,
-          0.8, -0.3,  0.0,
-        ]));
         oo3d.render();
+        console.log('indexes: ', tri0, tri1);
       } catch (error) {
         $error.innerHTML = error;
         $error.className = ''; // remove '.hidden'
