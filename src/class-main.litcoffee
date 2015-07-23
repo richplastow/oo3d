@@ -45,10 +45,16 @@ Xx.
         @vertexShader   = null
 
 
-#### `vpAttribute <integer|null>`
-Vertex position attribute. 
+#### `aVertexPosRef <integer|null>`
+Vertex position attribute reference. 
 
-        @vpAttribute = null
+        @aVertexPosRef = null
+
+
+#### `uColorRef <integer|null>`
+Color uniform reference. 
+
+        @uColorRef = null
 
 
 #### `shaderProgram <WebGLProgram|null>`
@@ -76,7 +82,11 @@ Initialize the instance, if `@$main` has been defined.
             @initCanvas()
             @initShaders()
             @initShaderProgram()
-            @initBuffer()
+            @initBuffer new Float32Array [
+                0.0,  0.8,  0.0
+               -0.9, -0.8,  0.0
+                0.7, -0.9,  0.0
+              ]
 
 
 
@@ -157,26 +167,28 @@ Check that it linked successfully.
 Xx. 
 
         @gl.useProgram @shaderProgram
-        @vpAttribute = @gl.getAttribLocation @shaderProgram, 'aVertexPosition'
-        @gl.enableVertexAttribArray @vpAttribute
+
+Xx. 
+
+        @aVertexPosRef = @gl.getAttribLocation @shaderProgram, 'aVertexPos'
+        @gl.enableVertexAttribArray @aVertexPosRef
+
+Xx. 
+
+        #@uColorRef = @gl.getUniformLocation @shaderProgram, 'uColor'
+        #@gl.uniform4fv @aVertexColorRef, new Float32Array(0.8,0.2,0.3,0.7)
 
 
 
 
 #### `initBuffer()`
+- `vertices <Float32Array>`  an array of x, y, z points (each -1 to +1)
+
 Xx.  
+‘Clipspace’ coordinates always go from -1 to +1, regardless of the canvas size. 
 [From MDN’s second WebGL article, again.](https://goo.gl/q6YFNe)  
 
-      initBuffer: ->
-
-Define an array of vertices. ‘Clipspace’ coordinates always go from -1 to +1 
-regardless of the size of the canvas. 
-
-        vertices = new Float32Array [
-          0.0,  1.0,  0.0
-         -1.0, -1.0,  0.0
-          0.0, -1.0,  0.0
-        ]
+      initBuffer: (vertices) ->
 
 Create the buffer, and add the vertices to it. 
 
@@ -193,7 +205,7 @@ Xx.
 
       render: ->
         if ! @gl then throw Error "The WebGL rendering context is #{ªtype @gl}"
-        @gl.vertexAttribPointer @vpAttribute, 3, @gl.FLOAT, false, 0, 0
+        @gl.vertexAttribPointer @aVertexPosRef, 3, @gl.FLOAT, false, 0, 0
         @gl.drawArrays @gl.TRIANGLES, 0, 3
 
 
@@ -203,36 +215,67 @@ Functions
 ---------
 
 
-#### `getFragmentSource() <string>` and `getVertexSource() <string>`
+#### `getVertexSource() <string>` and `getFragmentSource() <string>`
 Many WebGL tutorials read these strings from `<SCRIPT>` elements. But for 
 simplicity, `initShaders()` just grabs the strings from these functions. 
 
-    getFragmentSource = -> """
-      void main(void) {
-        gl_FragColor = vec4(0,1,0,0.7); // green
-      }
-      """
-
-
     #getVertexSource = -> """
-    #  attribute vec3 aVertexPosition;
+    #  attribute vec3 aVertexPos;
 
     #  uniform mat4 uMVMatrix;
     #  uniform mat4 uPMatrix;
     #  
     #  void main(void) {
-    #    gl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);
+    #    gl_Position = uPMatrix * uMVMatrix * vec4(aVertexPos, 1.0);
     #  }
     #  """
 
 
     getVertexSource = -> """
-      attribute vec2 aVertexPosition;
-      
+      attribute vec2 aVertexPos;
+
+      varying vec4 vColor;     // declare `vColor`
+
       void main() {
-        gl_Position = vec4(aVertexPosition, 0, 1);
+        gl_Position = vec4(aVertexPos, 0, 1);
+        vColor = gl_Position * vec4(4,4,4,4); // send to the fragment shader
       }
       """
 
+    #getFragmentSource = -> """
+    #  void main(void) {
+    #    gl_FragColor = vec4(0.2,1,0,0.7); // green
+    #  }
+    #  """
+
+
+    #getFragmentSource = -> """
+    #  precision mediump float;
+
+    #  varying vec2 vPosition;
+    #  uniform sampler2D webcam;
+
+    #  float wave(float x, float amount) {
+    #    return (sin(x * amount) + 1.) * .5;
+    #  }
+
+    #  void main() {
+    #    vec4 color = texture2D(webcam, vPosition);
+    #    gl_FragColor.r = wave(color.r, 10.);
+    #    gl_FragColor.g = wave(color.g, 20.);
+    #    gl_FragColor.b = wave(color.b, 40.);
+    #    gl_FragColor.a = 1.;
+    #  }
+    #  """
+
+
+    getFragmentSource = -> """
+      precision mediump float; // boilerplate for mobile-friendly shaders
+      varying vec4 vColor;     // linear-interpolated input from fragment-shader
+
+      void main(void) {
+        gl_FragColor = vColor;
+      }
+      """
 
 
