@@ -12,19 +12,71 @@
          ,oo3d = new Oo3d({
             $main: document.getElementById('main')
           })
-         ,tri0 = oo3d.addBuffer([
-            0.0,  0.3,  0.0,
-           -0.4, -0.5,  0.0,
-            0.8, -0.3,  0.0,
-          ])
-         ,tri1 = oo3d.addBuffer([
-            1.0, -0.3,  0.0,
-            0.4,  0.5,  0.0,
-            0.2,  0.3,  0.0,
-          ])
+         ,tri0 = oo3d.addBuffer({
+            positions: [
+               0.0,  0.3,  0.0,
+              -0.4, -0.5,  0.0,
+               0.8, -0.3,  0.0
+            ]
+           ,colors: [
+               1.0,  0.0,  0.0,  1.0, // red
+               0.0,  1.0,  0.0,  1.0, // green
+               0.0,  0.0,  1.0,  1.0  // blue
+            ]
+          })
+         ,tri1 = oo3d.addBuffer({
+            positions: [
+               1.0, -0.3,  0.0,
+               0.4,  0.5,  0.0,
+               0.2,  0.3,  0.0
+            ]
+           ,colors: [
+               1.0,  1.0,  0.0,  1.0, // yellow
+               0.0,  1.0,  1.0,  1.0, // cyan
+               1.0,  0.0,  1.0,  1.0  // magenta
+            ]
+          })
+         ,pyramid0 = oo3d.addBuffer({
+            positions: [
+              // Front face
+               0.0,  1.0,  0.0,
+              -1.0, -1.0,  1.0,
+               1.0, -1.0,  1.0,
+              // Right face
+               0.0,  1.0,  0.0,
+               1.0, -1.0,  1.0,
+               1.0, -1.0, -1.0,
+              // Back face
+               0.0,  1.0,  0.0,
+               1.0, -1.0, -1.0,
+              -1.0, -1.0, -1.0,
+              // Left face
+               0.0,  1.0,  0.0,
+              -1.0, -1.0, -1.0,
+              -1.0, -1.0,  1.0
+            ]
+           ,colors: [
+              // Front face
+               1.0,  0.25,  0.0,  0.5, // translucent orange
+               1.0,  0.25,  0.0,  0.5, // translucent orange
+               1.0,  0.25,  0.0,  0.5, // translucent orange
+              // Right face
+               0.25,  1.0,  0.0,  0.5, // translucent lime
+               0.25,  1.0,  0.0,  0.5, // translucent lime
+               0.25,  1.0,  0.0,  0.5, // translucent lime
+              // Back face
+               1.0,   0.5,  1.0,  0.5, // translucent pink
+               1.0,   0.5,  1.0,  0.5, // translucent pink
+               1.0,   0.5,  1.0,  0.5, // translucent pink
+              // Left face
+               0.25,  0.5,  1.0,  0.5, // translucent light cyan
+               0.25,  0.5,  1.0,  0.5, // translucent light cyan
+               0.25,  0.5,  1.0,  0.5, // translucent light cyan
+            ]
+          })
         ;
         oo3d.render();
-        console.log('indexes: ', tri0, tri1);
+        console.log('indexes: ', tri0, tri1, pyramid0);
       } catch (error) {
         $error.innerHTML = error;
         $error.className = ''; // remove '.hidden'

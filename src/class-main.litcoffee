@@ -4,6 +4,45 @@ Main
 @todo describe
 
 
+
+
+Glossary
+--------
+
+
+#### Vertex attribute
+Data such as vertex coordinates, texture coordinate data, per-vertex color 
+data, and normals. 
+
+
+#### Vertex Buffer Object (VBO)
+A memory buffer in the high speed memory of your video card, designed to hold 
+vertex attributes. VBOs offer better performance than immediate-mode rendering, 
+because the attributes are stored in video-card memory, not system memory. 
+
+
+#### Vertex Array Object (VAO)
+Contains one or more VBO. VAOs do not copy, freeze or store the contents of the 
+referenced buffers - if you change any of the data in the buffers referenced by 
+an existing VAO, those changes will be seen by all users of the VAO. 
+
+
+#### Vertex Shader
+A piece of C-like code which modifies a vertex’s attributes, such as position, 
+color, and texture-coordinates. Run once for each vertex in the scene. 
+
+
+#### Fragment Shader
+This is where lighting and bump-mapping effects are performed. Run after all 
+vertex shaders have completed, for each pixel in the canvas. 
+
+
+
+
+Main Class
+----------
+
+
 #### The main class for Oo3d
 
     class Main
@@ -33,7 +72,7 @@ The `<CANVAS>` element which will display the 3D scene.
 
 #### `gl <WebGLRenderingContext|null>`
 WebGL context, provided by the main `<CANVAS>` element’s `getContext()` method, 
-after `initWebGL()` has been run. 
+after `initGL()` has been run. 
 
         @gl = null
 
@@ -45,22 +84,22 @@ Xx.
         @vertexShader   = null
 
 
-#### `aVertexPosRef <integer|null>`
-Vertex position attribute reference. 
-
-        @aVertexPosRef = null
-
-
-#### `uColorRef <integer|null>`
-Color uniform reference. 
-
-        @uColorRef = null
-
-
 #### `shaderProgram <WebGLProgram|null>`
 Xx. 
 
         @shaderProgram = null
+
+
+#### `aVertexPosIndex <integer|null>`
+Index of the vertex-position attribute `aVertexPos`, in the vertex shader. 
+
+        @aVertexPosIndex = null
+
+
+#### `aVertexColIndex <integer|null>`
+Index of the vertex-color attribute `aVertexCol`, in the vertex shader. 
+
+        @aVertexColIndex = null
 
 
 #### `buffer <array of WebGLBuffers>`
@@ -77,7 +116,7 @@ Init
 Initialize the instance, if `@$main` has been defined. 
 
         if @$main
-          @initWebGL()
+          @initGL()
           if @gl
             @initCanvas()
             @initShaders()
@@ -90,11 +129,11 @@ Methods
 -------
 
 
-#### `initWebGL()`
+#### `initGL()`
 Try to grab the standard WebGL context. If it fails, fallback to experimental. 
 If that fails, show an error alert. [From MDN’s article.](https://goo.gl/DYPEVk)
 
-      initWebGL: ->
+      initGL: ->
         try
           @gl =
             @$main.getContext 'webgl' or @$main.getContext 'experimental-webgl'
@@ -164,51 +203,42 @@ Xx.
 
         @gl.useProgram @shaderProgram
 
-Xx. 
+Get the index of the vertex-position and vertex-color attributes in the shader 
+program we just created. The index will allow us to switch on these attributes, 
+and bind the buffers’ position and color data to `aVertexPos` and `aVertexCol`. 
 
-        @aVertexPosRef = @gl.getAttribLocation @shaderProgram, 'aVertexPos'
-        @gl.enableVertexAttribArray @aVertexPosRef
+        @aVertexPosIndex = @gl.getAttribLocation @shaderProgram, 'aVertexPos'
+        @aVertexColIndex = @gl.getAttribLocation @shaderProgram, 'aVertexCol'
 
 
+Switch on the vertex-position and vertex-color attributes. 
 
++ `index <integer>`  the index of the vertex attribute which should be enabled
+- `<undefined>`      does not return anything
 
-#### `initBuffer()`
-- `vertices <array>`  an array of x, y, z points (each -1 to +1)
-
-Xx.  
-‘Clipspace’ coordinates always go from -1 to +1, regardless of the canvas size. 
-[From MDN’s second WebGL article, again.](https://goo.gl/q6YFNe)  
-
-      initBuffer: (vertices) ->
-
-Create the buffer, and add the vertices to it. 
-
-        @buffers.push @gl.createBuffer()
-        @gl.bindBuffer @gl.ARRAY_BUFFER, @buffers[0]
-        @gl.bufferData @gl.ARRAY_BUFFER, new Float32Array(vertices), @gl.STATIC_DRAW
+        @gl.enableVertexAttribArray @aVertexPosIndex
+        @gl.enableVertexAttribArray @aVertexColIndex
 
 
 
 
 #### `addBuffer()`
-- `<integer>`         index of the newly added buffer in `@buffers`
-- `vertices <array>`  an array of x, y, z points (each -1 to +1)
+- `config <object>`
+- `config.positions <array>`  x, y, and z coordinates (each [-1,1])
+- `config.colors <array>`     (optional) r, g, b, and alpha (each [0,1])
+- `<integer>`                 index of the newly added buffer in `@buffers`
 
-Xx.  
-‘Clipspace’ coordinates always go from -1 to +1, regardless of canvas size.  
+`config.positions` must be defined using ‘clipspace’ coordinates, which always 
+go from -1 to +1, regardless of canvas size.  
+If `config.colors` is not specified, all vertices are set to 50% opacity grey.  
 [From MDN’s second WebGL article, again.](https://goo.gl/q6YFNe)  
 
-      addBuffer: (vertices) ->
+      addBuffer: (config) ->
 
-Get the index of the newly added buffer. 
+Record a new instance of the `Buffer` class in `buffers`, and get its index. 
 
         index = @buffers.length
-
-Instantiate a `WebGLBuffer`, and add the vertices to it. 
-
-        @buffers.push @gl.createBuffer()
-        @gl.bindBuffer @gl.ARRAY_BUFFER, @buffers[index]
-        @gl.bufferData @gl.ARRAY_BUFFER, new Float32Array(vertices), @gl.STATIC_DRAW
+        @buffers[index] = new Buffer config, @gl
 
 Return the index of the newly added buffer in `@buffers`. 
 
@@ -218,15 +248,68 @@ Return the index of the newly added buffer in `@buffers`.
 
 
 #### `render()`
-Xx.  
-[From MDN’s second WebGL article, again.](https://goo.gl/q6YFNe)  
+Draw each buffer to the canvas. 
 
       render: ->
         if ! @gl then throw Error "The WebGL rendering context is #{ªtype @gl}"
         index = @buffers.length
         while index--
-          @gl.bindBuffer @gl.ARRAY_BUFFER, @buffers[index]
-          @gl.vertexAttribPointer @aVertexPosRef, 3, @gl.FLOAT, false, 0, 0
+
+Set the current buffer in `@buffers` as the one to be worked on. The previous 
+binding is automatically broken. 
+
++ `target <integer>`      specify what the buffer contains: 
+  * `ARRAY_BUFFER`          contains vertex attributes - use `drawArrays()`
+  * `ELEMENT_ARRAY_BUFFER`  contains only indices - use `drawElements()`
++ `buffer <WebGLBuffer>`  a WebGLBuffer object to bind to the target
+- `<undefined>`           does not return anything
+
+          @gl.bindBuffer @gl.ARRAY_BUFFER, @buffers[index].positions
+
+
+Specify the attribute-location and data-format for the newly bound buffer. 
+
++ `index <integer>`       index of target attribute in the buffer bound to gl.ARRAY_BUFFER
++ `size <integer>`        components per attribute: 1, 2, 3 or (default) 4
++ `type <integer>`        the data type of each component in the array: 
+  * `BYTE`                  signed 8-bit two’s complement value, -128 to +127
+  * `FIXED`                 16-bit fixed-point two’s complement value
+  * `FLOAT` (default)       32-bit single-precision floating-point value
+  * `SHORT`                 signed 16-bit two’s complement value
+  * `UNSIGNED_BYTE`         unsigned 8-bit value
+  * `UNSIGNED_SHORT`        unsigned 16-bit value
++ `normalized <boolean>`  Must be `FALSE` if `type` is `FIXED` or `FLOAT`
+  * `TRUE`                  integers represent [-1,1] if signed, [0,1] if not
+  * `FALSE`                 values are converted to fixed-point when accessed
++ `stride <integer>`      default is 0, max is 255, must be multiple of `type`, 
+                          defines the byte offset between consecutive attributes
++ `pointer <integer>`     default is 0, must be multiple of `type`, defines the 
+                          first component’s first attribute’s offset
+- `<undefined>`           does not return anything
+
+          @gl.vertexAttribPointer @aVertexPosIndex, 3, @gl.FLOAT, false, 0, 0
+
+
+Repeat the two steps above, for the vertex-colors. 
+
+          @gl.bindBuffer @gl.ARRAY_BUFFER, @buffers[index].colors
+          @gl.vertexAttribPointer @aVertexColIndex, 4, @gl.FLOAT, false, 0, 0
+
+
+Render geometric primitives, using the currently bound vertex data. 
+
++ `mode <integer>`   the kind of geometric primitives to render:
+  * `POINTS`           a single dot per vertex, so 10 vertices draws 10 dots
+  * `LINES`            lines between vertex pairs, 10 vertices draws 5 lines
+  * `LINE_STRIP`       join all vertices using lines, 10 vertices draws 9 lines
+  * `LINE_LOOP`        as LINE_STRIP but connects last vertex back to the first
+  * `TRIANGLES`        a triangle for each set of three consecutive vertices
+  * `TRIANGLE_STRIP`   vertex 4 adds a new triangle after the 1st has been drawn
+  * `TRIANGLE_FAN`     like TRIANGLE_STRIP, but creates a fan shaped output
++ `first <integer>`  the first element to render in the array of vector points
++ `count <integer>`  the number of vector points to render, eg 3 for a triangle
+- `<undefined>`      does not return anything
+
           @gl.drawArrays @gl.TRIANGLES, 0, 3
 
 
@@ -241,13 +324,21 @@ Many WebGL tutorials read these strings from `<SCRIPT>` elements. But for
 simplicity, `initShaders()` just grabs the strings from these functions. 
 
     getVertexSource = -> """
-      attribute vec2 aVertexPos;
+      attribute vec3 aVertexPos;
+      attribute vec4 aVertexCol;
 
-      varying vec4 vColor;     // declare `vColor`
+      varying vec4 vColor; // declare `vColor`
 
       void main() {
-        gl_Position = vec4(aVertexPos, 0, 1);
-        vColor = gl_Position * vec4(4,4,4,4); // send to the fragment shader
+        gl_Position = vec4(aVertexPos, 1);
+
+        // Convert from clipspace to colorspace, and send to the fragment-shader
+        // Clipspace goes -1.0 to +1.0
+        // Colorspace goes from 0.0 to 1.0
+        // vColor = gl_Position * 0.5 + 0.5; //vec4(4,4,4,4);
+
+        // Just pass the vertex-color attribute unchanged to the fragment-shader
+        vColor = aVertexCol;
       }
       """
 
