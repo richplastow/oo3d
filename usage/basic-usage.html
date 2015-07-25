@@ -14,9 +14,9 @@
           })
          ,tri0 = oo3d.addBuffer({
             positions: [
-               0.0,  0.3,  0.0,
-              -0.4, -0.5,  0.0,
-               0.8, -0.3,  0.0
+               0.0,  0.3,  1.0,
+              -0.4, -0.5,  1.0,
+               0.8, -0.3,  1.0
             ]
            ,colors: [
                1.0,  0.0,  0.0,  1.0, // red
@@ -26,9 +26,9 @@
           })
          ,tri1 = oo3d.addBuffer({
             positions: [
-               1.0, -0.3,  0.0,
-               0.4,  0.5,  0.0,
-               0.2,  0.3,  0.0
+               1.0, -0.3,   0.0,
+               0.4,  0.5,  -1.0,
+               0.2,  0.3,  -1.0
             ]
            ,colors: [
                1.0,  1.0,  0.0,  1.0, // yellow
@@ -75,6 +75,16 @@
             ]
           })
         ;
+        oo3d.transform({
+          type: 'rotateY'
+         ,rad:  -.1
+        });
+        oo3d.transform({
+          type: 'translate'
+         ,x:    .2
+         ,y:    .2
+         ,z:    -.3
+        });
         oo3d.render();
         console.log('indexes: ', tri0, tri1, pyramid0);
       } catch (error) {

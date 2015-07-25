@@ -97,6 +97,13 @@ Locations of attributes `aVtxPosition` and `aVtxColor` in the shader program.
         @aVtxColorLoc    = null
 
 
+#### `matTransform <array|null>` and `matProjection <array|null>`
+The current transformation and projection, as standard JavaScript arrays. 
+
+        @matTransform  = null
+        @matProjection = null
+
+
 #### `uMatTransformLoc <integer|null>` and `uMatProjectionLoc <integer|null>`
 Index of the transformation and projection uniforms `uMatTransform` and 
 `uMatProjection` in the shader program. 
@@ -125,12 +132,13 @@ Initialize the instance, if `@$main` has been defined.
             @initShaders()
             @initProgram()
             @initProjection()
+            @initTransform()
 
 
 
 
-Methods
--------
+Init Methods
+------------
 
 
 #### `initGL()`
@@ -229,15 +237,6 @@ Get the index of the transformation-matrix and projection-matrix uniforms.
 
         @uMatTransformLoc  = @gl.getUniformLocation @program, 'uMatTransform'
         @uMatProjectionLoc = @gl.getUniformLocation @program, 'uMatProjection'
-        @gl.uniformMatrix4fv(
-          @uMatTransformLoc,
-          false,
-          new Float32Array([
-           1, 0, 0, 0
-           0, 1, 0, 0
-           0, 0, 1, -10
-           0, 0, 0, 1])
-        )
 
 
 
@@ -260,39 +259,72 @@ Xx.
 
       initProjection: ->
 
-        fieldOfView = 30.0
-        aspectRatio = @$main.width / @$main.height
-        nearPlane = 0.1
-        farPlane = 10000.0
-        top = nearPlane * Math.tan(fieldOfView * Math.PI / 360.0)
-        bottom = -top
-        right = top * aspectRatio
-        left = -right
+        #fieldOfView = 20.0
+        #aspectRatio = @$main.width / @$main.height
+        #nearPlane = 0.1
+        #farPlane = 10000.0
+        #top = nearPlane * Math.tan(fieldOfView * Math.PI / 360.0)
+        #bottom = -top
+        #right = top * aspectRatio
+        #left = -right
 
 Create the initial perspective-matrix manually. The OpenGL function that’s 
 normally used for this, `glFrustum()`, is not included in the WebGL API. 
 
-        a = (right + left) / (right - left)
-        b = (top + bottom) / (top - bottom)
-        c = (farPlane + nearPlane) / (farPlane - nearPlane)
-        d = (2 * farPlane * nearPlane) / (farPlane - nearPlane)
-        x = (2 * nearPlane) / (right - left)
-        y = (2 * nearPlane) / (top - bottom)
+        #a = (right + left) / (right - left)
+        #b = (top + bottom) / (top - bottom)
+        #c = (farPlane + nearPlane) / (farPlane - nearPlane)
+        #d = (2 * farPlane * nearPlane) / (farPlane - nearPlane)
+        #x = (2 * nearPlane) / (right - left)
+        #y = (2 * nearPlane) / (top - bottom)
 
 Set the perspective-matrix. 
 
+        #@matProjection = [
+        #  x,  0,  a,  0
+        #  0,  y,  b,  0
+        #  0,  0,  c,  d
+        #  0,  0, -1,  0
+        #]
+
+        @matProjection = mat4.perspective(
+          1                            # fovy
+          @$main.width / @$main.height # aspect
+          0.1                          # near
+          1000.0                       # far
+        )
+        @matProjection = mat4.rotateY   @matProjection, 0.9
+        @matProjection = mat4.translate @matProjection, 2, -2, -7
         @gl.uniformMatrix4fv(
           @uMatProjectionLoc,
           false,
-          new Float32Array([
-            x,  0,  a,  0
-            0,  y,  b,  0
-            0,  0,  c,  d
-            0,  0, -1,  0
-          ])
+          new Float32Array(@matProjection)
         )
 
 
+
+#### `initTransform()`
+Xx.  
+
+      initTransform: ->
+
+        @matTransform = [
+          1,  0,  0,  0
+          0,  1,  0,  0
+          0,  0,  1,  0
+          0,  0,  0,  1
+        ]
+        @gl.uniformMatrix4fv(
+          @uMatTransformLoc,
+          false,
+          new Float32Array(@matTransform)
+        )
+
+
+
+
+API Methods
+-----------
 
 
 #### `addBuffer()`
@@ -316,6 +348,40 @@ Record a new instance of the `Buffer` class in `buffers`, and get its index.
 Return the index of the newly added buffer in `@buffers`. 
 
         index
+
+
+
+
+#### `transform()`
+- `config <object>`
+- `config.target <integer>`  (optional) a buffer-index, else transform the scene
+- `config.type <string>`     'rotateY'
+- `config.rad <number>`      (optional) if 'rotate', an angle, in radians
+- `config.x <number>`        (optional) if 'translate', a distance
+- `config.y <number>`        (optional) if 'translate', a distance
+- `config.z <number>`        (optional) if 'translate', a distance
+
+@todo describe  
+
+      transform: (config) ->
+
+        ª 'BEFORE:', JSON.stringify @matTransform
+        switch config.type
+
+          when 'rotateY'
+            @matTransform = mat4.rotateY   @matTransform, config.rad
+          when 'translate'
+            @matTransform = mat4.translate @matTransform, config.x or 0, config.y or 0, config.z or 0
+
+        ª 'AFTER:', JSON.stringify @matTransform
+
+Apply the transform to the `uMatTransform` uniform in the vertex-shader. 
+
+        @gl.uniformMatrix4fv(
+          @uMatTransformLoc,
+          false,
+          new Float32Array(@matTransform)
+        )
 
 
 
