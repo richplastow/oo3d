@@ -77,29 +77,32 @@ after `initGL()` has been run.
         @gl = null
 
 
-#### `fragmentShader <WebGLShader|null>` and `vertexShader <WebGLShader|null>`
+#### `vertexShader <WebGLShader|null>` and `fragmentShader <WebGLShader|null>`
 Xx. 
 
-        @fragmentShader = null
         @vertexShader   = null
+        @fragmentShader = null
 
 
-#### `shaderProgram <WebGLProgram|null>`
+#### `program <WebGLProgram|null>`
 Xx. 
 
-        @shaderProgram = null
+        @program = null
 
 
-#### `aVertexPosIndex <integer|null>`
-Index of the vertex-position attribute `aVertexPos`, in the vertex shader. 
+#### `aVtxPositionLoc <integer|null>` and `aVtxColorLoc <integer|null>`
+Locations of attributes `aVtxPosition` and `aVtxColor` in the shader program. 
 
-        @aVertexPosIndex = null
+        @aVtxPositionLoc = null
+        @aVtxColorLoc    = null
 
 
-#### `aVertexColIndex <integer|null>`
-Index of the vertex-color attribute `aVertexCol`, in the vertex shader. 
+#### `uMatTransformLoc <integer|null>` and `uMatProjectionLoc <integer|null>`
+Index of the transformation and projection uniforms `uMatTransform` and 
+`uMatProjection` in the shader program. 
 
-        @aVertexColIndex = null
+        @uMatTransformLoc  = null
+        @uMatProjectionLoc = null
 
 
 #### `buffer <array of WebGLBuffers>`
@@ -120,7 +123,8 @@ Initialize the instance, if `@$main` has been defined.
           if @gl
             @initCanvas()
             @initShaders()
-            @initShaderProgram()
+            @initProgram()
+            @initProjection()
 
 
 
@@ -152,13 +156,14 @@ Set the canvas context background to black, and set various WebGL parameters.
 2. Enable depth testing  
 3. Near things obscure far things  
 4. Clear the color as well as the depth buffer
+5. Set the viewport to the canvas width and height
 
       initCanvas: ->
         @gl.clearColor 0.3984375, 0.40625, 0.703125, 1.0
         @gl.enable @gl.DEPTH_TEST
         @gl.depthFunc @gl.LEQUAL
         @gl.clear @gl.COLOR_BUFFER_BIT | @gl.DEPTH_BUFFER_BIT
-
+        @gl.viewport 0, 0, @$main.width, @$main.height #@todo is this necessary?
 
 
 
@@ -167,48 +172,48 @@ Create the two types of shader. Compile them from source code defined below.
 [From MDN’s second WebGL article.](https://goo.gl/q6YFNe)  
 
       initShaders: ->
-        @fragmentShader = @gl.createShader @gl.FRAGMENT_SHADER
         @vertexShader   = @gl.createShader @gl.VERTEX_SHADER
-        @gl.shaderSource @fragmentShader, getFragmentSource()
+        @fragmentShader = @gl.createShader @gl.FRAGMENT_SHADER
         @gl.shaderSource @vertexShader  , getVertexSource()
-        @gl.compileShader @fragmentShader
+        @gl.shaderSource @fragmentShader, getFragmentSource()
         @gl.compileShader @vertexShader
+        @gl.compileShader @fragmentShader
 
 Check that they compiled successfully. 
 
-        if ! @gl.getShaderParameter @fragmentShader, @gl.COMPILE_STATUS
-          throw Error "@fragmentShader did not compile successfully"
         if ! @gl.getShaderParameter @vertexShader,   @gl.COMPILE_STATUS
-          throw Error "@vertexShader did not compile successfully"
+          @cleanUp(); throw Error "@vertexShader did not compile successfully"
+        if ! @gl.getShaderParameter @fragmentShader, @gl.COMPILE_STATUS
+          @cleanUp(); throw Error "@fragmentShader did not compile successfully"
 
 
 
 
-#### `initShaderProgram()`
+#### `initProgram()`
 Xx.  
 [From MDN’s second WebGL article, again.](https://goo.gl/q6YFNe)  
 
-      initShaderProgram: ->
-        @shaderProgram = @gl.createProgram()
-        @gl.attachShader @shaderProgram, @fragmentShader
-        @gl.attachShader @shaderProgram, @vertexShader
-        @gl.linkProgram @shaderProgram
+      initProgram: ->
+        @program = @gl.createProgram()
+        @gl.attachShader @program, @vertexShader
+        @gl.attachShader @program, @fragmentShader
+        @gl.linkProgram @program
 
 Check that it linked successfully. 
 
-        if ! @gl.getProgramParameter @shaderProgram, @gl.LINK_STATUS
-          throw Error "@shaderProgram did not link successfully"
+        if ! @gl.getProgramParameter @program, @gl.LINK_STATUS
+          @cleanUp(); throw Error "@program did not link successfully"
 
 Xx. 
 
-        @gl.useProgram @shaderProgram
+        @gl.useProgram @program
 
 Get the index of the vertex-position and vertex-color attributes in the shader 
-program we just created. The index will allow us to switch on these attributes, 
-and bind the buffers’ position and color data to `aVertexPos` and `aVertexCol`. 
+program we just created. The index allows us to switch on these attributes, and 
+bind the buffers’ position and color data to `aVtxPosition` and `aVtxColor`. 
 
-        @aVertexPosIndex = @gl.getAttribLocation @shaderProgram, 'aVertexPos'
-        @aVertexColIndex = @gl.getAttribLocation @shaderProgram, 'aVertexCol'
+        @aVtxPositionLoc = @gl.getAttribLocation @program, 'aVtxPosition'
+        @aVtxColorLoc = @gl.getAttribLocation @program, 'aVtxColor'
 
 
 Switch on the vertex-position and vertex-color attributes. 
@@ -216,8 +221,76 @@ Switch on the vertex-position and vertex-color attributes.
 + `index <integer>`  the index of the vertex attribute which should be enabled
 - `<undefined>`      does not return anything
 
-        @gl.enableVertexAttribArray @aVertexPosIndex
-        @gl.enableVertexAttribArray @aVertexColIndex
+        @gl.enableVertexAttribArray @aVtxPositionLoc
+        @gl.enableVertexAttribArray @aVtxColorLoc
+
+
+Get the index of the transformation-matrix and projection-matrix uniforms. 
+
+        @uMatTransformLoc  = @gl.getUniformLocation @program, 'uMatTransform'
+        @uMatProjectionLoc = @gl.getUniformLocation @program, 'uMatProjection'
+        @gl.uniformMatrix4fv(
+          @uMatTransformLoc,
+          false,
+          new Float32Array([
+           1, 0, 0, 0
+           0, 1, 0, 0
+           0, 0, 1, -10
+           0, 0, 0, 1])
+        )
+
+
+
+
+#### `cleanUp()`
+Xx.  
+
+      cleanUp: ->
+        if @vertexShader   then @gl.deleteShader @vertexShader
+        if @fragmentShader then @gl.deleteShader @fragmentShader
+        if @program        then @gl.deleteProgram @program
+
+
+
+
+#### `initProjection()`
+Xx.  
+[From a rozengain.com tutorial.](http://goo.gl/d0dHuj)  
+[Wikipedia Viewing-Frustrum](https://goo.gl/DCslVo)  
+
+      initProjection: ->
+
+        fieldOfView = 30.0
+        aspectRatio = @$main.width / @$main.height
+        nearPlane = 0.1
+        farPlane = 10000.0
+        top = nearPlane * Math.tan(fieldOfView * Math.PI / 360.0)
+        bottom = -top
+        right = top * aspectRatio
+        left = -right
+
+Create the initial perspective-matrix manually. The OpenGL function that’s 
+normally used for this, `glFrustum()`, is not included in the WebGL API. 
+
+        a = (right + left) / (right - left)
+        b = (top + bottom) / (top - bottom)
+        c = (farPlane + nearPlane) / (farPlane - nearPlane)
+        d = (2 * farPlane * nearPlane) / (farPlane - nearPlane)
+        x = (2 * nearPlane) / (right - left)
+        y = (2 * nearPlane) / (top - bottom)
+
+Set the perspective-matrix. 
+
+        @gl.uniformMatrix4fv(
+          @uMatProjectionLoc,
+          false,
+          new Float32Array([
+            x,  0,  a,  0
+            0,  y,  b,  0
+            0,  0,  c,  d
+            0,  0, -1,  0
+          ])
+        )
 
 
 
@@ -287,13 +360,13 @@ Specify the attribute-location and data-format for the newly bound buffer.
                           first component’s first attribute’s offset
 - `<undefined>`           does not return anything
 
-          @gl.vertexAttribPointer @aVertexPosIndex, 3, @gl.FLOAT, false, 0, 0
+          @gl.vertexAttribPointer @aVtxPositionLoc, 3, @gl.FLOAT, false, 0, 0
 
 
 Repeat the two steps above, for the vertex-colors. 
 
           @gl.bindBuffer @gl.ARRAY_BUFFER, @buffers[index].colors
-          @gl.vertexAttribPointer @aVertexColIndex, 4, @gl.FLOAT, false, 0, 0
+          @gl.vertexAttribPointer @aVtxColorLoc, 4, @gl.FLOAT, false, 0, 0
 
 
 Render geometric primitives, using the currently bound vertex data. 
@@ -312,6 +385,10 @@ Render geometric primitives, using the currently bound vertex data.
 
           @gl.drawArrays @gl.TRIANGLES, 0, 3
 
+@todo describe
+
+          @gl.flush()
+
 
 
 
@@ -324,13 +401,18 @@ Many WebGL tutorials read these strings from `<SCRIPT>` elements. But for
 simplicity, `initShaders()` just grabs the strings from these functions. 
 
     getVertexSource = -> """
-      attribute vec3 aVertexPos;
-      attribute vec4 aVertexCol;
+      attribute vec3 aVtxPosition;
+      attribute vec4 aVtxColor;
+
+      uniform mat4 uMatTransform;
+      uniform mat4 uMatProjection;
 
       varying vec4 vColor; // declare `vColor`
 
       void main() {
-        gl_Position = vec4(aVertexPos, 1);
+
+        // Multiply the position by the transformation and projection matrices
+        gl_Position = vec4(aVtxPosition, 1) * uMatTransform * uMatProjection;
 
         // Convert from clipspace to colorspace, and send to the fragment-shader
         // Clipspace goes -1.0 to +1.0
@@ -338,7 +420,7 @@ simplicity, `initShaders()` just grabs the strings from these functions.
         // vColor = gl_Position * 0.5 + 0.5; //vec4(4,4,4,4);
 
         // Just pass the vertex-color attribute unchanged to the fragment-shader
-        vColor = aVertexCol;
+        vColor = aVtxColor;
       }
       """
 
