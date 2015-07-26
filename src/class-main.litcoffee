@@ -91,34 +91,14 @@ Xx.
 
 
 #### `aVtxPositionLoc and aVtxColorLoc <WebGLUniformLocation|null>`
-Locations of attributes `aVtxPosition` and `aVtxColor` in the shader program. 
+Locations of the `aVtxPosition` and `aVtxColor` attributes in the Vertex Shader.
 
         @aVtxPositionLoc = null
         @aVtxColorLoc    = null
 
 
-#### `matCameraProjection and matCameraTransform <array|null>`
-The current camera-projection, and the transformation applied to the camera. 
-
-        @matCameraProjection = null
-        @matCameraTransform  = null
-
-
-#### `matCamera <array|null>`
-The camera-projection multiplied by the camera-transformation. 
-
-        @matCamera     = null
-
-
-#### `uMatTransformLoc and uMatCameraLoc <WebGLUniformLocation|null>`
-Locations of the 'uMatTransform' and 'uMatCamera' vertex shader uniforms. 
-
-        @uMatTransformLoc = null
-        @uMatCameraLoc    = null
-
-
-#### `buffer <array of WebGLBuffers>`
-Contains all current buffers. 
+#### `buffer <array of Buffers>`
+Contains all current Buffer instances. 
 
         @buffers = []
 
@@ -128,6 +108,7 @@ Contains all current buffers.
 Init
 ----
 
+
 Initialize the instance, if `@$main` has been defined. 
 
         if @$main
@@ -136,8 +117,9 @@ Initialize the instance, if `@$main` has been defined.
             @initCanvas()
             @initShaders()
             @initProgram()
-            @initCamera()
-
+            @camera = new Camera @, # scene
+              fovy: 0.785398163 # 45º
+              aspect: @$main.width / @$main.height
 
 
 
@@ -237,10 +219,9 @@ Switch on the vertex-position and vertex-color attributes.
         @gl.enableVertexAttribArray @aVtxColorLoc
 
 
-Get the index of the buffer-transform-matrix camera-matrix uniforms. 
+Get the location of the 'uMatTransform' vertex shader uniform. 
 
         @uMatTransformLoc = @gl.getUniformLocation @program, 'uMatTransform' 
-        @uMatCameraLoc    = @gl.getUniformLocation @program, 'uMatCamera'
 
 
 
@@ -253,62 +234,6 @@ Xx.
         if @fragmentShader then @gl.deleteShader @fragmentShader
         if @program        then @gl.deleteProgram @program
 
-
-
-
-#### `initCamera()`
-Xx.  
-[Wikipedia Viewing-Frustrum](https://goo.gl/DCslVo)  
-
-      initCamera: ->
-
-Create the initial perspective-matrix manually. The OpenGL function that’s 
-normally used for this, `glFrustum()`, is not included in the WebGL API. 
-
-        @matCameraProjection = mat4.perspective(
-          0.785398163                  # fovy 45º
-          @$main.width / @$main.height # aspect
-          1                            # near
-          100                          # far
-        )
-        #@matCameraProjection = mat4.rotateY   @matCameraProjection, 0.9
-        #@matCameraProjection = mat4.translate @matCameraProjection, 2, -2, -7
-
-
-        #@matCameraProjection = mat4.ortho(
-        #  0             # left
-        #  400  # right
-        #  200 # bottom
-        #  0             # top
-        #  1             # near
-        #  100           # far
-        #)
-
-        #@matCameraProjection = mat4.makeProjection(
-        #  @$main.width  # width
-        #  @$main.height # height
-        #  @$main.width  # depth
-        #)
-
-
-
-Create the initial camera-transformation matrix. 
-
-        @matCameraTransform = [
-          1,  0,  0,  0
-          0,  1,  0,  0
-          0,  0,  1,  0
-          0,  0, -5,  1
-        ]
-
-Calculate the initial camera-matrix, and set the 'uMatCamera' uniform. 
-
-        @matCamera = mat4.multiply @matCameraProjection, @matCameraTransform
-        @gl.uniformMatrix4fv(
-          @uMatCameraLoc,
-          false,
-          new Float32Array @matCamera
-        )
 
 
 
@@ -357,7 +282,7 @@ Return the index of the newly added buffer in `@buffers`.
 Get the target’s current transformation-matrix. 
 
         if ªU == typeof config.target
-          matCurrent = @matCameraTransform
+          matCurrent = @camera.matCameraTransform
         else
           matCurrent = @buffers[config.target].matTransform
 
@@ -387,15 +312,14 @@ Record the new transformation-matrix. For a camera transform, update the
 `uMatCamera` uniform in the vertex-shader. 
 
         if ªU == typeof config.target
-          @matCameraTransform = matNew
-          @matCamera = mat4.multiply @matCameraProjection, matNew
-          @gl.uniformMatrix4fv(
-            @uMatCameraLoc,
-            false,
-            new Float32Array @matCamera
-          )
+          @camera.matCameraTransform = matNew
+          @camera.updateCamera()
         else
           @buffers[config.target].matTransform = matNew
+
+Record the new value, and return it (eg for GUI display). 
+
+        #@todo
 
 
 

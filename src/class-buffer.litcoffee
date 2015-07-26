@@ -71,7 +71,7 @@ Xx.
 
 
 #### `matTransform <array>`
-Xx. 
+The transformation-matrix currently applied to this buffer. Starts at identity. 
 
         @matTransform = [
           1,  0,  0,  0
@@ -79,6 +79,22 @@ Xx.
           0,  0,  1,  0
           0,  0,  0,  1
         ]
+
+
+#### `rotateX, rotateY, rotateZ <number>`
+Keeps track of rotation currently applied to this buffer. All start at 0. 
+
+        @rotateX = 0
+        @rotateY = 0
+        @rotateZ = 0
+
+
+#### `translateX, translateY, translateZ <number>`
+Keeps track of translation currently applied to this buffer. All start at 0. 
+
+        @translateX = 0
+        @translateY = 0
+        @translateZ = 0
 
 
 
