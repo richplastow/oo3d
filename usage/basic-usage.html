@@ -8,7 +8,31 @@
     addEventListener('load', function () {
       try {
         var
-          $error = document.getElementById('error')
+          $ = document.querySelector.bind(document)
+         ,$error = $('#error')
+
+         ,$target = $('#target')
+
+         ,$rotateXMinus = $('#rotateXMinus')
+         ,$rotateYMinus = $('#rotateYMinus')
+         ,$rotateZMinus = $('#rotateZMinus')
+         ,$rotateXLabel = $('#rotateXLabel')
+         ,$rotateYLabel = $('#rotateYLabel')
+         ,$rotateZLabel = $('#rotateZLabel')
+         ,$rotateXPlus  = $('#rotateXPlus')
+         ,$rotateYPlus  = $('#rotateYPlus')
+         ,$rotateZPlus  = $('#rotateZPlus')
+
+         ,$translateXMinus = $('#translateXMinus')
+         ,$translateYMinus = $('#translateYMinus')
+         ,$translateZMinus = $('#translateZMinus')
+         ,$translateXLabel = $('#translateXLabel')
+         ,$translateYLabel = $('#translateYLabel')
+         ,$translateZLabel = $('#translateZLabel')
+         ,$translateXPlus  = $('#translateXPlus')
+         ,$translateYPlus  = $('#translateYPlus')
+         ,$translateZPlus  = $('#translateZPlus')
+
          ,oo3d = new Oo3d({
             $main: document.getElementById('main')
           })
@@ -23,6 +47,16 @@
                0.0,  1.0,  0.0,  1.0, // green
                0.0,  0.0,  1.0,  1.0  // blue
             ]
+           // ,transforms: [
+           //    {
+           //      type: 'translate'
+           //     ,x:0.2, y:-0.3, z:-0.3
+           //    }
+           //   ,{
+           //      type: 'rotate'
+           //     ,rad:0.2
+           //    }
+           //  ]
           })
          ,tri1 = oo3d.addBuffer({
             positions: [
@@ -71,22 +105,165 @@
               // Left face
                0.25,  0.5,  1.0,  0.5, // translucent light cyan
                0.25,  0.5,  1.0,  0.5, // translucent light cyan
-               0.25,  0.5,  1.0,  0.5, // translucent light cyan
+               0.25,  0.5,  1.0,  0.5  // translucent light cyan
             ]
           })
         ;
-        oo3d.transform({
-          type: 'rotateY'
-         ,rad:  -.1
-        });
-        oo3d.transform({
-          type: 'translate'
-         ,x:    .2
-         ,y:    .2
-         ,z:    -.3
-        });
+        // oo3d.transform({ // no target, so transform the camera
+        //   type: 'translate'
+        //  ,x:    0
+        //  ,y:    0
+        //  ,z:    10
+        // });
+        // oo3d.transform({
+        //   target: pyramid0
+        //  ,type: 'rotateY'
+        //  ,rad:  0.1
+        // });
+        // oo3d.transform({
+        //   target: pyramid0
+        //  ,type: 'translate'
+        //  ,x:    20
+        //  ,y:    100
+        //  ,z:    30
+        // });
         oo3d.render();
-        console.log('indexes: ', tri0, tri1, pyramid0);
+        // console.log('indexes: ', tri0, tri1, pyramid0);
+
+        $rotateXLabel.curr = 0;
+        $rotateXMinus.onclick = function () {
+          $rotateXLabel.curr -= 0.098174770424681;
+          oo3d.transform({
+            target: $target.value ? +$target.value : undefined
+           ,type: 'rotateX'
+           ,rad:  -0.098174770424681
+          });
+          $rotateXLabel.innerHTML = 'RotateX: ' + $rotateXLabel.curr;
+          oo3d.render();
+        }
+        $rotateXPlus.onclick = function () {
+          $rotateXLabel.curr += 0.098174770424681;
+          oo3d.transform({
+            target: $target.value ? +$target.value : undefined
+           ,type: 'rotateX'
+           ,rad:  0.098174770424681
+          });
+          $rotateXLabel.innerHTML = 'RotateX: ' + $rotateXLabel.curr;
+          oo3d.render();
+        }
+
+        $rotateYLabel.curr = 0;
+        $rotateYMinus.onclick = function () {
+          $rotateYLabel.curr -= 0.098174770424681;
+          oo3d.transform({
+            target: $target.value ? +$target.value : undefined
+           ,type: 'rotateY'
+           ,rad:  -0.098174770424681
+          });
+          $rotateYLabel.innerHTML = 'RotateY: ' + $rotateYLabel.curr;
+          oo3d.render();
+        }
+        $rotateYPlus.onclick = function () {
+          $rotateYLabel.curr += 0.098174770424681;
+          oo3d.transform({
+            target: $target.value ? +$target.value : undefined
+           ,type: 'rotateY'
+           ,rad:  0.098174770424681
+          });
+          $rotateYLabel.innerHTML = 'RotateY: ' + $rotateYLabel.curr;
+          oo3d.render();
+        }
+
+        $rotateZLabel.curr = 0;
+        $rotateZMinus.onclick = function () {
+          $rotateZLabel.curr -= 0.098174770424681;
+          oo3d.transform({
+            target: $target.value ? +$target.value : undefined
+           ,type: 'rotateZ'
+           ,rad:  -0.098174770424681
+          });
+          $rotateZLabel.innerHTML = 'RotateZ: ' + $rotateZLabel.curr;
+          oo3d.render();
+        }
+        $rotateZPlus.onclick = function () {
+          $rotateZLabel.curr += 0.098174770424681;
+          oo3d.transform({
+            target: $target.value ? +$target.value : undefined
+           ,type: 'rotateZ'
+           ,rad:  0.098174770424681
+          });
+          $rotateZLabel.innerHTML = 'RotateZ: ' + $rotateZLabel.curr;
+          oo3d.render();
+        }
+
+
+        // TRANSLATE
+        $translateXLabel.curr = 0;
+        $translateXMinus.onclick = function () {
+          $translateXLabel.curr -= 1
+          oo3d.transform({
+            target: $target.value ? +$target.value : undefined
+           ,type: 'translate'
+           ,x:  -1
+          });
+          $translateXLabel.innerHTML = 'TranslateX: ' + $translateXLabel.curr;
+          oo3d.render();
+        }
+        $translateXPlus.onclick = function () {
+          $translateXLabel.curr += 1
+          oo3d.transform({
+            target: $target.value ? +$target.value : undefined
+           ,type: 'translate'
+           ,x:  1
+          });
+          $translateXLabel.innerHTML = 'TranslateX: ' + $translateXLabel.curr;
+          oo3d.render();
+        }
+
+        $translateYLabel.curr = 0;
+        $translateYMinus.onclick = function () {
+          $translateYLabel.curr -= 1
+          oo3d.transform({
+            target: $target.value ? +$target.value : undefined
+           ,type: 'translate'
+           ,y:  -1
+          });
+          $translateYLabel.innerHTML = 'TranslateY: ' + $translateYLabel.curr;
+          oo3d.render();
+        }
+        $translateYPlus.onclick = function () {
+          $translateYLabel.curr += 1
+          oo3d.transform({
+            target: $target.value ? +$target.value : undefined
+           ,type: 'translate'
+           ,y:  1
+          });
+          $translateYLabel.innerHTML = 'TranslateY: ' + $translateYLabel.curr;
+          oo3d.render();
+        }
+
+        $translateZLabel.curr = -5;
+        $translateZMinus.onclick = function () {
+          $translateZLabel.curr -= 1
+          oo3d.transform({
+            target: $target.value ? +$target.value : undefined
+           ,type: 'translate'
+           ,z:  -1
+          });
+          $translateZLabel.innerHTML = 'TranslateZ: ' + $translateZLabel.curr;
+          oo3d.render();
+        }
+        $translateZPlus.onclick = function () {
+          $translateZLabel.curr += 1
+          oo3d.transform({
+            target: $target.value ? +$target.value : undefined
+           ,type: 'translate'
+           ,z:  1
+          });
+          $translateZLabel.innerHTML = 'TranslateZ: ' + $translateZLabel.curr;
+          oo3d.render();
+        }
+
       } catch (error) {
         $error.innerHTML = error;
         $error.className = ''; // remove '.hidden'
@@ -94,12 +271,20 @@
     });
   </script>
   <style>
+    html, body {
+      margin: 0;
+    }
     #main {
       position: absolute;
       top:     0;
       left:    0;
-      width:  100%;
-      height: 100%;
+      width:   100%;
+      height:  100%;
+      z-index: 5;
+    }
+    select, label, input {
+      position: relative;
+      z-index: 10;
     }
     #error {
       position: absolute;
@@ -124,6 +309,38 @@
   <h1>Oo3d Basic Usage</h1>
   <a href="../index.html">Home</a>
   <canvas id="main"></canvas>
+  <br>
+  <select id="target">
+    <option value="">Camera</option>
+    <option value="0">RGB Triangle</option>
+    <option value="1">CMY Triangle</option>
+    <option value="2">Pyramid</option>
+  </select>
+  <br>
+  <input type="button" id="rotateXMinus" value="Rotate X Minus">
+  <input type="button" id="rotateXPlus"  value="Rotate X Plus">
+  <label id="rotateXLabel">RotateX: 0</label>
+  <br>
+  <input type="button" id="rotateYMinus" value="Rotate Y Minus">
+  <input type="button" id="rotateYPlus"  value="Rotate Y Plus">
+  <label id="rotateYLabel">RotateY: 0</label>
+  <br>
+  <input type="button" id="rotateZMinus" value="Rotate Z Minus">
+  <input type="button" id="rotateZPlus"  value="Rotate Z Plus">
+  <label id="rotateZLabel">RotateZ: 0</label>
+  <br>
+  <input type="button" id="translateXMinus" value="Translate X Minus">
+  <input type="button" id="translateXPlus"  value="Translate X Plus">
+  <label id="translateXLabel">TranslateX: 0</label>
+  <br>
+  <input type="button" id="translateYMinus" value="Translate Y Minus">
+  <input type="button" id="translateYPlus"  value="Translate Y Plus">
+  <label id="translateYLabel">TranslateY: 0</label>
+  <br>
+  <input type="button" id="translateZMinus" value="Translate Z Minus">
+  <input type="button" id="translateZPlus"  value="Translate Z Plus">
+  <label id="translateZLabel">TranslateZ: -5</label>
+  <br>
   <div id="error" class="hidden"></div>
 </body>
 </html>

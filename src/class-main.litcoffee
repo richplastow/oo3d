@@ -77,7 +77,7 @@ after `initGL()` has been run.
         @gl = null
 
 
-#### `vertexShader <WebGLShader|null>` and `fragmentShader <WebGLShader|null>`
+#### `vertexShader and fragmentShader <WebGLShader|null>`
 Xx. 
 
         @vertexShader   = null
@@ -90,26 +90,31 @@ Xx.
         @program = null
 
 
-#### `aVtxPositionLoc <integer|null>` and `aVtxColorLoc <integer|null>`
+#### `aVtxPositionLoc and aVtxColorLoc <WebGLUniformLocation|null>`
 Locations of attributes `aVtxPosition` and `aVtxColor` in the shader program. 
 
         @aVtxPositionLoc = null
         @aVtxColorLoc    = null
 
 
-#### `matTransform <array|null>` and `matProjection <array|null>`
-The current transformation and projection, as standard JavaScript arrays. 
+#### `matCameraProjection and matCameraTransform <array|null>`
+The current camera-projection, and the transformation applied to the camera. 
 
-        @matTransform  = null
-        @matProjection = null
+        @matCameraProjection = null
+        @matCameraTransform  = null
 
 
-#### `uMatTransformLoc <integer|null>` and `uMatProjectionLoc <integer|null>`
-Index of the transformation and projection uniforms `uMatTransform` and 
-`uMatProjection` in the shader program. 
+#### `matCamera <array|null>`
+The camera-projection multiplied by the camera-transformation. 
 
-        @uMatTransformLoc  = null
-        @uMatProjectionLoc = null
+        @matCamera     = null
+
+
+#### `uMatTransformLoc and uMatCameraLoc <WebGLUniformLocation|null>`
+Locations of the 'uMatTransform' and 'uMatCamera' vertex shader uniforms. 
+
+        @uMatTransformLoc = null
+        @uMatCameraLoc    = null
 
 
 #### `buffer <array of WebGLBuffers>`
@@ -131,8 +136,7 @@ Initialize the instance, if `@$main` has been defined.
             @initCanvas()
             @initShaders()
             @initProgram()
-            @initProjection()
-            @initTransform()
+            @initCamera()
 
 
 
@@ -233,10 +237,10 @@ Switch on the vertex-position and vertex-color attributes.
         @gl.enableVertexAttribArray @aVtxColorLoc
 
 
-Get the index of the transformation-matrix and projection-matrix uniforms. 
+Get the index of the buffer-transform-matrix camera-matrix uniforms. 
 
-        @uMatTransformLoc  = @gl.getUniformLocation @program, 'uMatTransform'
-        @uMatProjectionLoc = @gl.getUniformLocation @program, 'uMatProjection'
+        @uMatTransformLoc = @gl.getUniformLocation @program, 'uMatTransform' 
+        @uMatCameraLoc    = @gl.getUniformLocation @program, 'uMatCamera'
 
 
 
@@ -252,74 +256,59 @@ Xx.
 
 
 
-#### `initProjection()`
+#### `initCamera()`
 Xx.  
-[From a rozengain.com tutorial.](http://goo.gl/d0dHuj)  
 [Wikipedia Viewing-Frustrum](https://goo.gl/DCslVo)  
 
-      initProjection: ->
-
-        #fieldOfView = 20.0
-        #aspectRatio = @$main.width / @$main.height
-        #nearPlane = 0.1
-        #farPlane = 10000.0
-        #top = nearPlane * Math.tan(fieldOfView * Math.PI / 360.0)
-        #bottom = -top
-        #right = top * aspectRatio
-        #left = -right
+      initCamera: ->
 
 Create the initial perspective-matrix manually. The OpenGL function that’s 
 normally used for this, `glFrustum()`, is not included in the WebGL API. 
 
-        #a = (right + left) / (right - left)
-        #b = (top + bottom) / (top - bottom)
-        #c = (farPlane + nearPlane) / (farPlane - nearPlane)
-        #d = (2 * farPlane * nearPlane) / (farPlane - nearPlane)
-        #x = (2 * nearPlane) / (right - left)
-        #y = (2 * nearPlane) / (top - bottom)
-
-Set the perspective-matrix. 
-
-        #@matProjection = [
-        #  x,  0,  a,  0
-        #  0,  y,  b,  0
-        #  0,  0,  c,  d
-        #  0,  0, -1,  0
-        #]
-
-        @matProjection = mat4.perspective(
-          1                            # fovy
+        @matCameraProjection = mat4.perspective(
+          0.785398163                  # fovy 45º
           @$main.width / @$main.height # aspect
-          0.1                          # near
-          1000.0                       # far
+          1                            # near
+          100                          # far
         )
-        @matProjection = mat4.rotateY   @matProjection, 0.9
-        @matProjection = mat4.translate @matProjection, 2, -2, -7
-        @gl.uniformMatrix4fv(
-          @uMatProjectionLoc,
-          false,
-          new Float32Array(@matProjection)
-        )
+        #@matCameraProjection = mat4.rotateY   @matCameraProjection, 0.9
+        #@matCameraProjection = mat4.translate @matCameraProjection, 2, -2, -7
+
+
+        #@matCameraProjection = mat4.ortho(
+        #  0             # left
+        #  400  # right
+        #  200 # bottom
+        #  0             # top
+        #  1             # near
+        #  100           # far
+        #)
+
+        #@matCameraProjection = mat4.makeProjection(
+        #  @$main.width  # width
+        #  @$main.height # height
+        #  @$main.width  # depth
+        #)
 
 
 
-#### `initTransform()`
-Xx.  
+Create the initial camera-transformation matrix. 
 
-      initTransform: ->
-
-        @matTransform = [
+        @matCameraTransform = [
           1,  0,  0,  0
           0,  1,  0,  0
           0,  0,  1,  0
-          0,  0,  0,  1
+          0,  0, -5,  1
         ]
-        @gl.uniformMatrix4fv(
-          @uMatTransformLoc,
-          false,
-          new Float32Array(@matTransform)
-        )
 
+Calculate the initial camera-matrix, and set the 'uMatCamera' uniform. 
+
+        @matCamera = mat4.multiply @matCameraProjection, @matCameraTransform
+        @gl.uniformMatrix4fv(
+          @uMatCameraLoc,
+          false,
+          new Float32Array @matCamera
+        )
 
 
 
@@ -354,7 +343,7 @@ Return the index of the newly added buffer in `@buffers`.
 
 #### `transform()`
 - `config <object>`
-- `config.target <integer>`  (optional) a buffer-index, else transform the scene
+- `config.target <integer>`  (optional) a buffer-index, else target the camera
 - `config.type <string>`     'rotateY'
 - `config.rad <number>`      (optional) if 'rotate', an angle, in radians
 - `config.x <number>`        (optional) if 'translate', a distance
@@ -365,23 +354,48 @@ Return the index of the newly added buffer in `@buffers`.
 
       transform: (config) ->
 
-        ª 'BEFORE:', JSON.stringify @matTransform
-        switch config.type
+Get the target’s current transformation-matrix. 
 
+        if ªU == typeof config.target
+          matCurrent = @matCameraTransform
+        else
+          matCurrent = @buffers[config.target].matTransform
+
+Calculate the transform. 
+
+        #matNew = switch config.type
+        #  when 'rotateX'
+        #    mat4.rotateX matCurrent, config.rad
+        #  when 'rotateY'
+        #    mat4.rotateY matCurrent, config.rad
+        #  when 'rotateZ'
+        #    mat4.rotateZ matCurrent, config.rad
+        #  when 'translate'
+        #    mat4.translate matCurrent, config.x||0, config.y||0, config.z||0
+
+        matNew = switch config.type
+          when 'rotateX'
+            mat4.multiply matCurrent, mat4.makeXRotation(config.rad)
           when 'rotateY'
-            @matTransform = mat4.rotateY   @matTransform, config.rad
+            mat4.multiply matCurrent, mat4.makeYRotation(config.rad)
+          when 'rotateZ'
+            mat4.multiply matCurrent, mat4.makeZRotation(config.rad)
           when 'translate'
-            @matTransform = mat4.translate @matTransform, config.x or 0, config.y or 0, config.z or 0
+            mat4.multiply matCurrent, mat4.makeTranslation(config.x||0, config.y||0, config.z||0)
 
-        ª 'AFTER:', JSON.stringify @matTransform
+Record the new transformation-matrix. For a camera transform, update the 
+`uMatCamera` uniform in the vertex-shader. 
 
-Apply the transform to the `uMatTransform` uniform in the vertex-shader. 
-
-        @gl.uniformMatrix4fv(
-          @uMatTransformLoc,
-          false,
-          new Float32Array(@matTransform)
-        )
+        if ªU == typeof config.target
+          @matCameraTransform = matNew
+          @matCamera = mat4.multiply @matCameraProjection, matNew
+          @gl.uniformMatrix4fv(
+            @uMatCameraLoc,
+            false,
+            new Float32Array @matCamera
+          )
+        else
+          @buffers[config.target].matTransform = matNew
 
 
 
@@ -391,6 +405,7 @@ Draw each buffer to the canvas.
 
       render: ->
         if ! @gl then throw Error "The WebGL rendering context is #{ªtype @gl}"
+        @initCanvas()
         index = @buffers.length
         while index--
 
@@ -408,7 +423,7 @@ binding is automatically broken.
 
 Specify the attribute-location and data-format for the newly bound buffer. 
 
-+ `index <integer>`       index of target attribute in the buffer bound to gl.ARRAY_BUFFER
++ `index <WebGLUniformLocation>`  location of target attribute in the buffer
 + `size <integer>`        components per attribute: 1, 2, 3 or (default) 4
 + `type <integer>`        the data type of each component in the array: 
   * `BYTE`                  signed 8-bit two’s complement value, -128 to +127
@@ -434,6 +449,14 @@ Repeat the two steps above, for the vertex-colors.
           @gl.bindBuffer @gl.ARRAY_BUFFER, @buffers[index].colors
           @gl.vertexAttribPointer @aVtxColorLoc, 4, @gl.FLOAT, false, 0, 0
 
+Set the transform. 
+
+          @gl.uniformMatrix4fv(
+            @uMatTransformLoc,
+            false,
+            new Float32Array @buffers[index].matTransform
+          )
+
 
 Render geometric primitives, using the currently bound vertex data. 
 
@@ -449,7 +472,7 @@ Render geometric primitives, using the currently bound vertex data.
 + `count <integer>`  the number of vector points to render, eg 3 for a triangle
 - `<undefined>`      does not return anything
 
-          @gl.drawArrays @gl.TRIANGLES, 0, 3
+          @gl.drawArrays @gl.TRIANGLES, 0, @buffers[index].count
 
 @todo describe
 
@@ -471,14 +494,15 @@ simplicity, `initShaders()` just grabs the strings from these functions.
       attribute vec4 aVtxColor;
 
       uniform mat4 uMatTransform;
-      uniform mat4 uMatProjection;
+      uniform mat4 uMatCamera;
 
       varying vec4 vColor; // declare `vColor`
 
       void main() {
 
-        // Multiply the position by the transformation and projection matrices
-        gl_Position = vec4(aVtxPosition, 1) * uMatTransform * uMatProjection;
+        // Multiply the position by the camera transformation and matrices
+        // Note that the order of these three is important
+        gl_Position = uMatCamera * uMatTransform * vec4(aVtxPosition, 1);
 
         // Convert from clipspace to colorspace, and send to the fragment-shader
         // Clipspace goes -1.0 to +1.0

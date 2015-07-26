@@ -33,6 +33,8 @@ Xx.
 
         if ªA != ªtype config.positions then throw Error """
           config.positions must be an array not #{ªtype config.positions}"""
+        if config.positions.length % 3 then throw Error """
+          config.positions.length must be divisible by 3"""
         @positions = @gl.createBuffer()
         @gl.bindBuffer @gl.ARRAY_BUFFER, @positions
         @gl.bufferData(
@@ -50,12 +52,33 @@ Xx.
           ª config.colors
         else if ªA != ªtype config.colors then throw Error """
           config.colors must be an array not #{ªtype config.colors}"""
+        else if config.colors.length % 4 then throw Error """
+          config.colors.length must be divisible by 4"""
+        else if (config.positions.length / 3 != config.colors.length / 4)
+          throw Error "config.colors has an incorrect vertex count"
         @colors = @gl.createBuffer()
         @gl.bindBuffer @gl.ARRAY_BUFFER, @colors
         @gl.bufferData(
           @gl.ARRAY_BUFFER,
           new Float32Array(config.colors), @gl.STATIC_DRAW
         )
+
+
+#### `count <integer>`
+Xx. 
+
+        @count = config.positions.length / 3
+
+
+#### `matTransform <array>`
+Xx. 
+
+        @matTransform = [
+          1,  0,  0,  0
+          0,  1,  0,  0
+          0,  0,  1,  0
+          0,  0,  0,  1
+        ]
 
 
 
