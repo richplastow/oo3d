@@ -1,9 +1,16 @@
 Mat4
 ====
 
+Ported to CoffeeScript from `gl-matrix-mat4`. 
+
+Note that these functions will often be called 1000s of times per second, so 
+they’re designed to run as fast as possible. That means they do no type or 
+range checking, so it’s up to the implementing app to pass valid arguments. 
+
+
+
+
 @todo describe
-
-
 
     mat4 = {}
 
@@ -18,11 +25,11 @@ Multiplies two mat4's
 
     mat4.multiply = (a, b) ->
 
-      out = []
-      a00 = a[0]; a01 = a[1]; a02 = a[2]; a03 = a[3];
-      a10 = a[4]; a11 = a[5]; a12 = a[6]; a13 = a[7];
-      a20 = a[8]; a21 = a[9]; a22 = a[10]; a23 = a[11];
-      a30 = a[12]; a31 = a[13]; a32 = a[14]; a33 = a[15];
+      out = new Float32Array 16
+      a00 = a[0];  a01 = a[1];  a02 = a[2];  a03 = a[3]
+      a10 = a[4];  a11 = a[5];  a12 = a[6];  a13 = a[7]
+      a20 = a[8];  a21 = a[9];  a22 = a[10]; a23 = a[11]
+      a30 = a[12]; a31 = a[13]; a32 = a[14]; a33 = a[15]
 
       # Cache only the current line of the second matrix
       b0  = b[0]; b1 = b[1]; b2 = b[2]; b3 = b[3];  
@@ -48,7 +55,8 @@ Multiplies two mat4's
       out[13] = b0*a01 + b1*a11 + b2*a21 + b3*a31;
       out[14] = b0*a02 + b1*a12 + b2*a22 + b3*a32;
       out[15] = b0*a03 + b1*a13 + b2*a23 + b3*a33;
-      return out;
+      
+      out
 
 
 
@@ -65,7 +73,7 @@ Generates a perspective projection matrix with the given bounds
     mat4.perspective = (fovy, aspect, near, far) ->
       f = 1.0 / Math.tan(fovy / 2)
       nf = 1 / (near - far)
-      out = []
+      out = new Float32Array 16
       out[0]  = f / aspect
       out[1]  = 0
       out[2]  = 0
@@ -226,7 +234,7 @@ Generates a orthogonal projection matrix with the given bounds
       lr = 1 / (left - right)
       bt = 1 / (bottom - top)
       nf = 1 / (near - far)
-      out = []
+      out = new Float32Array 16
       out[0] = -2 * lr
       out[1] = 0
       out[2] = 0
@@ -250,34 +258,34 @@ Generates a orthogonal projection matrix with the given bounds
 From http://www.html5rocks.com/en/tutorials/webgl/webgl_transforms/
 
     mat4.makeTranslation = (tx, ty, tz) ->
-      [
+      new Float32Array([
         1,  0,  0,  0
         0,  1,  0,  0
         0,  0,  1,  0
         tx, ty, tz, 1
-      ]
+      ])
 
 
     mat4.makeXRotation = (angleInRadians) ->
       c = Math.cos angleInRadians
       s = Math.sin angleInRadians
-      [
+      new Float32Array([
         1,  0,  0,  0
         0,  c,  s,  0
         0, -s,  c,  0
         0,  0,  0,  1
-      ]
+      ])
 
 
     mat4.makeYRotation = (angleInRadians) ->
       c = Math.cos angleInRadians
       s = Math.sin angleInRadians
-      [
+      new Float32Array([
         c,  0, -s,  0
         0,  1,  0,  0
         s,  0,  c,  0
         0,  0,  0,  1
-      ]
+      ])
 
 
     mat4.makeZRotation = (angleInRadians) ->
@@ -292,21 +300,21 @@ From http://www.html5rocks.com/en/tutorials/webgl/webgl_transforms/
 
 
     mat4.makeScale = (sx, sy) ->
-      [
+      new Float32Array([
         sx, 0,  0,  0
         0,  sy, 0,  0
         0,  0,  sz, 0
         0,  0,  0,  1
-      ]
+      ])
 
 
     mat4.makeProjection = (width, height, depth) ->
-      [
+      new Float32Array([
         2 / width, 0,           0,         0
         0,         -2 / height, 0,         0
         0,         0,           2 / depth, 0
         -1,        1,           0,         1
-      ]
+      ])
 
 
 

@@ -36,10 +36,10 @@ WebGL context’s program, passed from the `Main` instance.
           scene.program must be WebGLProgram not #{ªtype @program}"""
 
 
-#### `matCameraProjection <array|null>`
+#### `matProjection <array|null>`
 The projection-matrix currently applied to this camera. 
 
-        @matCameraProjection = mat4.perspective(
+        @matProjection = mat4.perspective(
           @fovy,
           @aspect,
           1,   # near
@@ -47,15 +47,15 @@ The projection-matrix currently applied to this camera.
         )
 
 
-#### `matCameraTransform <array>`
-The transformation-matrix currently applied to this camera. Starts at identity. 
+#### `matTransform <array>`
+The transformation-matrix currently applied to this camera. Starts at [0,0,-5]. 
 
-        @matCameraTransform = [
+        @matTransform = new Float32Array([
           1,  0,  0,  0
           0,  1,  0,  0
           0,  0,  1,  0
           0,  0, -5,  1 # starts at Z = -5
-        ]
+        ])
 
 
 #### `matCamera <array|null>`
@@ -108,7 +108,7 @@ Init Methods
 Calculate the camera-matrix, and update the 'uMatCamera' uniform. 
 
       updateCamera: ->
-        @matCamera = mat4.multiply @matCameraProjection, @matCameraTransform
+        @matCamera = mat4.multiply @matProjection, @matTransform
         @gl.uniformMatrix4fv(
           @uMatCameraLoc,
           false,
@@ -124,6 +124,7 @@ Methods
 
 #### `xx()`
 Xx. 
+
       xx: ->
 
 

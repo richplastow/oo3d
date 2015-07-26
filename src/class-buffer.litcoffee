@@ -73,12 +73,12 @@ Xx.
 #### `matTransform <array>`
 The transformation-matrix currently applied to this buffer. Starts at identity. 
 
-        @matTransform = [
+        @matTransform = new Float32Array([
           1,  0,  0,  0
           0,  1,  0,  0
           0,  0,  1,  0
           0,  0,  0,  1
-        ]
+        ])
 
 
 #### `rotateX, rotateY, rotateZ <number>`
@@ -105,6 +105,7 @@ Methods
 
 #### `xx()`
 Xx. 
+
       xx: ->
 
 

@@ -54,6 +54,15 @@ when the variable being tested does not exist, `typeof foobar` will return
 
 
 
+#### `ªisU()`
+@todo description
+
+    ªisU = (x) ->
+      ªU == typeof x
+
+
+
+
 #### `ªuid()`
 Xx optional prefix. @todo description
 

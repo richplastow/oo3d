@@ -269,57 +269,49 @@ Return the index of the newly added buffer in `@buffers`.
 #### `transform()`
 - `config <object>`
 - `config.target <integer>`  (optional) a buffer-index, else target the camera
-- `config.type <string>`     'rotateY'
-- `config.rad <number>`      (optional) if 'rotate', an angle, in radians
-- `config.x <number>`        (optional) if 'translate', a distance
-- `config.y <number>`        (optional) if 'translate', a distance
-- `config.z <number>`        (optional) if 'translate', a distance
+- `config.type <string>`     'translate|rotateX|rotateY|rotateZ'
+- `config.rad <number>`      (optional) if `type` is 'rotate', a radian angle
+- `config.x <number>`        (optional) if `type` is 'translate', a distance
+- `config.y <number>`        (optional) if `type` is 'translate', a distance
+- `config.z <number>`        (optional) if `type` is 'translate', a distance
 
 @todo describe  
 
       transform: (config) ->
 
-Get the target’s current transformation-matrix. 
+Get a handy reference to the target, and its current transformation-matrix.  
+@todo deal with not-found
 
-        if ªU == typeof config.target
-          matCurrent = @camera.matCameraTransform
-        else
-          matCurrent = @buffers[config.target].matTransform
+        target = if ªisU config.target then @camera else @buffers[config.target]
+        matOld = target.matTransform
 
-Calculate the transform. 
-
-        #matNew = switch config.type
-        #  when 'rotateX'
-        #    mat4.rotateX matCurrent, config.rad
-        #  when 'rotateY'
-        #    mat4.rotateY matCurrent, config.rad
-        #  when 'rotateZ'
-        #    mat4.rotateZ matCurrent, config.rad
-        #  when 'translate'
-        #    mat4.translate matCurrent, config.x||0, config.y||0, config.z||0
+Calculate the transform and update the target’s state. 
 
         matNew = switch config.type
           when 'rotateX'
-            mat4.multiply matCurrent, mat4.makeXRotation(config.rad)
+            target.rotateX += config.rad
+            mat4.multiply matOld, mat4.makeXRotation(config.rad)
           when 'rotateY'
-            mat4.multiply matCurrent, mat4.makeYRotation(config.rad)
+            target.rotateY += config.rad
+            mat4.multiply matOld, mat4.makeYRotation(config.rad)
           when 'rotateZ'
-            mat4.multiply matCurrent, mat4.makeZRotation(config.rad)
+            target.rotateZ += config.rad
+            mat4.multiply matOld, mat4.makeZRotation(config.rad)
           when 'translate'
-            mat4.multiply matCurrent, mat4.makeTranslation(config.x||0, config.y||0, config.z||0)
+            x = config.x or 0
+            y = config.y or 0
+            z = config.z or 0
+            target.translateX += x
+            target.translateY += y
+            target.translateZ += z
+            mat4.multiply matOld, mat4.makeTranslation(x, y, z)
 
 Record the new transformation-matrix. For a camera transform, update the 
 `uMatCamera` uniform in the vertex-shader. 
 
+        target.matTransform = matNew
         if ªU == typeof config.target
-          @camera.matCameraTransform = matNew
           @camera.updateCamera()
-        else
-          @buffers[config.target].matTransform = matNew
-
-Record the new value, and return it (eg for GUI display). 
-
-        #@todo
 
 
 
