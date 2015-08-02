@@ -109,10 +109,10 @@ Locations of the `aVtxPosition` and `aVtxColor` attributes in the Vertex Shader.
         @aVtxColorLoc    = null
 
 
-#### `buffer <array of Buffers>`
-Contains all current Buffer instances. 
+#### `shapes <array of Shapes>`
+Contains all current Shape instances, whether or not they appear in any Scenes. 
 
-        @buffers = []
+        @shapes = []
 
 
 
@@ -216,7 +216,7 @@ Xx.
 
 Get the index of the vertex-position and vertex-color attributes in the shader 
 program we just created. The index allows us to switch on these attributes, and 
-bind the buffers’ position and color data to `aVtxPosition` and `aVtxColor`. 
+bind each Shape’s position and color buffer to `aVtxPosition` and `aVtxColor`. 
 
         @aVtxPositionLoc = @gl.getAttribLocation @program, 'aVtxPosition'
         @aVtxColorLoc = @gl.getAttribLocation @program, 'aVtxColor'
@@ -249,22 +249,22 @@ API Methods
 -----------
 
 
-#### `addBuffer()`
+#### `addShape()`
 - `config.positions <array>`  x, y, and z coordinates
 - `config.colors <array>`     (optional) r, g, b, and alpha (each [0,1])
-- `<integer>`                 index of the newly added buffer in `@buffers`
+- `<integer>`                 index of the newly added shape in `@shapes`
 
 If `config.colors` is not set, all vertices are set to 100% opacity white.  
 [From MDN’s second WebGL article, again.](https://goo.gl/q6YFNe)  
 
-      addBuffer: (config) ->
+      addShape: (config) ->
 
-Record a new instance of the `Buffer` class in `buffers`, and get its index. 
+Record a new instance of the `Shape` class in `shapes`, and get its index. 
 
-        index = @buffers.length
-        @buffers[index] = new Buffer config, @gl
+        index = @shapes.length
+        @shapes[index] = new Shape config, @gl
 
-Return the index of the newly added buffer in `@buffers`. 
+Return the index of the newly added shape in `@shapes`. 
 
         index
 
@@ -275,7 +275,7 @@ Return the index of the newly added buffer in `@buffers`.
 - `x <number>`             radian angle about the x-axis
 - `y <number>`             radian angle about the y-axis
 - `z <number>`             radian angle about the z-axis
-- `targetIndex <integer>`  (optional) a buffer-index, else target the camera
+- `targetIndex <integer>`  (optional) a shape-index, else target the camera
 
 @todo describe  
 
@@ -284,7 +284,7 @@ Return the index of the newly added buffer in `@buffers`.
 Get a handy reference to the target, and its current transformation-matrix.  
 @todo deal with not-found
 
-        target = @buffers[targetIndex] or @camera
+        target = @shapes[targetIndex] or @camera
         mat = target.matTransform
 
 Determine which axes are zero, if any. 
@@ -372,7 +372,7 @@ Return this Oo3d instance (allows chaining).
 - `x <number>`             scale-factor along the x-axis
 - `y <number>`             scale-factor along the y-axis
 - `z <number>`             scale-factor along the z-axis
-- `targetIndex <integer>`  (optional) a buffer-index, else target the camera
+- `targetIndex <integer>`  (optional) a shape-index, else target the camera
 
 @todo describe  
 @todo make objects rotate as expected when non-uniform scale is applied  
@@ -383,7 +383,7 @@ Return this Oo3d instance (allows chaining).
 Get a handy reference to the target, and its current transformation-matrix.  
 @todo deal with not-found
 
-        target = @buffers[targetIndex] or @camera
+        target = @shapes[targetIndex] or @camera
         mat = target.matTransform
 
 Determine which axes are set to `1`, if any. 
@@ -434,7 +434,7 @@ Return this Oo3d instance (allows chaining).
 - `x <number>`             distance along the x-axis
 - `y <number>`             distance along the y-axis
 - `z <number>`             distance along the z-axis
-- `targetIndex <integer>`  (optional) a buffer-index, else target the camera
+- `targetIndex <integer>`  (optional) a shape-index, else target the camera
 
 @todo describe  
 
@@ -443,7 +443,7 @@ Return this Oo3d instance (allows chaining).
 Get a handy reference to the target, and its current transformation-matrix.  
 @todo deal with not-found
 
-        target = @buffers[targetIndex] or @camera
+        target = @shapes[targetIndex] or @camera
         mat = target.matTransform
 
 Determine which axes are zero, if any. 
@@ -508,42 +508,41 @@ Return this Oo3d instance (allows chaining).
 
 #### `setRenderMode()`
 - `mode <string>`          'POINTS', 'LINE_STRIP', 'TRIANGLES', etc
-- `targetIndex <integer>`  (optional) a buffer-index, else target everything
+- `targetIndex <integer>`  (optional) a shape-index, else target everything
 
-Change the `mode` passed to `gl.drawArrays()` for an individual Buffer, or the 
-entire scene. @todo scene
+Change the `mode` passed to `gl.drawArrays()` for an individual Shape, or the 
+entire Scene. @todo scene
 
       setRenderMode: (renderMode, targetIndex) ->
-        @buffers[targetIndex].renderMode = renderMode
+        @shapes[targetIndex].renderMode = renderMode
 
 
 
 
 #### `render()`
-Draw each buffer to the canvas. 
+Draw each shape to the canvas. 
 
       render: ->
         if ! @gl then throw Error "The WebGL rendering context is #{ªtype @gl}"
         @gl.clear @gl.COLOR_BUFFER_BIT | @gl.DEPTH_BUFFER_BIT
-        index = @buffers.length
+        index = @shapes.length
         while index--
-          buffer = @buffers[index]
 
-Set the current buffer in `@buffers` as the one to be worked on. The previous 
-binding is automatically broken. 
+Set each shape’s `positionBuffer` as the WebGLBuffer to be worked on. The 
+previous binding is automatically broken. 
 
-+ `target <integer>`      specify what the buffer contains: 
-  * `ARRAY_BUFFER`          contains vertex attributes - use `drawArrays()`
-  * `ELEMENT_ARRAY_BUFFER`  contains only indices - use `drawElements()`
-+ `buffer <WebGLBuffer>`  a WebGLBuffer object to bind to the target
-- `<undefined>`           does not return anything
+- `target <integer>`        specify what `positionBuffer` contains: 
+  - `ARRAY_BUFFER`          contains vertex attributes — use `drawArrays()`
+  - `ELEMENT_ARRAY_BUFFER`  contains only indices — use `drawElements()`
+- `buffer <WebGLBuffer>`    a WebGLBuffer object to bind to the target
 
-          @gl.bindBuffer @gl.ARRAY_BUFFER, buffer.positionBuffer
+          shape = @shapes[index]
+          @gl.bindBuffer @gl.ARRAY_BUFFER, shape.positionBuffer
 
 
-Specify the attribute-location and data-format for the newly bound buffer. 
+Specify the attribute-location and data-format for the newly bound shape. 
 
-+ `index <WebGLUniformLocation>`  location of target attribute in the buffer
++ `index <WebGLUniformLocation>`  location of target attribute in the shape
 + `size <integer>`        components per attribute: 1, 2, 3 or (default) 4
 + `type <integer>`        the data type of each component in the array: 
   * `BYTE`                  signed 8-bit two’s complement value, -128 to +127
@@ -566,7 +565,7 @@ Specify the attribute-location and data-format for the newly bound buffer.
 
 Repeat the two steps above, for the vertex-colors. 
 
-          @gl.bindBuffer @gl.ARRAY_BUFFER, buffer.colorBuffer
+          @gl.bindBuffer @gl.ARRAY_BUFFER, shape.colorBuffer
           @gl.vertexAttribPointer @aVtxColorLoc, 4, @gl.FLOAT, false, 0, 0
 
 Set the transform. 
@@ -574,12 +573,12 @@ Set the transform.
           @gl.uniformMatrix4fv(
             @uMatTransformLoc,
             false,
-            new Float32Array buffer.matTransform
+            new Float32Array shape.matTransform
           )
 
 Get the render mode. @todo scene override
 
-          mode = @gl[buffer.renderMode]
+          mode = @gl[shape.renderMode]
 
 Render geometric primitives, using the currently bound vertex data. 
 
@@ -595,7 +594,7 @@ Render geometric primitives, using the currently bound vertex data.
 + `count <integer>`  the number of vector points to render, eg 3 for a triangle
 - `<undefined>`      does not return anything
 
-          @gl.drawArrays mode, 0, buffer.count
+          @gl.drawArrays mode, 0, shape.count
 
 @todo describe
 

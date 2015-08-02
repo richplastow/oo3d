@@ -52,7 +52,7 @@
          ,$renderModeLabel     = $('#renderModeLabel')
 
          ,updateMeasurements = function () {
-            target = $target.value ? oo3d.buffers[+$target.value] : oo3d.camera;
+            target = $target.value ? oo3d.shapes[+$target.value] : oo3d.camera;
             $rotateXLabel.innerHTML    = target.rX;
             $rotateYLabel.innerHTML    = target.rY;
             $rotateZLabel.innerHTML    = target.rZ;
@@ -69,7 +69,7 @@
             $main: document.getElementById('main')
            ,color: { background: { r:0.1, g:0.2, b:0.4, a:1 } }
           })
-         ,tri0 = oo3d.addBuffer({
+         ,tri0 = oo3d.addShape({
             renderMode: 'LINE_LOOP'
            ,positions: [
                0.0,  0.3,  1.0,
@@ -82,7 +82,7 @@
                0.0,  0.0,  1.0,  1.0  // blue
             ]
           })
-         ,tri1 = oo3d.addBuffer({
+         ,tri1 = oo3d.addShape({
             positions: [
                1.0, -0.3,   0.0,
                0.4,  0.5,  -1.0,
@@ -94,7 +94,7 @@
                1.0,  0.0,  1.0,  1.0  // magenta
             ]
           })
-         ,pyramid0 = oo3d.addBuffer({
+         ,pyramid0 = oo3d.addShape({
             positions: [
               // Front face
                0.0,  1.0,  0.0,

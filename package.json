@@ -1,6 +1,6 @@
 {
   "name": "oo3d",
-  "version": "0.0.16",
+  "version": "0.0.17",
   "description": "The Oopish WebGL library",
   "main": "build/oo3d.js",
   "directories": {

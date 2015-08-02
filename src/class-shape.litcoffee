@@ -1,10 +1,10 @@
-Buffer
-======
+Shape
+=====
 
-@todo describe
+#### An individual object which can appear in a Scene
 
-    class Buffer
-      C: 'Buffer'
+    class Shape
+      C: 'Shape'
       toString: -> "[object #{@C}]"
 
       constructor: (config={}, gl) ->
@@ -65,7 +65,7 @@ Xx.
 
 
 #### `matTransform <array>`
-The transformation-matrix currently applied to this buffer. Starts at identity. 
+The transformation-matrix currently applied to this shape. Starts at identity. 
 
         @matTransform = new Float32Array([
           1,  0,  0,  0
@@ -76,7 +76,7 @@ The transformation-matrix currently applied to this buffer. Starts at identity.
 
 
 #### `rX, rY, rZ <number>`
-Keeps track of rotation currently applied to this buffer. All start at 0. 
+Keeps track of rotation currently applied to this shape. All start at 0. 
 
         @rX = 0
         @rY = 0
@@ -84,7 +84,7 @@ Keeps track of rotation currently applied to this buffer. All start at 0.
 
 
 #### `sX, sY, sZ <number>`
-Keeps track of rotation currently applied to this buffer. All start at 1. 
+Keeps track of rotation currently applied to this shape. All start at 1. 
 
         @sX = 1
         @sY = 1
@@ -92,7 +92,7 @@ Keeps track of rotation currently applied to this buffer. All start at 1.
 
 
 #### `tX, tY, tZ <number>`
-Keeps track of translation currently applied to this buffer. All start at 0. 
+Keeps track of translation currently applied to this shape. All start at 0. 
 
         @tX = 0
         @tY = 0
@@ -102,7 +102,7 @@ Keeps track of translation currently applied to this buffer. All start at 0.
 #### `renderMode <string>`
 'POINTS', 'LINE_STRIP', 'TRIANGLES', etc. Equates to an integer in the `gl` 
 object, eg `gl.TRIANGLES` is `4`. This integer becomes the `mode` argument 
-passed to `gl.drawArrays()` when this Buffer is rendered. 
+passed to `gl.drawArrays()` when this Shape is rendered. 
 @todo override at the level of a Scene
 
         @renderMode = config.renderMode or 'TRIANGLES' # default
