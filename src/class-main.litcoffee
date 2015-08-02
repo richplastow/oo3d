@@ -506,6 +506,19 @@ Return this Oo3d instance (allows chaining).
 
 
 
+#### `setRenderMode()`
+- `mode <string>`          'POINTS', 'LINE_STRIP', 'TRIANGLES', etc
+- `targetIndex <integer>`  (optional) a buffer-index, else target everything
+
+Change the `mode` passed to `gl.drawArrays()` for an individual Buffer, or the 
+entire scene. @todo scene
+
+      setRenderMode: (renderMode, targetIndex) ->
+        @buffers[targetIndex].renderMode = renderMode
+
+
+
+
 #### `render()`
 Draw each buffer to the canvas. 
 
@@ -514,6 +527,7 @@ Draw each buffer to the canvas.
         @gl.clear @gl.COLOR_BUFFER_BIT | @gl.DEPTH_BUFFER_BIT
         index = @buffers.length
         while index--
+          buffer = @buffers[index]
 
 Set the current buffer in `@buffers` as the one to be worked on. The previous 
 binding is automatically broken. 
@@ -524,7 +538,7 @@ binding is automatically broken.
 + `buffer <WebGLBuffer>`  a WebGLBuffer object to bind to the target
 - `<undefined>`           does not return anything
 
-          @gl.bindBuffer @gl.ARRAY_BUFFER, @buffers[index].positionBuffer
+          @gl.bindBuffer @gl.ARRAY_BUFFER, buffer.positionBuffer
 
 
 Specify the attribute-location and data-format for the newly bound buffer. 
@@ -552,7 +566,7 @@ Specify the attribute-location and data-format for the newly bound buffer.
 
 Repeat the two steps above, for the vertex-colors. 
 
-          @gl.bindBuffer @gl.ARRAY_BUFFER, @buffers[index].colorBuffer
+          @gl.bindBuffer @gl.ARRAY_BUFFER, buffer.colorBuffer
           @gl.vertexAttribPointer @aVtxColorLoc, 4, @gl.FLOAT, false, 0, 0
 
 Set the transform. 
@@ -560,9 +574,12 @@ Set the transform.
           @gl.uniformMatrix4fv(
             @uMatTransformLoc,
             false,
-            new Float32Array @buffers[index].matTransform
+            new Float32Array buffer.matTransform
           )
 
+Get the render mode. @todo scene override
+
+          mode = @gl[buffer.renderMode]
 
 Render geometric primitives, using the currently bound vertex data. 
 
@@ -578,7 +595,7 @@ Render geometric primitives, using the currently bound vertex data.
 + `count <integer>`  the number of vector points to render, eg 3 for a triangle
 - `<undefined>`      does not return anything
 
-          @gl.drawArrays @gl.TRIANGLES, 0, @buffers[index].count
+          @gl.drawArrays mode, 0, buffer.count
 
 @todo describe
 

@@ -99,6 +99,17 @@ Keeps track of translation currently applied to this buffer. All start at 0.
         @tZ = 0
 
 
+#### `renderMode <string>`
+'POINTS', 'LINE_STRIP', 'TRIANGLES', etc. Equates to an integer in the `gl` 
+object, eg `gl.TRIANGLES` is `4`. This integer becomes the `mode` argument 
+passed to `gl.drawArrays()` when this Buffer is rendered. 
+@todo override at the level of a Scene
+
+        @renderMode = config.renderMode or 'TRIANGLES' # default
+        if ªN != ªtype @gl[@renderMode] then throw Error """
+          `renderMode` #{@renderMode} is not recognised by WebGL"""
+
+
 
 
 Methods
