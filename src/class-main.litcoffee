@@ -369,15 +369,63 @@ Return this Oo3d instance (allows chaining).
 
 
 #### `scale()`
-- `x <number>`             scale-factor in the x-axis
-- `y <number>`             scale-factor in the y-axis
-- `z <number>`             scale-factor in the z-axis
+- `x <number>`             scale-factor along the x-axis
+- `y <number>`             scale-factor along the y-axis
+- `z <number>`             scale-factor along the z-axis
 - `targetIndex <integer>`  (optional) a buffer-index, else target the camera
 
 @todo describe  
+@todo make objects rotate as expected when non-uniform scale is applied  
+@todo reversing a non-uniform scale should be possible after rotating
 
       scale: (x, y, z, targetIndex) ->
 
+Get a handy reference to the target, and its current transformation-matrix.  
+@todo deal with not-found
+
+        target = @buffers[targetIndex] or @camera
+        mat = target.matTransform
+
+Determine which axes are set to `1`, if any. 
+
+        x1 = 1 == x
+        y1 = 1 == y
+        z1 = 1 == z
+
+Scale along the X-axis. 
+
+        if ! x1
+          mat[0]  *= x
+          mat[1]  *= x
+          mat[2]  *= x
+          mat[3]  *= x #@todo needed?
+          target.sX *= x
+
+Scale along the Y-axis. 
+
+        if ! y1
+          mat[4]  *= y
+          mat[5]  *= y
+          mat[6]  *= y
+          mat[7]  *= y #@todo needed?
+          target.sY *= y
+
+Scale along the Z-axis. 
+
+        if ! z1
+          mat[8]  *= z
+          mat[9]  *= z
+          mat[10] *= z
+          mat[11] *= z #@todo needed?
+          target.sZ *= z
+
+For a camera transform, update the `uMatCamera` uniform in the vertex-shader. 
+
+        if target == @camera then @camera.updateCamera()
+
+Return this Oo3d instance (allows chaining). 
+
+        return @
 
 
 

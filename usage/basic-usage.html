@@ -13,15 +13,28 @@
 
          ,$target = $('#target')
 
-         ,$rotateXMinus = $('#rotateXMinus')
-         ,$rotateYMinus = $('#rotateYMinus')
-         ,$rotateZMinus = $('#rotateZMinus')
-         ,$rotateXLabel = $('#rotateXLabel')
-         ,$rotateYLabel = $('#rotateYLabel')
-         ,$rotateZLabel = $('#rotateZLabel')
-         ,$rotateXPlus  = $('#rotateXPlus')
-         ,$rotateYPlus  = $('#rotateYPlus')
-         ,$rotateZPlus  = $('#rotateZPlus')
+         ,$rotateXMinus    = $('#rotateXMinus')
+         ,$rotateYMinus    = $('#rotateYMinus')
+         ,$rotateZMinus    = $('#rotateZMinus')
+         ,$rotateXLabel    = $('#rotateXLabel')
+         ,$rotateYLabel    = $('#rotateYLabel')
+         ,$rotateZLabel    = $('#rotateZLabel')
+         ,$rotateXPlus     = $('#rotateXPlus')
+         ,$rotateYPlus     = $('#rotateYPlus')
+         ,$rotateZPlus     = $('#rotateZPlus')
+
+         ,$scaleXMinus     = $('#scaleXMinus')
+         ,$scaleYMinus     = $('#scaleYMinus')
+         ,$scaleZMinus     = $('#scaleZMinus')
+         ,$scaleXLabel     = $('#scaleXLabel')
+         ,$scaleYLabel     = $('#scaleYLabel')
+         ,$scaleZLabel     = $('#scaleZLabel')
+         ,$scaleXPlus      = $('#scaleXPlus')
+         ,$scaleYPlus      = $('#scaleYPlus')
+         ,$scaleZPlus      = $('#scaleZPlus')
+         ,$flipX           = $('#flipX')
+         ,$flipY           = $('#flipY')
+         ,$flipZ           = $('#flipZ')
 
          ,$translateXMinus = $('#translateXMinus')
          ,$translateYMinus = $('#translateYMinus')
@@ -35,9 +48,12 @@
 
          ,updateMeasurements = function () {
             target = $target.value ? oo3d.buffers[+$target.value] : oo3d.camera;
-            $rotateXLabel.innerHTML = target.rX;
-            $rotateYLabel.innerHTML = target.rY;
-            $rotateZLabel.innerHTML = target.rZ;
+            $rotateXLabel.innerHTML    = target.rX;
+            $rotateYLabel.innerHTML    = target.rY;
+            $rotateZLabel.innerHTML    = target.rZ;
+            $scaleXLabel.innerHTML     = target.sX;
+            $scaleYLabel.innerHTML     = target.sY;
+            $scaleZLabel.innerHTML     = target.sZ;
             $translateXLabel.innerHTML = target.tX;
             $translateYLabel.innerHTML = target.tY;
             $translateZLabel.innerHTML = target.tZ;
@@ -166,6 +182,72 @@
         }
 
 
+        // SCALE X
+        $scaleXLabel.curr = 1;
+        $scaleXMinus.onclick = function () {
+          $scaleXLabel.curr *= 0.5;
+          oo3d.scale(0.5, 1, 1, $target.value ? +$target.value : undefined);
+          oo3d.render();
+          updateMeasurements();
+        }
+        $scaleXPlus.onclick = function () {
+          $scaleXLabel.curr *= 2;
+          oo3d.scale(2.0, 1, 1, $target.value ? +$target.value : undefined);
+          oo3d.render();
+          updateMeasurements();
+        }
+        $flipX.onclick = function () {
+          $scaleXLabel.curr *= -1;
+          oo3d.scale(-1,  1, 1, $target.value ? +$target.value : undefined);
+          oo3d.render();
+          updateMeasurements();
+        }
+
+
+        // SCALE Y
+        $scaleYLabel.curr = 1;
+        $scaleYMinus.onclick = function () {
+          $scaleYLabel.curr *= 0.5;
+          oo3d.scale(1, 0.5, 1, $target.value ? +$target.value : undefined);
+          oo3d.render();
+          updateMeasurements();
+        }
+        $scaleYPlus.onclick = function () {
+          $scaleXLabel.curr *= 2;
+          oo3d.scale(1, 2.0, 1, $target.value ? +$target.value : undefined);
+          oo3d.render();
+          updateMeasurements();
+        }
+        $flipY.onclick = function () {
+          $scaleYLabel.curr *= -1;
+          oo3d.scale(1, -1,  1, $target.value ? +$target.value : undefined);
+          oo3d.render();
+          updateMeasurements();
+        }
+
+
+        // SCALE Z
+        $scaleZLabel.curr = 1;
+        $scaleZMinus.onclick = function () {
+          $scaleZLabel.curr *= 0.5;
+          oo3d.scale(1, 1, 0.5, $target.value ? +$target.value : undefined);
+          oo3d.render();
+          updateMeasurements();
+        }
+        $scaleZPlus.onclick = function () {
+          $scaleXLabel.curr *= 2;
+          oo3d.scale(1, 1, 2.0, $target.value ? +$target.value : undefined);
+          oo3d.render();
+          updateMeasurements();
+        }
+        $flipZ.onclick = function () {
+          $scaleZLabel.curr *= -1;
+          oo3d.scale(1, 1, -1,  $target.value ? +$target.value : undefined);
+          oo3d.render();
+          updateMeasurements();
+        }
+
+
         // TRANSLATE X
         $translateXLabel.curr = 0;
         $translateXMinus.onclick = function () {
@@ -283,6 +365,21 @@
   <input type="button" id="rotateZMinus" value="Rotate Z Minus">
   <input type="button" id="rotateZPlus"  value="Rotate Z Plus">
   <label id="rotateZLabel">...</label>
+  <br>
+  <input type="button" id="scaleXMinus"  value="Scale X Minus">
+  <input type="button" id="scaleXPlus"   value="Scale X Plus">
+  <input type="button" id="flipX"        value="Flip X">
+  <label id="scaleXLabel">...</label>
+  <br>
+  <input type="button" id="scaleYMinus"  value="Scale Y Minus">
+  <input type="button" id="scaleYPlus"   value="Scale Y Plus">
+  <input type="button" id="flipY"        value="Flip Y">
+  <label id="scaleYLabel">...</label>
+  <br>
+  <input type="button" id="scaleZMinus"  value="Scale Z Minus">
+  <input type="button" id="scaleZPlus"   value="Scale Z Plus">
+  <input type="button" id="flipZ"        value="Flip Z">
+  <label id="scaleZLabel">...</label>
   <br>
   <input type="button" id="translateXMinus" value="Translate X Minus">
   <input type="button" id="translateXPlus"  value="Translate X Plus">

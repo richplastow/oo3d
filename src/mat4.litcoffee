@@ -291,15 +291,15 @@ From http://www.html5rocks.com/en/tutorials/webgl/webgl_transforms/
     mat4.makeZRotation = (angleInRadians) ->
       c = Math.cos angleInRadians
       s = Math.sin angleInRadians
-      [
+      new Float32Array([
         c,  s,  0,  0
        -s,  c,  0,  0
         0,  0,  1,  0
         0,  0,  0,  1
-      ]
+      ])
 
 
-    mat4.makeScale = (sx, sy) ->
+    mat4.makeScale = (sx, sy, sz) ->
       new Float32Array([
         sx, 0,  0,  0
         0,  sy, 0,  0
