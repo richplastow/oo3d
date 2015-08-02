@@ -91,13 +91,9 @@
     };
 
     function Buffer(config, gl) {
-      var i, j, k, ref, v;
+      var i;
       if (config == null) {
         config = {};
-      }
-      for (k in config) {
-        v = config[k];
-        this[k] = v;
       }
       this.gl = gl;
       if ('webglrenderingcontext' !== ªtype(this.gl)) {
@@ -109,15 +105,18 @@
       if (config.positions.length % 3) {
         throw Error("config.positions.length must be divisible by 3");
       }
-      this.positions = this.gl.createBuffer();
-      this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.positions);
+      this.positionBuffer = this.gl.createBuffer();
+      this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.positionBuffer);
       this.gl.bufferData(this.gl.ARRAY_BUFFER, new Float32Array(config.positions), this.gl.STATIC_DRAW);
       if (ªU === ªtype(config.colors)) {
-        config.colors = [];
-        for (i = j = 0, ref = config.positions.length / 3 * 4 - 1; 0 <= ref ? j <= ref : j >= ref; i = 0 <= ref ? ++j : --j) {
-          config.colors.push(1);
-        }
-        ª(config.colors);
+        config.colors = (function() {
+          var j, ref, results;
+          results = [];
+          for (i = j = 0, ref = config.positions.length / 3 * 4 - 1; 0 <= ref ? j <= ref : j >= ref; i = 0 <= ref ? ++j : --j) {
+            results.push(1);
+          }
+          return results;
+        })();
       } else if (ªA !== ªtype(config.colors)) {
         throw Error("config.colors must be an array not " + (ªtype(config.colors)));
       } else if (config.colors.length % 4) {
@@ -125,17 +124,20 @@
       } else if (config.positions.length / 3 !== config.colors.length / 4) {
         throw Error("config.colors has an incorrect vertex count");
       }
-      this.colors = this.gl.createBuffer();
-      this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.colors);
+      this.colorBuffer = this.gl.createBuffer();
+      this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.colorBuffer);
       this.gl.bufferData(this.gl.ARRAY_BUFFER, new Float32Array(config.colors), this.gl.STATIC_DRAW);
       this.count = config.positions.length / 3;
       this.matTransform = new Float32Array([1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]);
-      this.rotateX = 0;
-      this.rotateY = 0;
-      this.rotateZ = 0;
-      this.translateX = 0;
-      this.translateY = 0;
-      this.translateZ = 0;
+      this.rX = 0;
+      this.rY = 0;
+      this.rZ = 0;
+      this.sX = 1;
+      this.sY = 1;
+      this.sZ = 1;
+      this.tX = 0;
+      this.tY = 0;
+      this.tZ = 0;
     }
 
     Buffer.prototype.xx = function() {};
@@ -172,12 +174,15 @@
       this.matTransform = new Float32Array([1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, -10, 1]);
       this.matCamera = null;
       this.uMatCameraLoc = this.gl.getUniformLocation(this.program, 'uMatCamera');
-      this.rotateX = 0;
-      this.rotateY = 0;
-      this.rotateZ = 0;
-      this.translateX = 0;
-      this.translateY = 0;
-      this.translateZ = -10;
+      this.rX = 0;
+      this.rY = 0;
+      this.rZ = 0;
+      this.sX = 1;
+      this.sY = 1;
+      this.sZ = 1;
+      this.tX = 0;
+      this.tY = 0;
+      this.tZ = -10;
       this.updateCamera();
     }
 
@@ -200,7 +205,7 @@
     };
 
     function Main(config) {
-      var k, v;
+      var k, ref, v;
       if (config == null) {
         config = {};
       }
@@ -213,6 +218,15 @@
         throw Error("If set, config.$main must be HTMLCanvasElement not " + (ªtype(this.$main)));
       }
       this.gl = null;
+      if (ªO === ªtype((ref = config.color) != null ? ref.background : void 0)) {
+        this.bkgndR = config.color.background.r;
+        this.bkgndG = config.color.background.g;
+        this.bkgndB = config.color.background.b;
+        this.bkgndA = config.color.background.a;
+      } else {
+        this.bkgndR = this.bkgndG = this.bkgndB = 0.125;
+        this.bkgndA = 1;
+      }
       this.vertexShader = null;
       this.fragmentShader = null;
       this.program = null;
@@ -245,7 +259,7 @@
     };
 
     Main.prototype.initCanvas = function() {
-      this.gl.clearColor(0.3984375, 0.40625, 0.703125, 1.0);
+      this.gl.clearColor(this.bkgndR, this.bkgndG, this.bkgndB, this.bkgndA);
       this.gl.enable(this.gl.DEPTH_TEST);
       this.gl.depthFunc(this.gl.LEQUAL);
       this.gl.clear(this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT);
@@ -305,35 +319,128 @@
       return index;
     };
 
-    Main.prototype.transform = function(config) {
-      var matNew, matOld, target, x, y, z;
-      target = ªisU(config.target) ? this.camera : this.buffers[config.target];
-      matOld = target.matTransform;
-      matNew = (function() {
-        switch (config.type) {
-          case 'rotateX':
-            target.rotateX += config.rad;
-            return mat4.multiply(matOld, mat4.makeXRotation(config.rad));
-          case 'rotateY':
-            target.rotateY += config.rad;
-            return mat4.multiply(matOld, mat4.makeYRotation(config.rad));
-          case 'rotateZ':
-            target.rotateZ += config.rad;
-            return mat4.multiply(matOld, mat4.makeZRotation(config.rad));
-          case 'translate':
-            x = config.x || 0;
-            y = config.y || 0;
-            z = config.z || 0;
-            target.translateX += x;
-            target.translateY += y;
-            target.translateZ += z;
-            return mat4.multiply(matOld, mat4.makeTranslation(x, y, z));
-        }
-      })();
-      target.matTransform = matNew;
-      if (ªU === typeof config.target) {
-        return this.camera.updateCamera();
+    Main.prototype.rotate = function(x, y, z, targetIndex) {
+      var c, m00, m01, m02, m03, m10, m11, m12, m13, m20, m21, m22, m23, mat, s, target, x0, y0, z0;
+      target = this.buffers[targetIndex] || this.camera;
+      mat = target.matTransform;
+      x0 = 0 === x;
+      y0 = 0 === y;
+      z0 = 0 === z;
+      if (x0 && y0 && z0) {
+        return this;
+      } else if (y0 && z0) {
+        s = Math.sin(x);
+        c = Math.cos(x);
+        m10 = mat[4];
+        m11 = mat[5];
+        m12 = mat[6];
+        m13 = mat[7];
+        m20 = mat[8];
+        m21 = mat[9];
+        m22 = mat[10];
+        m23 = mat[11];
+        mat[4] = m10 * c + m20 * s;
+        mat[5] = m11 * c + m21 * s;
+        mat[6] = m12 * c + m22 * s;
+        mat[7] = m13 * c + m23 * s;
+        mat[8] = m20 * c - m10 * s;
+        mat[9] = m21 * c - m11 * s;
+        mat[10] = m22 * c - m12 * s;
+        mat[11] = m23 * c - m13 * s;
+        target.rX += x;
+      } else if (x0 && z0) {
+        s = Math.sin(y);
+        c = Math.cos(y);
+        m00 = mat[0];
+        m01 = mat[1];
+        m02 = mat[2];
+        m03 = mat[3];
+        m20 = mat[8];
+        m21 = mat[9];
+        m22 = mat[10];
+        m23 = mat[11];
+        mat[0] = m00 * c - m20 * s;
+        mat[1] = m01 * c - m21 * s;
+        mat[2] = m02 * c - m22 * s;
+        mat[3] = m03 * c - m23 * s;
+        mat[8] = m00 * s + m20 * c;
+        mat[9] = m01 * s + m21 * c;
+        mat[10] = m02 * s + m22 * c;
+        mat[11] = m03 * s + m23 * c;
+        target.rY += y;
+      } else if (x0 && y0) {
+        s = Math.sin(z);
+        c = Math.cos(z);
+        m00 = mat[0];
+        m01 = mat[1];
+        m02 = mat[2];
+        m03 = mat[3];
+        m10 = mat[4];
+        m11 = mat[5];
+        m12 = mat[6];
+        m13 = mat[7];
+        mat[0] = m00 * c + m10 * s;
+        mat[1] = m01 * c + m11 * s;
+        mat[2] = m02 * c + m12 * s;
+        mat[3] = m03 * c + m13 * s;
+        mat[4] = m10 * c - m00 * s;
+        mat[5] = m11 * c - m01 * s;
+        mat[6] = m12 * c - m02 * s;
+        mat[7] = m13 * c - m03 * s;
+        target.rZ += z;
+      } else {
+        this.rotate(x, 0, 0, targetIndex);
+        this.rotate(0, y, 0, targetIndex);
+        this.rotate(0, 0, z, targetIndex);
       }
+      if (target === this.camera) {
+        this.camera.updateCamera();
+      }
+      return this;
+    };
+
+    Main.prototype.scale = function(x, y, z, targetIndex) {};
+
+    Main.prototype.translate = function(x, y, z, targetIndex) {
+      var mat, target, x0, y0, z0;
+      target = this.buffers[targetIndex] || this.camera;
+      mat = target.matTransform;
+      x0 = 0 === x;
+      y0 = 0 === y;
+      z0 = 0 === z;
+      if (x0 && y0 && z0) {
+        return this;
+      } else if (y0 && z0) {
+        mat[12] += mat[0] * x;
+        mat[13] += mat[1] * x;
+        mat[14] += mat[2] * x;
+        mat[15] += mat[3] * x;
+        target.tX += x;
+      } else if (x0 && z0) {
+        mat[12] += mat[4] * y;
+        mat[13] += mat[5] * y;
+        mat[14] += mat[6] * y;
+        mat[15] += mat[7] * y;
+        target.tY += y;
+      } else if (x0 && y0) {
+        mat[12] += mat[8] * z;
+        mat[13] += mat[9] * z;
+        mat[14] += mat[10] * z;
+        mat[15] += mat[11] * z;
+        target.tZ += z;
+      } else {
+        mat[12] += mat[0] * x + mat[4] * y + mat[8] * z;
+        mat[13] += mat[1] * x + mat[5] * y + mat[9] * z;
+        mat[14] += mat[2] * x + mat[6] * y + mat[10] * z;
+        mat[15] += mat[3] * x + mat[7] * y + mat[11] * z;
+        target.tX += x;
+        target.tY += y;
+        target.tZ += z;
+      }
+      if (target === this.camera) {
+        this.camera.updateCamera();
+      }
+      return this;
     };
 
     Main.prototype.render = function() {
@@ -341,13 +448,13 @@
       if (!this.gl) {
         throw Error("The WebGL rendering context is " + (ªtype(this.gl)));
       }
-      this.initCanvas();
+      this.gl.clear(this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT);
       index = this.buffers.length;
       results = [];
       while (index--) {
-        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.buffers[index].positions);
+        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.buffers[index].positionBuffer);
         this.gl.vertexAttribPointer(this.aVtxPositionLoc, 3, this.gl.FLOAT, false, 0, 0);
-        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.buffers[index].colors);
+        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.buffers[index].colorBuffer);
         this.gl.vertexAttribPointer(this.aVtxColorLoc, 4, this.gl.FLOAT, false, 0, 0);
         this.gl.uniformMatrix4fv(this.uMatTransformLoc, false, new Float32Array(this.buffers[index].matTransform));
         this.gl.drawArrays(this.gl.TRIANGLES, 0, this.buffers[index].count);

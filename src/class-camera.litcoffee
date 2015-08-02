@@ -48,7 +48,7 @@ The projection-matrix currently applied to this camera.
 
 
 #### `matTransform <array>`
-The transformation-matrix currently applied to this camera. Starts at [0,0,-10].
+The transformation-matrix currently applied to this camera. Starts at (0,0,-10).
 
         @matTransform = new Float32Array([
           1,  0,  0,  0
@@ -71,20 +71,28 @@ Get the location of the 'uMatCamera' uniform in the Vertex Shader.
         @uMatCameraLoc = @gl.getUniformLocation @program, 'uMatCamera'
 
 
-#### `rotateX, rotateY, rotateZ <number>`
-Keep track of rotation currently applied to this camera. 
+#### `rX, rY, rZ <number>`
+Keep track of rotation currently applied to this camera. All start at 0. 
 
-        @rotateX = 0
-        @rotateY = 0
-        @rotateZ = 0
+        @rX = 0
+        @rY = 0
+        @rZ = 0
 
 
-#### `translateX, translateY, translateZ <number>`
-Keep track of translation currently applied to this camera. 
+#### `sX, sY, sZ <number>`
+Keep track of rotation currently applied to this camera. All start at 1.  
 
-        @translateX = 0
-        @translateY = 0
-        @translateZ = -10 # starts at Z = -10
+        @sX = 1
+        @sY = 1
+        @sZ = 1
+
+
+#### `tX, tY, translateZ <number>`
+Keep track of translation currently applied to this camera. Starts at (0,0,-10).
+
+        @tX = 0
+        @tY = 0
+        @tZ = -10 # starts at Z = -10
 
 
 

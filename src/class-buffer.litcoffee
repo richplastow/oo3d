@@ -9,10 +9,6 @@ Buffer
 
       constructor: (config={}, gl) ->
 
-Record all config as instance properties. 
-
-        @[k] = v for k,v of config
-
 
 
 
@@ -28,36 +24,34 @@ WebGL context, passed from the `Main` instance.
           gl must be WebGLRenderingContext not #{ªtype @gl}"""
 
 
-#### `positions <WebGLBuffer>`
+#### `positionBuffer <WebGLBuffer>`
 Xx. 
 
         if ªA != ªtype config.positions then throw Error """
           config.positions must be an array not #{ªtype config.positions}"""
         if config.positions.length % 3 then throw Error """
           config.positions.length must be divisible by 3"""
-        @positions = @gl.createBuffer()
-        @gl.bindBuffer @gl.ARRAY_BUFFER, @positions
+        @positionBuffer = @gl.createBuffer()
+        @gl.bindBuffer @gl.ARRAY_BUFFER, @positionBuffer
         @gl.bufferData(
           @gl.ARRAY_BUFFER,
           new Float32Array(config.positions), @gl.STATIC_DRAW
         )
 
 
-#### `colors <WebGLBuffer>`
+#### `colorBuffer <WebGLBuffer>`
 Xx. 
 
         if ªU == ªtype config.colors
-          config.colors = []
-          config.colors.push 1 for i in [0..(config.positions.length/3*4-1)]
-          ª config.colors
+          config.colors = (1 for i in [0..(config.positions.length/3*4-1)])
         else if ªA != ªtype config.colors then throw Error """
           config.colors must be an array not #{ªtype config.colors}"""
         else if config.colors.length % 4 then throw Error """
           config.colors.length must be divisible by 4"""
         else if (config.positions.length / 3 != config.colors.length / 4)
           throw Error "config.colors has an incorrect vertex count"
-        @colors = @gl.createBuffer()
-        @gl.bindBuffer @gl.ARRAY_BUFFER, @colors
+        @colorBuffer = @gl.createBuffer()
+        @gl.bindBuffer @gl.ARRAY_BUFFER, @colorBuffer
         @gl.bufferData(
           @gl.ARRAY_BUFFER,
           new Float32Array(config.colors), @gl.STATIC_DRAW
@@ -81,20 +75,28 @@ The transformation-matrix currently applied to this buffer. Starts at identity.
         ])
 
 
-#### `rotateX, rotateY, rotateZ <number>`
+#### `rX, rY, rZ <number>`
 Keeps track of rotation currently applied to this buffer. All start at 0. 
 
-        @rotateX = 0
-        @rotateY = 0
-        @rotateZ = 0
+        @rX = 0
+        @rY = 0
+        @rZ = 0
 
 
-#### `translateX, translateY, translateZ <number>`
+#### `sX, sY, sZ <number>`
+Keeps track of rotation currently applied to this buffer. All start at 1. 
+
+        @sX = 1
+        @sY = 1
+        @sZ = 1
+
+
+#### `tX, tY, tZ <number>`
 Keeps track of translation currently applied to this buffer. All start at 0. 
 
-        @translateX = 0
-        @translateY = 0
-        @translateZ = 0
+        @tX = 0
+        @tY = 0
+        @tZ = 0
 
 
 
