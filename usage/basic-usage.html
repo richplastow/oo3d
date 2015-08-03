@@ -67,70 +67,87 @@
 
          ,oo3d = new Oo3d({
             $main: document.getElementById('main')
-           ,color: { background: { r:0.1, g:0.2, b:0.4, a:1 } }
+           ,background: [0.1, 0.2, 0.4, 1]
           })
-         ,tri0 = oo3d.addShape({
-            renderMode: 'LINE_LOOP'
-           ,positions: [
-               0.0,  0.3,  1.0,
-              -0.4, -0.5,  1.0,
-               0.8, -0.3,  1.0
-            ]
-           ,colors: [
-               1.0,  0.0,  0.0,  1.0, // red
-               0.0,  1.0,  0.0,  1.0, // green
-               0.0,  0.0,  1.0,  1.0  // blue
-            ]
+         ,rgbTriPositions = oo3d.addPositionBuffer([
+             0.0,  0.3,  1.0,
+            -0.4, -0.5,  1.0,
+             0.8, -0.3,  1.0
+          ])
+         ,rgbTriColors = oo3d.addColorBuffer([
+             1.0,  0.0,  0.0,  1.0, // red
+             0.0,  1.0,  0.0,  1.0, // green
+             0.0,  0.0,  1.0,  1.0  // blue
+          ])
+         ,cmyTriPositions = oo3d.addPositionBuffer([
+             1.0, -0.3,   0.0,
+             0.4,  0.5,  -1.0,
+             0.2,  0.3,  -1.0
+          ])
+         ,cmyTriColors = oo3d.addColorBuffer([
+             1.0,  1.0,  0.0,  1.0, // yellow
+             0.0,  1.0,  1.0,  1.0, // cyan
+             1.0,  0.0,  1.0,  1.0  // magenta
+          ])
+         ,pyramidPositions = oo3d.addPositionBuffer([
+            // Front face
+             0.0,  1.0,  0.0,
+            -1.0, -1.0,  1.0,
+             1.0, -1.0,  1.0,
+            // Right face
+             0.0,  1.0,  0.0,
+             1.0, -1.0,  1.0,
+             1.0, -1.0, -1.0,
+            // Back face
+             0.0,  1.0,  0.0,
+             1.0, -1.0, -1.0,
+            -1.0, -1.0, -1.0,
+            // Left face
+             0.0,  1.0,  0.0,
+            -1.0, -1.0, -1.0,
+            -1.0, -1.0,  1.0
+          ])
+         ,pyramidColors = oo3d.addColorBuffer([
+            // Front face
+             1.0,  0.25,  0.0,  0.15, // translucent orange
+             1.0,  0.25,  0.0,  0.15, // translucent orange
+             1.0,  0.25,  0.0,  0.15, // translucent orange
+            // Right face
+             0.0,  0.25,  0.0,  0.75, // translucent lime
+             0.0,  0.25,  0.0,  0.75, // translucent lime
+             0.0,  0.25,  0.0,  0.75, // translucent lime
+            // Back face
+             1.0,   0.5,  1.0,  0.95, // translucent pink
+             1.0,   0.5,  1.0,  0.95, // translucent pink
+             1.0,   0.5,  1.0,  0.95, // translucent pink
+            // Left face
+             0.25,  0.5,  1.0,  0.75, // translucent light cyan
+             0.25,  0.5,  1.0,  0.75, // translucent light cyan
+             0.25,  0.5,  1.0,  0.75  // translucent light cyan
+          ])
+         ,rgbTri = oo3d.addShape({
+            positionIndex:  rgbTriPositions
+           ,colorIndex:     rgbTriColors
+           ,renderMode:     'LINE_LOOP'
           })
-         ,tri1 = oo3d.addShape({
-            positions: [
-               1.0, -0.3,   0.0,
-               0.4,  0.5,  -1.0,
-               0.2,  0.3,  -1.0
-            ]
-           ,colors: [
-               1.0,  1.0,  0.0,  1.0, // yellow
-               0.0,  1.0,  1.0,  1.0, // cyan
-               1.0,  0.0,  1.0,  1.0  // magenta
-            ]
+         ,cmyTri = oo3d.addShape({
+            positionIndex:  cmyTriPositions
+           ,colorIndex:     cmyTriColors
           })
-         ,pyramid0 = oo3d.addShape({
-            positions: [
-              // Front face
-               0.0,  1.0,  0.0,
-              -1.0, -1.0,  1.0,
-               1.0, -1.0,  1.0,
-              // Right face
-               0.0,  1.0,  0.0,
-               1.0, -1.0,  1.0,
-               1.0, -1.0, -1.0,
-              // Back face
-               0.0,  1.0,  0.0,
-               1.0, -1.0, -1.0,
-              -1.0, -1.0, -1.0,
-              // Left face
-               0.0,  1.0,  0.0,
-              -1.0, -1.0, -1.0,
-              -1.0, -1.0,  1.0
-            ]
-           ,colors: [
-              // Front face
-               1.0,  0.25,  0.0,  0.15, // translucent orange
-               1.0,  0.25,  0.0,  0.15, // translucent orange
-               1.0,  0.25,  0.0,  0.15, // translucent orange
-              // Right face
-               0.0,  0.25,  0.0,  0.75, // translucent lime
-               0.0,  0.25,  0.0,  0.75, // translucent lime
-               0.0,  0.25,  0.0,  0.75, // translucent lime
-              // Back face
-               1.0,   0.5,  1.0,  0.95, // translucent pink
-               1.0,   0.5,  1.0,  0.95, // translucent pink
-               1.0,   0.5,  1.0,  0.95, // translucent pink
-              // Left face
-               0.25,  0.5,  1.0,  0.75, // translucent light cyan
-               0.25,  0.5,  1.0,  0.75, // translucent light cyan
-               0.25,  0.5,  1.0,  0.75  // translucent light cyan
-            ]
+         ,pyramid = oo3d.addShape({
+            positionIndex:  pyramidPositions
+           ,colorIndex:     pyramidColors
+          })
+         ,usualScene = oo3d.addScene({
+            shapeIndices: [rgbTri,pyramid]
+           ,width:        0.5
+           ,background:   [0.25, 0.25, 0.5, 1]
+           ,isActive:     true
+          })
+         ,pickerScene = oo3d.addScene({
+            shapeIndices: [cmyTri,pyramid]
+           ,left:         0.5
+           ,width:        0.5
           })
         ;
         updateMeasurements();
@@ -138,7 +155,8 @@
 
 
         oo3d.render();
-        // console.log('indexes: ', tri0, tri1, pyramid0);
+        // console.log(oo3d.scenes[usualScene]);
+        // console.log('indexes: ', rgbTri, cmyTri, pyramid);
 
 
         // ROTATE X

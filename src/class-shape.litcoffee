@@ -7,7 +7,7 @@ Shape
       C: 'Shape'
       toString: -> "[object #{@C}]"
 
-      constructor: (config={}, gl) ->
+      constructor: (config={}, main) ->
 
 
 
@@ -19,49 +19,34 @@ Properties
 #### `gl <WebGLRenderingContext>`
 WebGL context, passed from the `Main` instance. 
 
-        @gl = gl
+        @gl = main.gl
         if 'webglrenderingcontext' != ªtype @gl then throw Error """
-          gl must be WebGLRenderingContext not #{ªtype @gl}"""
+          main.gl must be WebGLRenderingContext not #{ªtype @gl}"""
 
 
 #### `positionBuffer <WebGLBuffer>`
-Xx. 
+Xx. @todo describe
 
-        if ªA != ªtype config.positions then throw Error """
-          config.positions must be an array not #{ªtype config.positions}"""
-        if config.positions.length % 3 then throw Error """
-          config.positions.length must be divisible by 3"""
-        @positionBuffer = @gl.createBuffer()
-        @gl.bindBuffer @gl.ARRAY_BUFFER, @positionBuffer
-        @gl.bufferData(
-          @gl.ARRAY_BUFFER,
-          new Float32Array(config.positions), @gl.STATIC_DRAW
-        )
+        @positionBuffer = main.positionBuffers[config.positionIndex]
+        if ! @positionBuffer then throw Error """
+          config.positionIndex #{config.positionIndex} does not exist"""
 
 
 #### `colorBuffer <WebGLBuffer>`
-Xx. 
+Xx. @todo describe
 
-        if ªU == ªtype config.colors
-          config.colors = (1 for i in [0..(config.positions.length/3*4-1)])
-        else if ªA != ªtype config.colors then throw Error """
-          config.colors must be an array not #{ªtype config.colors}"""
-        else if config.colors.length % 4 then throw Error """
-          config.colors.length must be divisible by 4"""
-        else if (config.positions.length / 3 != config.colors.length / 4)
-          throw Error "config.colors has an incorrect vertex count"
-        @colorBuffer = @gl.createBuffer()
-        @gl.bindBuffer @gl.ARRAY_BUFFER, @colorBuffer
-        @gl.bufferData(
-          @gl.ARRAY_BUFFER,
-          new Float32Array(config.colors), @gl.STATIC_DRAW
-        )
+        @colorBuffer = main.colorBuffers[config.colorIndex]
+        if ! @colorBuffer then throw Error """
+          config.colorIndex #{config.colorIndex} does not exist"""
 
 
 #### `count <integer>`
-Xx. 
+Xx. @todo describe
 
-        @count = config.positions.length / 3
+        if @positionBuffer.count != @colorBuffer.count
+          ª @positionBuffer.count, '!=', @colorBuffer.count
+          throw Error "config.positionIndex mismatches config.colorIndex"
+        @count = @positionBuffer.count
 
 
 #### `matTransform <array>`

@@ -78,26 +78,27 @@ after `initGL()` has been run.
 
 
 #### `bkgndR, bkgndG, bkgndB and bkgndA <number 0-1>`
-Used by `initCanvas()` to set the canvas clear-color. 
+The canvas’s background clear-color. 
 
-        if ªO == ªtype config.color?.background
-          @bkgndR = config.color.background.r
-          @bkgndG = config.color.background.g
-          @bkgndB = config.color.background.b
-          @bkgndA = config.color.background.a
+        if ªA == ªtype config.background
+          @bkgndR = config.background[0]
+          @bkgndG = config.background[1]
+          @bkgndB = config.background[2]
+          @bkgndA = config.background[3]
         else
-          @bkgndR = @bkgndG = @bkgndB = 0.125
+          @bkgndR = @bkgndG = @bkgndB = 0.25
           @bkgndA = 1
 
+
 #### `vertexShader and fragmentShader <WebGLShader|null>`
-Xx. 
+Xx. @todo delete
 
         @vertexShader   = null
         @fragmentShader = null
 
 
 #### `program <WebGLProgram|null>`
-Xx. 
+Xx. @todo delete
 
         @program = null
 
@@ -109,10 +110,38 @@ Locations of the `aVtxPosition` and `aVtxColor` attributes in the Vertex Shader.
         @aVtxColorLoc    = null
 
 
+#### `scenes <array of Scenes>`
+Contains all current Scene instances, whether or not they contain any Shapes. 
+
+        @scenes = []
+
+
 #### `shapes <array of Shapes>`
-Contains all current Shape instances, whether or not they appear in any Scenes. 
+Contains all current Shape instances, whether or not any Scenes use them. 
+A Shape can be present in any number of scenes, or in no Scenes at all. In 
+theory a Shape could appear in a Scene more than once, so that it renders on 
+top of itself, but in practice that should be avoided. 
 
         @shapes = []
+
+
+#### `positionBuffers and colorBuffers <array of WebGLBuffers>`
+Contains all position and color buffers, whether or not any Shapes use them.
+
+        @positionBuffers = []
+        @colorBuffers    = []
+
+
+#### `programs <array of WebGLPrograms>`
+Contains all programs, whether or not any Scenes use them. 
+
+        @programs = []
+
+
+#### `shaders <array of WebGLShaders>`
+Contains all vertex and fragment shaders, whether or not any Programs use them. 
+
+        @shaders = []
 
 
 
@@ -167,9 +196,12 @@ Set the canvas context background, and set various WebGL parameters.
       initCanvas: ->
         @gl.clearColor @bkgndR, @bkgndG, @bkgndB, @bkgndA
         @gl.enable @gl.DEPTH_TEST
+        @gl.enable @gl.SCISSOR_TEST
         @gl.depthFunc @gl.LEQUAL
+        @gl.scissor  0, 0, @$main.width, @$main.height
         @gl.clear @gl.COLOR_BUFFER_BIT | @gl.DEPTH_BUFFER_BIT
-        @gl.viewport 0, 0, @$main.width, @$main.height #@todo is this necessary?
+        #@gl.viewport 0, 0, @$main.width, @$main.height @todo is this needed?
+
 
 
 
@@ -210,16 +242,12 @@ Check that it linked successfully.
         if ! @gl.getProgramParameter @program, @gl.LINK_STATUS
           @cleanUp(); throw Error "@program did not link successfully"
 
-Xx. 
-
-        @gl.useProgram @program
-
 Get the index of the vertex-position and vertex-color attributes in the shader 
 program we just created. The index allows us to switch on these attributes, and 
 bind each Shape’s position and color buffer to `aVtxPosition` and `aVtxColor`. 
 
         @aVtxPositionLoc = @gl.getAttribLocation @program, 'aVtxPosition'
-        @aVtxColorLoc = @gl.getAttribLocation @program, 'aVtxColor'
+        @aVtxColorLoc    = @gl.getAttribLocation @program, 'aVtxColor'
 
 Enable the vertex-position and -color attributes. `enableVertexAttribArray()` 
 takes the index of the vertex attribute which should be enabled. 
@@ -230,6 +258,10 @@ takes the index of the vertex attribute which should be enabled.
 Get the location of the 'uMatTransform' vertex shader uniform. 
 
         @uMatTransformLoc = @gl.getUniformLocation @program, 'uMatTransform' 
+
+Xx. 
+
+        @gl.useProgram @program
 
 
 
@@ -249,24 +281,82 @@ API Methods
 -----------
 
 
-#### `addShape()`
-- `config.positions <array>`  x, y, and z coordinates
-- `config.colors <array>`     (optional) r, g, b, and alpha (each [0,1])
-- `<integer>`                 index of the newly added shape in `@shapes`
+#### `addScene()`
+- `config <object>`  passed to the `Scene` contructor
+- `<integer>`        index of the newly added Scene in `@scenes`
 
+Records a new instance of the `Scene` class in `scenes` and returns its index. 
+
+      addScene: (config) ->
+        index = @scenes.length
+        @scenes[index] = new Scene config, @
+        return index
+
+
+
+
+#### `addPositionBuffer()`
+- `positions <array of floats>`  xx @todo describe
+- `<integer>`                    new WebGLBuffer’s index in `@positionBuffers`
+
+Records a new `WebGLBuffer` instance in `positionBuffers` and returns its index.
+
+      addPositionBuffer: (positions) ->
+        index = @positionBuffers.length
+        if ªA != ªtype positions then throw Error """
+          `positions` must be an array not #{ªtype positions}"""
+        else if positions.length % 3 then throw Error """
+          `positions.length` must be divisible by 3"""
+        @positionBuffers[index] = @gl.createBuffer()
+        @positionBuffers[index].count = positions.length / 3
+        @gl.bindBuffer @gl.ARRAY_BUFFER, @positionBuffers[index]
+        @gl.bufferData(
+          @gl.ARRAY_BUFFER,
+          new Float32Array(positions), @gl.STATIC_DRAW
+        )
+        return index
+
+
+
+
+#### `addColorBuffer()`
+- `colors <array of floats>`  xx @todo describe
+- `<integer>`                 new WebGLBuffer’s index in `@colorBuffers`
+
+Records a new `WebGLBuffer` instance in `colorBuffers` and returns its index. 
+
+      addColorBuffer: (colors) ->
+        index = @colorBuffers.length
+        if ªA != ªtype colors then throw Error """
+          `colors` must be an array not #{ªtype colors}"""
+        else if colors.length % 4 then throw Error """
+          `colors.length` must be divisible by 4"""
+        @colorBuffers[index] = @gl.createBuffer()
+        @colorBuffers[index].count = colors.length / 4
+        @gl.bindBuffer @gl.ARRAY_BUFFER, @colorBuffers[index]
+        @gl.bufferData(
+          @gl.ARRAY_BUFFER,
+          new Float32Array(colors), @gl.STATIC_DRAW
+        )
+        return index
+
+
+
+
+#### `addShape()`
+- `config.renderMode <string>`  (optional)
+- `config.positions <array>`    x, y, and z coordinates
+- `config.colors <array>`       (optional) r, g, b, and alpha (each [0,1])
+- `<integer>`                   index of the newly added shape in `@shapes`
+
+Records a new instance of the `Shape` class in `shapes` and returns its index. 
 If `config.colors` is not set, all vertices are set to 100% opacity white.  
 [From MDN’s second WebGL article, again.](https://goo.gl/q6YFNe)  
 
       addShape: (config) ->
-
-Record a new instance of the `Shape` class in `shapes`, and get its index. 
-
         index = @shapes.length
-        @shapes[index] = new Shape config, @gl
-
-Return the index of the newly added shape in `@shapes`. 
-
-        index
+        @shapes[index] = new Shape config, @
+        return index
 
 
 
@@ -520,83 +610,21 @@ entire Scene. @todo scene
 
 
 #### `render()`
-Draw each shape to the canvas. 
+Draw each active scene to the canvas. 
 
       render: ->
         if ! @gl then throw Error "The WebGL rendering context is #{ªtype @gl}"
+
+        @gl.clearColor @bkgndR, @bkgndG, @bkgndB, @bkgndA
+        @gl.scissor 0, 0, @$main.width, @$main.height
         @gl.clear @gl.COLOR_BUFFER_BIT | @gl.DEPTH_BUFFER_BIT
-        index = @shapes.length
+
+        index = @scenes.length
         while index--
+          scene = @scenes[index]
+          if scene.isActive then scene.render()
 
-Set each shape’s `positionBuffer` as the WebGLBuffer to be worked on. The 
-previous binding is automatically broken. 
-
-- `target <integer>`        specify what `positionBuffer` contains: 
-  - `ARRAY_BUFFER`          contains vertex attributes — use `drawArrays()`
-  - `ELEMENT_ARRAY_BUFFER`  contains only indices — use `drawElements()`
-- `buffer <WebGLBuffer>`    a WebGLBuffer object to bind to the target
-
-          shape = @shapes[index]
-          @gl.bindBuffer @gl.ARRAY_BUFFER, shape.positionBuffer
-
-
-Specify the attribute-location and data-format for the newly bound shape. 
-
-+ `index <WebGLUniformLocation>`  location of target attribute in the shape
-+ `size <integer>`        components per attribute: 1, 2, 3 or (default) 4
-+ `type <integer>`        the data type of each component in the array: 
-  * `BYTE`                  signed 8-bit two’s complement value, -128 to +127
-  * `FIXED`                 16-bit fixed-point two’s complement value
-  * `FLOAT` (default)       32-bit single-precision floating-point value
-  * `SHORT`                 signed 16-bit two’s complement value
-  * `UNSIGNED_BYTE`         unsigned 8-bit value
-  * `UNSIGNED_SHORT`        unsigned 16-bit value
-+ `normalized <boolean>`  Must be `FALSE` if `type` is `FIXED` or `FLOAT`
-  * `TRUE`                  integers represent [-1,1] if signed, [0,1] if not
-  * `FALSE`                 values are converted to fixed-point when accessed
-+ `stride <integer>`      default is 0, max is 255, must be multiple of `type`, 
-                          defines the byte offset between consecutive attributes
-+ `pointer <integer>`     default is 0, must be multiple of `type`, defines the 
-                          first component’s first attribute’s offset
-- `<undefined>`           does not return anything
-
-          @gl.vertexAttribPointer @aVtxPositionLoc, 3, @gl.FLOAT, false, 0, 0
-
-
-Repeat the two steps above, for the vertex-colors. 
-
-          @gl.bindBuffer @gl.ARRAY_BUFFER, shape.colorBuffer
-          @gl.vertexAttribPointer @aVtxColorLoc, 4, @gl.FLOAT, false, 0, 0
-
-Set the transform. 
-
-          @gl.uniformMatrix4fv(
-            @uMatTransformLoc,
-            false,
-            new Float32Array shape.matTransform
-          )
-
-Get the render mode. @todo scene override
-
-          mode = @gl[shape.renderMode]
-
-Render geometric primitives, using the currently bound vertex data. 
-
-+ `mode <integer>`   the kind of geometric primitives to render:
-  * `POINTS`           a single dot per vertex, so 10 vertices draws 10 dots
-  * `LINES`            lines between vertex pairs, 10 vertices draws 5 lines
-  * `LINE_STRIP`       join all vertices using lines, 10 vertices draws 9 lines
-  * `LINE_LOOP`        as LINE_STRIP but connects last vertex back to the first
-  * `TRIANGLES`        a triangle for each set of three consecutive vertices
-  * `TRIANGLE_STRIP`   vertex 4 adds a new triangle after the 1st has been drawn
-  * `TRIANGLE_FAN`     like TRIANGLE_STRIP, but creates a fan shaped output
-+ `first <integer>`  the first element to render in the array of vector points
-+ `count <integer>`  the number of vector points to render, eg 3 for a triangle
-- `<undefined>`      does not return anything
-
-          @gl.drawArrays mode, 0, shape.count
-
-@todo describe
+@todo is this needed?
 
           @gl.flush()
 
