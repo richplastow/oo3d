@@ -197,10 +197,17 @@ Set the canvas context background, and set various WebGL parameters.
         @gl.clearColor @bkgndR, @bkgndG, @bkgndB, @bkgndA
         @gl.enable @gl.DEPTH_TEST
         @gl.enable @gl.SCISSOR_TEST
-        @gl.depthFunc @gl.LEQUAL
-        @gl.scissor  0, 0, @$main.width, @$main.height
+        @gl.depthFunc @gl.LEQUAL # less-than-or-equal (default is gl.LESS)
+        @gl.scissor 0, 0, @$main.width, @$main.height
         @gl.clear @gl.COLOR_BUFFER_BIT | @gl.DEPTH_BUFFER_BIT
         #@gl.viewport 0, 0, @$main.width, @$main.height @todo is this needed?
+
+        @gl.enable @gl.BLEND
+        @gl.blendFunc @gl.ONE, @gl.ONE
+        #@gl.blendColor 0.2, 0.7, 0.1, 0.4
+        #gl.blendEquationSeparate gl.FUNC_REVERSE_SUBTRACT, gl.FUNC_SUBTRACT
+        #gl.depthMask true
+        #gl.disable gl.DEPTH_TEST
 
 
 
@@ -242,6 +249,12 @@ Check that it linked successfully.
         if ! @gl.getProgramParameter @program, @gl.LINK_STATUS
           @cleanUp(); throw Error "@program did not link successfully"
 
+The WebGL specs say that locations can be got as soon as the program is linked. 
+But some implementations may require that we also `useprogram()` before getting 
+the locations, [according to wiki.lwjgl.org.](http://goo.gl/HBuA8U)
+
+        @gl.useProgram @program
+
 Get the index of the vertex-position and vertex-color attributes in the shader 
 program we just created. The index allows us to switch on these attributes, and 
 bind each Shape’s position and color buffer to `aVtxPosition` and `aVtxColor`. 
@@ -258,10 +271,6 @@ takes the index of the vertex attribute which should be enabled.
 Get the location of the 'uMatTransform' vertex shader uniform. 
 
         @uMatTransformLoc = @gl.getUniformLocation @program, 'uMatTransform' 
-
-Xx. 
-
-        @gl.useProgram @program
 
 
 
@@ -667,6 +676,7 @@ simplicity, `initShaders()` just grabs the strings from these functions.
     getFragmentSource = -> """
       precision mediump float; // boilerplate for mobile-friendly shaders
       varying vec4 vColor;     // linear-interpolated input from fragment-shader
+      vec4 blue = vec4(0.1,0.1,0.9,0.5);
 
       void main(void) {
         gl_FragColor = vColor;

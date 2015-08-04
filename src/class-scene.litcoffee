@@ -56,10 +56,10 @@ The Scene’s background clear-color.
           @bkgndA = 1
 
 
-#### `program <WebGLProgram|null>`
-Xx. 
+#### `renderers <array of Renderers>`
+This Scene’s Renderers, referenced from the main instance’s `renderers` array. 
 
-        @program = null
+        #@renderers = (main.renderers[index] for index in config.rendererIndices)
 
 
 #### `shapes <array of Shapes>`
@@ -72,6 +72,15 @@ This Scene’s Shapes, referenced from the main instance’s `shapes` array.
 
 Methods
 -------
+
+
+#### `renderz()`
+Run each renderer. 
+
+      renderz: ->
+
+        renderer.render(@main, @shapes) for renderer in @renderers
+
 
 
 #### `render()`
@@ -148,7 +157,7 @@ Set the transform.
           gl.uniformMatrix4fv(
             uMatTransformLoc,
             false,
-            new Float32Array shape.matTransform
+            shape.matTransform
           )
 
 Get the render mode. @todo scene override
@@ -157,7 +166,7 @@ Get the render mode. @todo scene override
 
 Render geometric primitives, using the currently bound vertex data. 
 
-+ `mode <integer>`   the kind of geometric primitives to render:
+- `mode <integer>`   the kind of geometric primitives to render:
   * `POINTS`           a single dot per vertex, so 10 vertices draws 10 dots
   * `LINES`            lines between vertex pairs, 10 vertices draws 5 lines
   * `LINE_STRIP`       join all vertices using lines, 10 vertices draws 9 lines
@@ -165,8 +174,8 @@ Render geometric primitives, using the currently bound vertex data.
   * `TRIANGLES`        a triangle for each set of three consecutive vertices
   * `TRIANGLE_STRIP`   vertex 4 adds a new triangle after the 1st has been drawn
   * `TRIANGLE_FAN`     like TRIANGLE_STRIP, but creates a fan shaped output
-+ `first <integer>`  the first element to render in the array of vector points
-+ `count <integer>`  the number of vector points to render, eg 3 for a triangle
+- `first <integer>`  the first element to render in the array of vector points
+- `count <integer>`  the number of vector points to render, eg 3 for a triangle
 - `<undefined>`      does not return anything
 
           gl.drawArrays mode, 0, shape.count

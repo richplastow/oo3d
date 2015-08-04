@@ -49,7 +49,7 @@ Xx. @todo describe
         @count = @positionBuffer.count
 
 
-#### `matTransform <array>`
+#### `matTransform <Float32Array>`
 The transformation-matrix currently applied to this shape. Starts at identity. 
 
         @matTransform = new Float32Array([

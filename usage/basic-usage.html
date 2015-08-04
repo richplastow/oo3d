@@ -75,9 +75,9 @@
              0.8, -0.3,  1.0
           ])
          ,rgbTriColors = oo3d.addColorBuffer([
-             1.0,  0.0,  0.0,  1.0, // red
-             0.0,  1.0,  0.0,  1.0, // green
-             0.0,  0.0,  1.0,  1.0  // blue
+             1.0,  0.0,  0.0,  0.5, // red
+             0.0,  1.0,  0.0,  0.5, // green
+             0.0,  0.0,  1.0,  0.5  // blue
           ])
          ,cmyTriPositions = oo3d.addPositionBuffer([
              1.0, -0.3,   0.0,
@@ -85,9 +85,9 @@
              0.2,  0.3,  -1.0
           ])
          ,cmyTriColors = oo3d.addColorBuffer([
-             1.0,  1.0,  0.0,  1.0, // yellow
-             0.0,  1.0,  1.0,  1.0, // cyan
-             1.0,  0.0,  1.0,  1.0  // magenta
+             1.0,  1.0,  0.0,  0.9, // yellow
+             0.0,  1.0,  1.0,  0.9, // cyan
+             1.0,  0.0,  1.0,  0.9  // magenta
           ])
          ,pyramidPositions = oo3d.addPositionBuffer([
             // Front face
@@ -109,17 +109,17 @@
           ])
          ,pyramidColors = oo3d.addColorBuffer([
             // Front face
-             1.0,  0.25,  0.0,  0.15, // translucent orange
-             1.0,  0.25,  0.0,  0.15, // translucent orange
-             1.0,  0.25,  0.0,  0.15, // translucent orange
+             0.3,   0.0,  0.0,  0.95, // near-opaque dark red
+             0.3,   0.0,  0.0,  0.95, // near-opaque dark red
+             0.3,   0.0,  0.0,  0.95, // near-opaque dark red
             // Right face
              0.0,  0.25,  0.0,  0.75, // translucent lime
              0.0,  0.25,  0.0,  0.75, // translucent lime
              0.0,  0.25,  0.0,  0.75, // translucent lime
             // Back face
-             1.0,   0.5,  1.0,  0.95, // translucent pink
-             1.0,   0.5,  1.0,  0.95, // translucent pink
-             1.0,   0.5,  1.0,  0.95, // translucent pink
+             1.0,  0.25,  0.0,  0.15, // translucent orange
+             1.0,  0.25,  0.0,  0.15, // translucent orange
+             1.0,  0.25,  0.0,  0.15, // translucent orange
             // Left face
              0.25,  0.5,  1.0,  0.75, // translucent light cyan
              0.25,  0.5,  1.0,  0.75, // translucent light cyan
@@ -128,11 +128,11 @@
          ,rgbTri = oo3d.addShape({
             positionIndex:  rgbTriPositions
            ,colorIndex:     rgbTriColors
-           ,renderMode:     'LINE_LOOP'
           })
          ,cmyTri = oo3d.addShape({
             positionIndex:  cmyTriPositions
            ,colorIndex:     cmyTriColors
+           ,renderMode:     'LINE_LOOP'
           })
          ,pyramid = oo3d.addShape({
             positionIndex:  pyramidPositions
@@ -140,20 +140,21 @@
           })
          ,usualScene = oo3d.addScene({
             shapeIndices: [rgbTri,pyramid]
-           ,width:        0.5
+           ,width:        0.55
            ,background:   [0.25, 0.25, 0.5, 1]
            ,isActive:     true
           })
          ,pickerScene = oo3d.addScene({
             shapeIndices: [cmyTri,pyramid]
-           ,left:         0.5
-           ,width:        0.5
+           ,left:         0.45
+           ,width:        0.55
           })
         ;
         updateMeasurements();
         $target.onchange = updateMeasurements;
 
 
+        oo3d.rotate(0,1,0,pyramid);
         oo3d.render();
         // console.log(oo3d.scenes[usualScene]);
         // console.log('indexes: ', rgbTri, cmyTri, pyramid);
@@ -306,7 +307,7 @@
 
 
         // TRANSLATE Z
-        $translateZLabel.curr = -10;
+        $translateZLabel.curr = -4;
         $translateZMinus.onclick = function () {
           $translateZLabel.curr -= 1
           oo3d.translate(0, 0, -1, $target.value ? +$target.value : undefined);
@@ -388,7 +389,7 @@
 <body>
   <h1>Oo3d Basic Usage</h1>
   <a href="../index.html">Home</a>
-  <canvas id="main"></canvas>
+  <canvas id="main" style="background-image: url(data:image/gif;base64,R0lGODlhEAAQAIABAAAAAMzMzCH5BAEAAAEALAAAAAAQABAAAAInjB8AyKja2HvxTFjNrDgt/XmdRV2haFLktkmqR8ZRm5kZOs7vnRsFADs=);"></canvas>
   <br>
   <select id="target">
     <option value="">Camera</option>

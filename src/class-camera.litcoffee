@@ -48,13 +48,13 @@ The projection-matrix currently applied to this camera.
 
 
 #### `matTransform <array>`
-The transformation-matrix currently applied to this camera. Starts at (0,0,-10).
+The transformation-matrix currently applied to this camera. Starts at (0,0,-4).
 
         @matTransform = new Float32Array([
           1,  0,  0,  0
           0,  1,  0,  0
           0,  0,  1,  0
-          0,  0,-10,  1 # starts at Z = -10
+          0,  0, -4,  1 # starts at Z = -4
         ])
 
 
@@ -88,11 +88,11 @@ Keep track of rotation currently applied to this camera. All start at 1.
 
 
 #### `tX, tY, translateZ <number>`
-Keep track of translation currently applied to this camera. Starts at (0,0,-10).
+Keep track of translation currently applied to this camera. Starts at (0,0,-4).
 
         @tX = 0
         @tY = 0
-        @tZ = -10 # starts at Z = -10
+        @tZ = -4 # starts at Z = -4
 
 
 
