@@ -43,19 +43,6 @@ Where in the main canvas the Scene should be rendered.
         @height = config.height or 1
 
 
-#### `bkgndR, bkgndG, bkgndB and bkgndA <number 0-1>`
-The Scene’s background clear-color. 
-
-        if ªA == ªtype config.background
-          @bkgndR = config.background[0]
-          @bkgndG = config.background[1]
-          @bkgndB = config.background[2]
-          @bkgndA = config.background[3]
-        else
-          @bkgndR = @bkgndG = @bkgndB = 0.25
-          @bkgndA = 1
-
-
 #### `renderers <array of Renderers>`
 This Scene’s Renderers, referenced from the main instance’s `renderers` array. 
 
@@ -99,14 +86,12 @@ For better performance, use local variables.
 
         if ! gl then throw Error "The WebGL rendering context is #{ªtype gl}"
 
-        gl.clearColor @bkgndR, @bkgndG, @bkgndB, @bkgndA
         gl.scissor(
           @left   * $main.width,
           @top    * $main.height,
           @width  * $main.width,
           @height * $main.height
         )
-        gl.clear gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT
 
         #@todo switch to this Scene’s current program
 

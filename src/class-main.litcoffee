@@ -202,6 +202,8 @@ Set the canvas context background, and set various WebGL parameters.
         @gl.clear @gl.COLOR_BUFFER_BIT | @gl.DEPTH_BUFFER_BIT
         #@gl.viewport 0, 0, @$main.width, @$main.height @todo is this needed?
 
+        @gl.enable @gl.VERTEX_PROGRAM_POINT_SIZE
+        #@gl.enable @gl.POINT_SMOOTH #@todo why not working?
         #@gl.enable @gl.BLEND
         #@gl.blendFunc @gl.ONE, @gl.ONE
         #@gl.blendColor 0.2, 0.7, 0.1, 0.4
@@ -658,6 +660,9 @@ simplicity, `initShaders()` just grabs the strings from these functions.
       varying vec4 vColor; // declare `vColor`
 
       void main() {
+
+        // 
+        gl_PointSize = 4.0;
 
         // Multiply the position by the camera transformation and matrices
         // Note that the order of these three is important

@@ -117,13 +117,13 @@
              0.0,  0.25,  0.0,  0.75, // translucent lime
              0.0,  0.25,  0.0,  0.75, // translucent lime
             // Back face
-             1.0,  0.25,  0.0,  0.15, // translucent orange
-             1.0,  0.25,  0.0,  0.15, // translucent orange
-             1.0,  0.25,  0.0,  0.15, // translucent orange
+             1.0,  0.25,  0.0,  0.10, // translucent orange
+             1.0,  0.25,  0.0,  0.10, // translucent orange
+             1.0,  0.25,  0.0,  0.10, // translucent orange
             // Left face
-             0.25,  0.5,  1.0,  0.75, // translucent light cyan
-             0.25,  0.5,  1.0,  0.75, // translucent light cyan
-             0.25,  0.5,  1.0,  0.75  // translucent light cyan
+             0.25,  0.5,  1.0,  0.05, // translucent light cyan
+             0.25,  0.5,  1.0,  0.05, // translucent light cyan
+             0.25,  0.5,  1.0,  0.05  // translucent light cyan
           ])
          ,rgbTri = oo3d.addShape({
             positionIndex:  rgbTriPositions
@@ -138,19 +138,17 @@
          ,pyramid = oo3d.addShape({
             positionIndex:  pyramidPositions
            ,colorIndex:     pyramidColors
-           ,blend:          ['SRC_COLOR','DST_COLOR'] // sfactor, dfactor
+           ,blend:          ['ONE','DST_COLOR'] // sfactor, dfactor
           })
          ,usualScene = oo3d.addScene({
             shapeIndices: [rgbTri,pyramid]
            ,width:        0.55
-           ,background:   [0.25, 0.25, 0.5, 0.9]
            ,isActive:     true
           })
          ,pickerScene = oo3d.addScene({
             shapeIndices: [cmyTri,pyramid]
            ,left:         0.45
            ,width:        0.55
-           ,background:   [0.25, 0.25, 0.25, 0.9]
           })
         ;
         updateMeasurements();
