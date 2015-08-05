@@ -67,7 +67,7 @@
 
          ,oo3d = new Oo3d({
             $main: document.getElementById('main')
-           ,background: [0.1, 0.2, 0.4, 1]
+           ,background: [0.1, 0.2, 0.4, 0.9]
           })
          ,rgbTriPositions = oo3d.addPositionBuffer([
              0.0,  0.3,  1.0,
@@ -128,6 +128,7 @@
          ,rgbTri = oo3d.addShape({
             positionIndex:  rgbTriPositions
            ,colorIndex:     rgbTriColors
+           ,blend:          ['SRC_COLOR','SRC_COLOR'] // sfactor, dfactor
           })
          ,cmyTri = oo3d.addShape({
             positionIndex:  cmyTriPositions
@@ -137,17 +138,19 @@
          ,pyramid = oo3d.addShape({
             positionIndex:  pyramidPositions
            ,colorIndex:     pyramidColors
+           ,blend:          ['SRC_COLOR','DST_COLOR'] // sfactor, dfactor
           })
          ,usualScene = oo3d.addScene({
             shapeIndices: [rgbTri,pyramid]
            ,width:        0.55
-           ,background:   [0.25, 0.25, 0.5, 1]
+           ,background:   [0.25, 0.25, 0.5, 0.9]
            ,isActive:     true
           })
          ,pickerScene = oo3d.addScene({
             shapeIndices: [cmyTri,pyramid]
            ,left:         0.45
            ,width:        0.55
+           ,background:   [0.25, 0.25, 0.25, 0.9]
           })
         ;
         updateMeasurements();

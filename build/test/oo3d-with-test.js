@@ -207,9 +207,7 @@
       this.gl.enable(this.gl.SCISSOR_TEST);
       this.gl.depthFunc(this.gl.LEQUAL);
       this.gl.scissor(0, 0, this.$main.width, this.$main.height);
-      this.gl.clear(this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT);
-      this.gl.enable(this.gl.BLEND);
-      return this.gl.blendFunc(this.gl.ONE, this.gl.ONE);
+      return this.gl.clear(this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT);
     };
 
     Main.prototype.initShaders = function() {
@@ -593,6 +591,12 @@
         gl.bindBuffer(gl.ARRAY_BUFFER, shape.colorBuffer);
         gl.vertexAttribPointer(aVtxColorLoc, 4, gl.FLOAT, false, 0, 0);
         gl.uniformMatrix4fv(uMatTransformLoc, false, shape.matTransform);
+        if (null !== shape.sBlend) {
+          gl.enable(gl.BLEND);
+          gl.blendFunc(shape.sBlend, shape.dBlend);
+        } else {
+          gl.disable(gl.BLEND);
+        }
         mode = gl[shape.renderMode];
         gl.drawArrays(mode, 0, shape.count);
         gl.flush();
@@ -648,6 +652,13 @@
         throw Error("config.positionIndex mismatches config.colorIndex");
       }
       this.count = this.positionBuffer.count;
+      if (ªA === ªtype(config.blend)) {
+        this.sBlend = this.gl[config.blend[0]];
+        this.dBlend = this.gl[config.blend[1]];
+      } else {
+        this.sBlend = null;
+        this.dBlend = null;
+      }
       this.matTransform = new Float32Array([1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]);
       this.rX = 0;
       this.rY = 0;

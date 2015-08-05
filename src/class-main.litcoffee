@@ -202,8 +202,8 @@ Set the canvas context background, and set various WebGL parameters.
         @gl.clear @gl.COLOR_BUFFER_BIT | @gl.DEPTH_BUFFER_BIT
         #@gl.viewport 0, 0, @$main.width, @$main.height @todo is this needed?
 
-        @gl.enable @gl.BLEND
-        @gl.blendFunc @gl.ONE, @gl.ONE
+        #@gl.enable @gl.BLEND
+        #@gl.blendFunc @gl.ONE, @gl.ONE
         #@gl.blendColor 0.2, 0.7, 0.1, 0.4
         #gl.blendEquationSeparate gl.FUNC_REVERSE_SUBTRACT, gl.FUNC_SUBTRACT
         #gl.depthMask true

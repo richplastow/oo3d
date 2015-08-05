@@ -49,6 +49,40 @@ Xx. @todo describe
         @count = @positionBuffer.count
 
 
+#### `sBlend and dBlend <integer|null>`
+Xx. @todo describe
+
+* `ZERO`                 0          0          0          0  
+                         Multiply by all colors by 0
+* `ONE`                  1          1          1          1  
+                         Multiply all colors by 1
+* `SRC_COLOR`            Rs         Gs         Bs         As  
+                         Multiply by source color value
+* `ONE_MINUS_SRC_COLOR`  (1-Rs)     (1-Gs)     (1-Bs)     (1-As)  
+                         Multiply by 1 minus each color value
+* `DST_COLOR`            Rd         Gd         Bd         Ad  
+                         Multiply by destination color value
+* `ONE_MINUS_DST_COLOR`  (1-Rd)     (1-Gd)     (1-Bd)     (1-Ad)  
+                         Multiply by 1 minus each color value
+* `SRC_ALPHA`            As         As         As         As  
+                         Multiply all colors by source alpha value
+* `ONE_MINUS_SRC_ALPHA`  (1-As)     (1-As)     (1-As)     (1-As)  
+                         Multiply all colors by 1 minus source alpha value
+* `DST_ALPHA`            Ad         Ad         Ad         Ad  
+                         Multiply all colors by destination alpha value
+* `ONE_MINUS_DST_ALPHA`  (1-Ad)     (1-Ad)     (1-Ad)     (1-Ad)  
+                         Multiply all colors by 1 minus each alpha value
+* `SRC_ALPHA_SATURATE`   min(As,Ad) min(As,Ad) min(As,Ad) 1  
+                         Multiply by the smaller of source or dest alpha value
+
+        if ªA == ªtype config.blend
+          @sBlend = @gl[ config.blend[0] ]
+          @dBlend = @gl[ config.blend[1] ]
+        else
+          @sBlend = null
+          @dBlend = null
+
+
 #### `matTransform <Float32Array>`
 The transformation-matrix currently applied to this shape. Starts at identity. 
 

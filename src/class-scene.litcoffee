@@ -160,6 +160,15 @@ Set the transform.
             shape.matTransform
           )
 
+Apply the blend-mode, if any.  
+@todo gather shapes with identical blend-modes, and draw them one after another
+
+          if null != shape.sBlend
+            gl.enable gl.BLEND
+            gl.blendFunc shape.sBlend, shape.dBlend
+          else
+            gl.disable gl.BLEND
+
 Get the render mode. @todo scene override
 
           mode = gl[shape.renderMode]
