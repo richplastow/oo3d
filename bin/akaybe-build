@@ -1,13 +1,13 @@
 #!/usr/bin/env node
 
-/*! akaybe-build 0.0.6 //// MIT Licence //// http://akaybe.richplastow.com/ */
+/*! akaybe-build 0.0.7 //// MIT Licence //// http://akaybe.richplastow.com/ */
 
 !function (root) { 'use strict';
 
 
     //// Define constants.
     var C     = 'akaybe-build'
-      , V     = '0.0.6'
+      , V     = '0.0.7'
 
 
     //// Load Node modules.
@@ -222,7 +222,7 @@
 
     //// Concatenate and compile the CoffeeScript, and save the JavaScript file.
       + 'cat - '  // `cat` accepts piped text unix.stackexchange.com/a/16364
-      + 'src/*.litcoffee '
+      + 'src/*.litcoffee src/**/*.litcoffee '
       + '| '      // pipe concatenated CoffeeScript into `coffee`
       + 'coffee'  // the CoffeeScript compiler
       + ' -s'     // --stdio     listen for and compile scripts over stdio
@@ -243,7 +243,7 @@
       + ' \\n'    // newline after the `ªC` and `ªV` vars
       + '" | '    // end the string, and pipe it to `cat`
       + 'cat - '  // `cat` accepts piped text unix.stackexchange.com/a/16364
-      + 'src/*.litcoffee test/*.litcoffee '
+      + 'src/*.litcoffee src/**/*.litcoffee test/*.litcoffee '
       + '| '      // pipe concatenated CoffeeScript into `coffee`
       + 'coffee'  // the CoffeeScript compiler
       + ' -s'     // --stdio     listen for and compile scripts over stdio

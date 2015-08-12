@@ -1,17 +1,16 @@
 Camera
 ======
 
+
 @todo describe
 
     class Camera
       C: 'Camera'
       toString: -> "[object #{@C}]"
 
-      constructor: (scene, config={}) ->
-
-Record all config as instance properties. 
-
-        @[k] = v for k,v of config
+      constructor: (@main, config={}) ->
+        if ªO != ªtype config then throw TypeError "
+          `config` must be object not #{ªtype config}"
 
 
 
@@ -20,31 +19,65 @@ Properties
 ----------
 
 
-#### `gl <WebGLRenderingContext>`
-WebGL context, passed from the `Main` instance. 
+#### `main <Oo3d>`
+Xx. @todo describe
 
-        @gl = scene.gl
-        if 'webglrenderingcontext' != ªtype @gl then throw Error """
-          scene.gl must be WebGLRenderingContext not #{ªtype @gl}"""
-
-
-#### `program <WebGLProgram>`
-WebGL context’s program, passed from the `Main` instance. 
-
-        @program = scene.program
-        if 'webglprogram' != ªtype @program then throw Error """
-          scene.program must be WebGLProgram not #{ªtype @program}"""
+        if ªO != ªtype @main then throw TypeError "
+          `main` must be object not #{ªtype @main}"
+        if '[object Oo3d]' != ''+@main then throw TypeError "
+          `main` must be [object Oo3d] not #{@main}"
 
 
-#### `matProjection <array|null>`
-The projection-matrix currently applied to this camera. 
+#### `fovy <number>`
+@todo describe
 
-        @matProjection = mat4.perspective(
-          @fovy,
-          @aspect,
-          1,   # near
-          100  # far
-        )
+        @fovy = config.fovy
+        if ! @fovy then @fovy = 0.785398163 # 45º
+        else if 'number' != ªtype @fovy then throw TypeError "
+          If set, config.fovy must be number not #{ªtype @fovy}"
+        else if 0 >= @fovy then throw RangeError "
+          If set, config.fovy must be greater than 0 not #{@fovy}"
+
+
+#### `aspect <number>`
+@todo describe
+
+        @aspect = config.aspect
+        if ! @aspect then @aspect = @main.$main.width / @main.$main.height
+        else if 'number' != ªtype @aspect then throw TypeError "
+          If set, config.aspect must be number not #{ªtype @aspect}"
+        else if 0 >= @aspect then throw RangeError "
+          If set, config.aspect must be greater than 0 not #{@aspect}"
+
+
+#### `uMatCameraLoc <WebGLUniformLocation|null>`
+Get the location of the 'uMatCamera' uniform in the Vertex Shader. 
+
+        @uMatCameraLoc = @main.gl.getUniformLocation @main.program, 'uMatCamera'
+
+
+#### `rX, rY, rZ <number>`
+Keep track of rotation currently applied to this camera. All start at 0. 
+
+        @rX = 0
+        @rY = 0
+        @rZ = 0
+
+
+#### `sX, sY, sZ <number>`
+Keep track of scale currently applied to this camera. All start at 1. 
+
+        @sX = 1
+        @sY = 1
+        @sZ = 1
+
+
+#### `tX, tY, translateZ <number>`
+Keep track of translation currently applied to this camera. Starts at (0,0,-4). 
+
+        @tX = 0
+        @tY = 0
+        @tZ = -4 # starts at Z = -4
 
 
 #### `matTransform <array>`
@@ -58,66 +91,38 @@ The transformation-matrix currently applied to this camera. Starts at (0,0,-4).
         ])
 
 
+#### `matProjection <array|null>`
+The projection-matrix currently applied to this camera. 
+
+        @matProjection = mat4.perspective(
+          @fovy,
+          @aspect,
+          1,   # near
+          100  # far
+        )
+        ª @fovy, @aspect
+
+
 #### `matCamera <array|null>`
 Result of the camera-projection multiplied by the camera-transformation. 
-Will be intialized by `updateCamera()`, below. 
+Its initial value is calculated by calling `updateCamera()`. 
 
         @matCamera = null
-
-
-#### `uMatCameraLoc <WebGLUniformLocation|null>`
-Get the location of the 'uMatCamera' uniform in the Vertex Shader. 
-
-        @uMatCameraLoc = @gl.getUniformLocation @program, 'uMatCamera'
-
-
-#### `rX, rY, rZ <number>`
-Keep track of rotation currently applied to this camera. All start at 0. 
-
-        @rX = 0
-        @rY = 0
-        @rZ = 0
-
-
-#### `sX, sY, sZ <number>`
-Keep track of rotation currently applied to this camera. All start at 1.  
-
-        @sX = 1
-        @sY = 1
-        @sZ = 1
-
-
-#### `tX, tY, translateZ <number>`
-Keep track of translation currently applied to this camera. Starts at (0,0,-4).
-
-        @tX = 0
-        @tY = 0
-        @tZ = -4 # starts at Z = -4
-
-
-
-
-Init
-----
-
-
-Calculate the initial camera-matrix, and update the 'uMatCamera' uniform. 
-
         @updateCamera()
 
 
 
 
-Init Methods
-------------
+Methods
+-------
 
 
 #### `updateCamera()`
-Calculate the camera-matrix, and update the 'uMatCamera' uniform. 
+Calculate the camera-matrix, and update the 'uMatCamera' uniform. @todo move commented block elsewhere
 
       updateCamera: ->
         @matCamera = mat4.multiply @matProjection, @matTransform
-        @gl.uniformMatrix4fv(
+        @main.gl.uniformMatrix4fv(
           @uMatCameraLoc,
           false,
           new Float32Array @matCamera

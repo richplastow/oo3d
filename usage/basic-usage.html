@@ -52,7 +52,7 @@
          ,$renderModeLabel     = $('#renderModeLabel')
 
          ,updateMeasurements = function () {
-            target = $target.value ? oo3d.shapes[+$target.value] : oo3d.camera;
+            target = $target.value ? oo3d.items[+$target.value] : oo3d.cameras[0];
             $rotateXLabel.innerHTML    = target.rX;
             $rotateYLabel.innerHTML    = target.rY;
             $rotateZLabel.innerHTML    = target.rZ;
@@ -65,8 +65,9 @@
             $renderModeLabel.innerHTML = target.renderMode;
           }
 
+         ,$main = document.getElementById('main')
          ,oo3d = new Oo3d({
-            $main: document.getElementById('main')
+            $main: $main
            ,background: [0.1, 0.2, 0.4, 0.9]
           })
          ,rgbTriPositions = oo3d.addPositionBuffer([
@@ -150,6 +151,65 @@
            ,left:         0.45
            ,width:        0.55
           })
+
+
+          //// Create Items
+         ,rgbTriI = oo3d.addItem({
+            positionIndex:  rgbTriPositions
+           ,colorIndex:     rgbTriColors
+           ,blend:          ['SRC_COLOR','SRC_COLOR'] // sfactor, dfactor
+          })
+         ,cmyTriI = oo3d.addItem({
+            positionIndex:  cmyTriPositions
+           ,colorIndex:     cmyTriColors
+           ,renderMode:     'LINE_LOOP'
+          })
+         ,pyramidI = oo3d.addItem({
+            positionIndex:  pyramidPositions
+           ,colorIndex:     pyramidColors
+           ,blend:          ['ONE','DST_COLOR'] // sfactor, dfactor
+          })
+
+
+          //// Create Cameras
+         ,usualCameraI = oo3d.addCamera({
+            fovy:   0.785398163 // 45º
+           ,aspect: $main.width / $main.height
+          })
+         ,secondCameraI = oo3d.addCamera({
+            fovy:   1
+           ,aspect: $main.width / $main.height
+          })
+
+
+          //// Create Programs
+         ,usualProgramI = oo3d.addProgram({
+          })
+
+
+          //// Create Renderers
+         ,usualRendererI = oo3d.addRenderer({
+            cameraI:  usualCameraI
+           ,programI: usualProgramI
+           ,scissor:  new Float32Array([0,0,0.6,1])
+           ,itemIs:   new Uint16Array([rgbTriI,pyramidI])
+          })
+         ,pickerRendererI = oo3d.addRenderer({
+            cameraI:  secondCameraI
+           ,programI: usualProgramI
+           ,scissor:  new Float32Array([0.4,0,0.5,1])
+           ,itemIs:   new Uint16Array([cmyTriI,pyramidI])
+          })
+
+
+          //// Create Layers
+         ,someLayerI = oo3d.addLayer({
+            rendererI: usualRendererI
+          })
+         ,anotherLayerI = oo3d.addLayer({
+            rendererI: pickerRendererI
+          })
+
         ;
         updateMeasurements();
         $target.onchange = updateMeasurements;
@@ -339,7 +399,7 @@
           oo3d.render();
           updateMeasurements();
         }
-
+        document.getElementById('main').setAttribute('style','');
       } catch (error) {
         console.log(error);
         $error.innerHTML = error;
@@ -387,13 +447,14 @@
     }
   </style>
 </head>
-<body>
+<body style="background-image: url(data:image/gif;base64,R0lGODlhEAAQAIABAAAAAMzMzCH5BAEAAAEALAAAAAAQABAAAAInjB8AyKja2HvxTFjNrDgt/XmdRV2haFLktkmqR8ZRm5kZOs7vnRsFADs=);">
   <h1>Oo3d Basic Usage</h1>
   <a href="../index.html">Home</a>
-  <canvas id="main" style="background-image: url(data:image/gif;base64,R0lGODlhEAAQAIABAAAAAMzMzCH5BAEAAAEALAAAAAAQABAAAAInjB8AyKja2HvxTFjNrDgt/XmdRV2haFLktkmqR8ZRm5kZOs7vnRsFADs=);"></canvas>
+  <canvas id="main" style="background-color: #333"></canvas>
   <br>
   <select id="target">
-    <option value="">Camera</option>
+    <option value="">Left Camera</option><!-- @next -->
+    <option value="">Right Camera</option><!-- @next -->
     <option value="0">RGB Triangle</option>
     <option value="1">CMY Triangle</option>
     <option value="2">Pyramid</option>

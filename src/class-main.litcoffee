@@ -110,10 +110,43 @@ Locations of the `aVtxPosition` and `aVtxColor` attributes in the Vertex Shader.
         @aVtxColorLoc    = null
 
 
+#### `cameras <array of Cameras>`
+Contains all Camera instances, whether or not any Renderers use them. 
+
+        @cameras = []
+
+
+#### `programs <array of Programs>`
+Contains all Program instances, whether or not any Renderers use them. 
+
+        @programs = []
+
+
+#### `renderers <array of Renderers>`
+Contains all Renderer instances, whether or not any Layers use them. 
+
+        @renderers = []
+
+
+#### `layers <array of Layers>`
+An list of Layer instances in the order they will be rendered by main.render(). 
+
+        @layers = []
+
+
 #### `scenes <array of Scenes>`
-Contains all current Scene instances, whether or not they contain any Shapes. 
+Contains all current Scene instances, which are collections of Renderers. 
 
         @scenes = []
+
+
+#### `items <array of Items>`
+Contains all current Item instances, whether or not any Renderers are using 
+them. An Item can be present in any number of Renderers, or in none at all. In 
+theory an Item could appear in a Renderer more than once, so that it renders on 
+top of itself, which might make sense for some kinds of translucent effects. 
+
+        @items = []
 
 
 #### `shapes <array of Shapes>`
@@ -130,12 +163,6 @@ Contains all position and color buffers, whether or not any Shapes use them.
 
         @positionBuffers = []
         @colorBuffers    = []
-
-
-#### `programs <array of WebGLPrograms>`
-Contains all programs, whether or not any Scenes use them. 
-
-        @programs = []
 
 
 #### `shaders <array of WebGLShaders>`
@@ -158,9 +185,16 @@ Initialize the instance, if `@$main` has been defined.
             @initCanvas()
             @initShaders()
             @initProgram()
-            @camera = new Camera @, # scene
-              fovy: 0.785398163 # 45º
-              aspect: @$main.width / @$main.height
+
+
+
+
+
+        #ª ''+new RendererWireframe @, 
+        #  scissor:  new Float32Array [0,0,1,1]
+        #  itemIs:   new Uint16Array  [0,1,4,7]
+        #  cameraI:  0
+        #  programI: 0
 
 
 
@@ -201,6 +235,8 @@ Set the canvas context background, and set various WebGL parameters.
         @gl.scissor 0, 0, @$main.width, @$main.height
         @gl.clear @gl.COLOR_BUFFER_BIT | @gl.DEPTH_BUFFER_BIT
         #@gl.viewport 0, 0, @$main.width, @$main.height @todo is this needed?
+
+@todo fix 'Error: WebGL: enable: invalid enum value <enum 0x8642>'
 
         @gl.enable @gl.VERTEX_PROGRAM_POINT_SIZE
         #@gl.enable @gl.POINT_SMOOTH #@todo why not working?
@@ -292,6 +328,74 @@ API Methods
 -----------
 
 
+#### `addItem()`
+- `config.renderMode <string>`  (optional)
+- `config.positions <array>`    x, y, and z coordinates
+- `config.colors <array>`       (optional) r, g, b, and alpha (each [0,1])
+- `<integer>`                   index of the newly added item in `@items`
+
+Records a new `Item` instance in `items` and returns its index. 
+If `config.colors` is not set, all vertices are set to 100% opacity white.  
+[From MDN’s second WebGL article.](https://goo.gl/q6YFNe)  
+
+      addItem: (config) ->
+        index = @items.length
+        @items[index] = new Shape config, @
+        return index
+
+
+#### `addCamera()`
+- `config <object>`  passed to the `Camera` contructor
+- `<integer>`        index of the newly added Camera in `@cameras`
+
+Records a new `Camera` instance in `cameras` and returns its index. 
+
+      addCamera: (config) ->
+        index = @cameras.length
+        @cameras[index] = new Camera @, config
+        ª index
+        return index
+
+
+#### `addProgram()`
+- `config <object>`  passed to the `Program` contructor
+- `<integer>`        index of the newly added Program in `@programs`
+
+Records a new `Program` instance in `programs` and returns its index. 
+
+      addProgram: (config) ->
+        index = @programs.length
+        @programs[index] = new Program @, config
+        return index
+
+
+#### `addRenderer()`
+- `config <object>`  passed to the `Renderer` contructor
+- `<integer>`        index of the newly added Renderer in `@renderers`
+
+Records a new `Renderer` instance in `renderers` and returns its index. 
+
+      addRenderer: (config) ->
+        index = @renderers.length
+        @renderers[index] = new Renderer @, config
+        return index
+
+
+#### `addLayer()`
+- `config <object>`  passed to the `Layer` contructor
+- `<integer>`        index of the newly added Layer in `@layers`
+
+Records a new `Layer` instance in `layers` and returns its index. 
+
+      addLayer: (config) ->
+        index = @layers.length
+        @layers[index] = new Layer @, config
+        return index
+
+
+
+
+
 #### `addScene()`
 - `config <object>`  passed to the `Scene` contructor
 - `<integer>`        index of the newly added Scene in `@scenes`
@@ -376,7 +480,7 @@ If `config.colors` is not set, all vertices are set to 100% opacity white.
 - `x <number>`             radian angle about the x-axis
 - `y <number>`             radian angle about the y-axis
 - `z <number>`             radian angle about the z-axis
-- `targetIndex <integer>`  (optional) a shape-index, else target the camera
+- `targetIndex <integer>`  (optional) a item-index, else target the camera
 
 @todo describe  
 
@@ -385,7 +489,7 @@ If `config.colors` is not set, all vertices are set to 100% opacity white.
 Get a handy reference to the target, and its current transformation-matrix.  
 @todo deal with not-found
 
-        target = @shapes[targetIndex] or @camera
+        target = @items[targetIndex] or @cameras[0]
         mat = target.matTransform
 
 Determine which axes are zero, if any. 
@@ -460,7 +564,7 @@ Otherwise, two or three axes are non-zero, so recursively call this method.
 
 For a camera transform, update the `uMatCamera` uniform in the vertex-shader. 
 
-        if target == @camera then @camera.updateCamera()
+        if target == @cameras[0] then @cameras[0].updateCamera()
 
 Return this Oo3d instance (allows chaining). 
 
@@ -473,7 +577,7 @@ Return this Oo3d instance (allows chaining).
 - `x <number>`             scale-factor along the x-axis
 - `y <number>`             scale-factor along the y-axis
 - `z <number>`             scale-factor along the z-axis
-- `targetIndex <integer>`  (optional) a shape-index, else target the camera
+- `targetIndex <integer>`  (optional) a item-index, else target the camera
 
 @todo describe  
 @todo make objects rotate as expected when non-uniform scale is applied  
@@ -484,7 +588,7 @@ Return this Oo3d instance (allows chaining).
 Get a handy reference to the target, and its current transformation-matrix.  
 @todo deal with not-found
 
-        target = @shapes[targetIndex] or @camera
+        target = @items[targetIndex] or @cameras[0]
         mat = target.matTransform
 
 Determine which axes are set to `1`, if any. 
@@ -522,7 +626,7 @@ Scale along the Z-axis.
 
 For a camera transform, update the `uMatCamera` uniform in the vertex-shader. 
 
-        if target == @camera then @camera.updateCamera()
+        if target == @cameras[0] then @cameras[0].updateCamera()
 
 Return this Oo3d instance (allows chaining). 
 
@@ -535,7 +639,7 @@ Return this Oo3d instance (allows chaining).
 - `x <number>`             distance along the x-axis
 - `y <number>`             distance along the y-axis
 - `z <number>`             distance along the z-axis
-- `targetIndex <integer>`  (optional) a shape-index, else target the camera
+- `targetIndex <integer>`  (optional) a item-index, else target the camera
 
 @todo describe  
 
@@ -544,7 +648,7 @@ Return this Oo3d instance (allows chaining).
 Get a handy reference to the target, and its current transformation-matrix.  
 @todo deal with not-found
 
-        target = @shapes[targetIndex] or @camera
+        target = @items[targetIndex] or @cameras[0]
         mat = target.matTransform
 
 Determine which axes are zero, if any. 
@@ -598,7 +702,7 @@ Otherwise, two or three axes are non-zero, so run the more complex calculation.
 
 For a camera transform, update the `uMatCamera` uniform in the vertex-shader. 
 
-        if target == @camera then @camera.updateCamera()
+        if target == @cameras[0] then @cameras[0].updateCamera()
 
 Return this Oo3d instance (allows chaining). 
 
@@ -609,19 +713,19 @@ Return this Oo3d instance (allows chaining).
 
 #### `setRenderMode()`
 - `mode <string>`          'POINTS', 'LINE_STRIP', 'TRIANGLES', etc
-- `targetIndex <integer>`  (optional) a shape-index, else target everything
+- `targetIndex <integer>`  (optional) a item-index, else target everything
 
 Change the `mode` passed to `gl.drawArrays()` for an individual Shape, or the 
 entire Scene. @todo scene
 
       setRenderMode: (renderMode, targetIndex) ->
-        @shapes[targetIndex].renderMode = renderMode
+        @items[targetIndex].renderMode = renderMode
 
 
 
 
 #### `render()`
-Draw each active scene to the canvas. 
+Draw each layer to the canvas. 
 
       render: ->
         if ! @gl then throw Error "The WebGL rendering context is #{ªtype @gl}"
@@ -630,14 +734,13 @@ Draw each active scene to the canvas.
         @gl.scissor 0, 0, @$main.width, @$main.height
         @gl.clear @gl.COLOR_BUFFER_BIT | @gl.DEPTH_BUFFER_BIT
 
-        index = @scenes.length
-        while index--
-          scene = @scenes[index]
-          if scene.isActive then scene.render()
+        layer.render() for layer in @layers
 
-@todo is this needed?
+        #index = @scenes.length
+        #while index--
+        #  scene = @scenes[index]
+        #  if scene.isActive then scene.render()
 
-          @gl.flush()
 
 
 

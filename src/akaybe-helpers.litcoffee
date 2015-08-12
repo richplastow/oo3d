@@ -49,7 +49,7 @@ when the variable being tested does not exist, `typeof foobar` will return
 `undefined`, whereas `ªtype(foobar)` will throw an error. 
 
     ªtype = (x) ->
-      ({}).toString.call(x).match(/\s([a-z|A-Z]+)/)[1].toLowerCase()
+      ({}).toString.call(x).match(/\s([a-z0-9]+)/i)[1].toLowerCase()
 
 
 

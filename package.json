@@ -1,7 +1,7 @@
 {
   "name": "oo3d",
-  "version": "0.0.21",
-  "description": "The Oopish WebGL library",
+  "version": "0.0.22",
+  "description": "The Oopish WebGL engine",
   "main": "build/oo3d.js",
   "directories": {
     "doc": "doc",
@@ -24,7 +24,7 @@
   ],
   "scripts": {
     "hi": "open .; open index.html; open test/run-test.html; subl .",
-    "make": "node bin/akaybe-build",
+    "make": "node bin/akaybe-build -w /src/renderer",
     "index": "node_modules/apage/bin/apage -i README.md doc/*.md -o index.html -p \"`cat node_modules/apage/build/plugin/*.js`\"",
     "test": "node test/run-test.js"
   },
