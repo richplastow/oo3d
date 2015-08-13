@@ -28,20 +28,6 @@ Xx. @todo describe
           `main` must be [object Oo3d] not #{@main}"
 
 
-#### `scissor <Float32Array|null>`
-A crop box. If null, no cropping is done. 
-
-        @scissor = config.scissor
-        if ! @scissor then @scissor = null
-        else if 'float32array' != ªtype @scissor then throw TypeError "
-          If set, config.scissor must be Float32Array not #{ªtype @scissor}"
-        else if 4 != @scissor.length then throw RangeError "
-          If set, config.scissor.length must be 4 not #{@scissor.length}"
-        else for float in @scissor
-          if 0 > float or 1 < float then throw RangeError "
-            config.scissor contains out-of-range #{float}"
-
-
 #### `items <array of Items>`
 This Renderer’s Items, referenced from the main instance’s `items` array. 
 
@@ -92,15 +78,7 @@ For better performance, use local variables.
 
         if ! gl then throw Error "The WebGL rendering context is #{ªtype gl}"
 
-        if @scissor
-          gl.scissor(
-            @scissor[0] * $main.width,
-            @scissor[1] * $main.height,
-            @scissor[2] * $main.width,
-            @scissor[3] * $main.height
-          )
-
-        #@todo switch to this Scene’s current program
+        #@todo switch to this Renderer’s current program
 
         index = @items.length
         while index--

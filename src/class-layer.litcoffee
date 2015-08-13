@@ -2,7 +2,7 @@ Layer
 =====
 
 
-#### Assigns a blending mode and opacity to a Renderer instance
+#### Applies blending and cropping to a list of Renderers
 
     class Layer
       C: 'Layer'
@@ -28,13 +28,29 @@ Xx. @todo describe
           `main` must be [object Oo3d] not #{@main}"
 
 
-#### `renderer <Renderer>`
-This Layer’s Renderer, referenced from the main instance’s `renderers` array. 
+#### `renderers <array of Renderers>`
+This Layer’s Renderers, referenced from the main instance’s `renderers` array 
+in the order they will be rendered. 
 
-        if ªN != ªtype config.rendererI then throw TypeError "
-          config.rendererI must be number not #{ªtype config.rendererI}"
-        @renderer = @main.renderers[config.rendererI] or throw RangeError "
-          No such index #{config.rendererI} in main.renderers"
+        if ! config.rendererIs then @renderers = []
+        else if 'uint16array' != ªtype config.rendererIs then throw TypeError "
+          If set, config.rendererIs must be Uint16Array not #{ªtype config.rendererIs}"
+        else @renderers = (@main.renderers[i] or throw RangeError "
+          No such index #{i} in main.renderers" for i in config.rendererIs)
+
+
+#### `scissor <Float32Array|null>`
+A crop box. If null, no cropping is done. 
+
+        @scissor = config.scissor
+        if ! @scissor then @scissor = null
+        else if 'float32array' != ªtype @scissor then throw TypeError "
+          If set, config.scissor must be Float32Array not #{ªtype @scissor}"
+        else if 4 != @scissor.length then throw RangeError "
+          If set, config.scissor.length must be 4 not #{@scissor.length}"
+        else for float in @scissor
+          if 0 > float or 1 < float then throw RangeError "
+            config.scissor contains out-of-range #{float}"
 
 
 
@@ -48,8 +64,23 @@ Xx. @todo describe
 
       render: ->
 
-        ª 'layer setup in here!'
-        @renderer.render()
+Apply Layer crop. 
+
+        if @scissor
+          @main.gl.scissor(
+            @scissor[0] * @main.$main.width,
+            @scissor[1] * @main.$main.height,
+            @scissor[2] * @main.$main.width,
+            @scissor[3] * @main.$main.height
+          )
+
+Apply Layer blend. 
+
+        #@todo
+
+Render each renderer. 
+
+        renderer.render() for renderer in @renderers
 
 
 

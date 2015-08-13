@@ -191,23 +191,23 @@
          ,usualRendererI = oo3d.addRenderer({
             cameraI:  usualCameraI
            ,programI: usualProgramI
-           ,scissor:  new Float32Array([0,0,0.6,1])
            ,itemIs:   new Uint16Array([rgbTriI,pyramidI])
           })
          ,pickerRendererI = oo3d.addRenderer({
             cameraI:  secondCameraI
            ,programI: usualProgramI
-           ,scissor:  new Float32Array([0.4,0,0.5,1])
            ,itemIs:   new Uint16Array([cmyTriI,pyramidI])
           })
 
 
           //// Create Layers
          ,someLayerI = oo3d.addLayer({
-            rendererI: usualRendererI
+            rendererIs: new Uint16Array([usualRendererI])
+           ,scissor:    new Float32Array([0,0,0.6,1])
           })
          ,anotherLayerI = oo3d.addLayer({
-            rendererI: pickerRendererI
+            rendererIs: new Uint16Array([pickerRendererI])
+           ,scissor:    new Float32Array([0.4,0,0.5,1])
           })
 
         ;
