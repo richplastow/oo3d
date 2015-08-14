@@ -3,7 +3,7 @@
 /*! Oo3d 0.0.23 //// MIT Licence //// http://oo3d.richplastow.com/ */
 
 (function() {
-  var Camera, Layer, Main, Program, Renderer, RendererWireframe, RendererXXOLD, Scene, Shader, Shape, Tudor, getFragmentSource, getVertexSource, mat4, tudor, ª, ªA, ªB, ªC, ªE, ªF, ªN, ªO, ªR, ªS, ªU, ªV, ªW, ªX, ªex, ªhas, ªisU, ªredefine, ªtype, ªuid,
+  var Camera, Layer, Main, Program, Renderer, Scene, Shader, Shape, Tudor, mat4, tudor, ª, ªA, ªB, ªC, ªE, ªF, ªN, ªO, ªR, ªS, ªU, ªV, ªW, ªX, ªex, ªhas, ªisU, ªredefine, ªtype, ªuid,
     extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
     hasProp = {}.hasOwnProperty,
     bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
@@ -123,7 +123,6 @@
       } else if (0 >= this.aspect) {
         throw RangeError("If set, config.aspect must be greater than 0 not " + this.aspect);
       }
-      this.uMatCameraLoc = this.main.gl.getUniformLocation(this.main.program, 'uMatCamera');
       this.rX = 0;
       this.rY = 0;
       this.rZ = 0;
@@ -141,8 +140,7 @@
     }
 
     Camera.prototype.updateCamera = function() {
-      this.matCamera = mat4.multiply(this.matProjection, this.matTransform);
-      return this.main.gl.uniformMatrix4fv(this.uMatCameraLoc, false, new Float32Array(this.matCamera));
+      return this.matCamera = new Float32Array(mat4.multiply(this.matProjection, this.matTransform));
     };
 
     Camera.prototype.xx = function() {};
@@ -257,27 +255,17 @@
         this.bkgndR = this.bkgndG = this.bkgndB = 0.25;
         this.bkgndA = 1;
       }
-      this.vertexShader = null;
-      this.fragmentShader = null;
-      this.program = null;
-      this.aVtxPositionLoc = null;
-      this.aVtxColorLoc = null;
       this.cameras = [];
       this.programs = [];
       this.renderers = [];
       this.layers = [];
-      this.scenes = [];
       this.items = [];
-      this.shapes = [];
       this.positionBuffers = [];
       this.colorBuffers = [];
-      this.shaders = [];
       if (this.$main) {
         this.initGL();
         if (this.gl) {
           this.initCanvas();
-          this.initShaders();
-          this.initProgram();
         }
       }
     }
@@ -303,51 +291,7 @@
       return this.gl.enable(this.gl.VERTEX_PROGRAM_POINT_SIZE);
     };
 
-    Main.prototype.initShaders = function() {
-      this.vertexShader = this.gl.createShader(this.gl.VERTEX_SHADER);
-      this.fragmentShader = this.gl.createShader(this.gl.FRAGMENT_SHADER);
-      this.gl.shaderSource(this.vertexShader, getVertexSource());
-      this.gl.shaderSource(this.fragmentShader, getFragmentSource());
-      this.gl.compileShader(this.vertexShader);
-      this.gl.compileShader(this.fragmentShader);
-      if (!this.gl.getShaderParameter(this.vertexShader, this.gl.COMPILE_STATUS)) {
-        this.cleanUp();
-        throw Error("@vertexShader did not compile successfully");
-      }
-      if (!this.gl.getShaderParameter(this.fragmentShader, this.gl.COMPILE_STATUS)) {
-        this.cleanUp();
-        throw Error("@fragmentShader did not compile successfully");
-      }
-    };
-
-    Main.prototype.initProgram = function() {
-      this.program = this.gl.createProgram();
-      this.gl.attachShader(this.program, this.vertexShader);
-      this.gl.attachShader(this.program, this.fragmentShader);
-      this.gl.linkProgram(this.program);
-      if (!this.gl.getProgramParameter(this.program, this.gl.LINK_STATUS)) {
-        this.cleanUp();
-        throw Error("@program did not link successfully");
-      }
-      this.gl.useProgram(this.program);
-      this.aVtxPositionLoc = this.gl.getAttribLocation(this.program, 'aVtxPosition');
-      this.aVtxColorLoc = this.gl.getAttribLocation(this.program, 'aVtxColor');
-      this.gl.enableVertexAttribArray(this.aVtxPositionLoc);
-      this.gl.enableVertexAttribArray(this.aVtxColorLoc);
-      return this.uMatTransformLoc = this.gl.getUniformLocation(this.program, 'uMatTransform');
-    };
-
-    Main.prototype.cleanUp = function() {
-      if (this.vertexShader) {
-        this.gl.deleteShader(this.vertexShader);
-      }
-      if (this.fragmentShader) {
-        this.gl.deleteShader(this.fragmentShader);
-      }
-      if (this.program) {
-        return this.gl.deleteProgram(this.program);
-      }
-    };
+    Main.prototype.cleanUp = function() {};
 
     Main.prototype.addItem = function(config) {
       var index;
@@ -366,8 +310,17 @@
 
     Main.prototype.addProgram = function(config) {
       var index;
+      if (ªO !== ªtype(config)) {
+        throw TypeError("`config` must be object not " + (ªtype(config)));
+      }
+      if (ªS !== ªtype(config.subclass)) {
+        throw TypeError("`config.subclass` must be string not " + (ªtype(config.subclass)));
+      }
+      if (!Program[config.subclass]) {
+        throw RangeError("`Program." + config.subclass + "` does not exist");
+      }
       index = this.programs.length;
-      this.programs[index] = new Program(this, config);
+      this.programs[index] = new Program[config.subclass](this, config);
       return index;
     };
 
@@ -382,13 +335,6 @@
       var index;
       index = this.layers.length;
       this.layers[index] = new Layer(this, config);
-      return index;
-    };
-
-    Main.prototype.addScene = function(config) {
-      var index;
-      index = this.scenes.length;
-      this.scenes[index] = new Scene(config, this);
       return index;
     };
 
@@ -419,13 +365,6 @@
       this.colorBuffers[index].count = colors.length / 4;
       this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.colorBuffers[index]);
       this.gl.bufferData(this.gl.ARRAY_BUFFER, new Float32Array(colors), this.gl.STATIC_DRAW);
-      return index;
-    };
-
-    Main.prototype.addShape = function(config) {
-      var index;
-      index = this.shapes.length;
-      this.shapes[index] = new Shape(config, this);
       return index;
     };
 
@@ -607,33 +546,6 @@
     };
 
     return Main;
-
-  })();
-
-  getVertexSource = function() {
-    return "attribute vec3 aVtxPosition;\nattribute vec4 aVtxColor;\n\nuniform mat4 uMatTransform;\nuniform mat4 uMatCamera;\n\nvarying vec4 vColor; // declare `vColor`\n\nvoid main() {\n\n  // \n  gl_PointSize = 4.0;\n\n  // Multiply the position by the camera transformation and matrices\n  // Note that the order of these three is important\n  gl_Position = uMatCamera * uMatTransform * vec4(aVtxPosition, 1);\n\n  // Convert from clipspace to colorspace, and send to the fragment-shader\n  // Clipspace goes -1.0 to +1.0\n  // Colorspace goes from 0.0 to 1.0\n  // vColor = gl_Position * 0.5 + 0.5; //vec4(4,4,4,4);\n\n  // Just pass the vertex-color attribute unchanged to the fragment-shader\n  vColor = aVtxColor;\n}";
-  };
-
-  getFragmentSource = function() {
-    return "precision mediump float; // boilerplate for mobile-friendly shaders\nvarying vec4 vColor;     // linear-interpolated input from fragment-shader\nvec4 blue = vec4(0.1,0.1,0.9,0.5);\n\nvoid main(void) {\n  gl_FragColor = vColor;\n}";
-  };
-
-  Program = (function() {
-    Program.prototype.C = 'Program';
-
-    Program.prototype.toString = function() {
-      return "[object " + this.C + "]";
-    };
-
-    function Program(config) {
-      if (config == null) {
-        config = {};
-      }
-      this.vertexShader = null;
-      this.fragmentShader = null;
-    }
-
-    return Program;
 
   })();
 
@@ -1021,6 +933,148 @@
     return new Float32Array([2 / width, 0, 0, 0, 0, -2 / height, 0, 0, 0, 0, 2 / depth, 0, -1, 1, 0, 1]);
   };
 
+  Program = (function() {
+    Program.prototype.C = 'Program';
+
+    Program.prototype.toString = function() {
+      return "[object " + this.C + "]";
+    };
+
+    function Program(main1, config) {
+      var gl;
+      this.main = main1;
+      if (config == null) {
+        config = {};
+      }
+      if (ªO !== ªtype(config)) {
+        throw TypeError("`config` must be object not " + (ªtype(config)));
+      }
+      if (ªO !== ªtype(this.main)) {
+        throw TypeError("`main` must be object not " + (ªtype(this.main)));
+      }
+      if ('[object Oo3d]' !== '' + this.main) {
+        throw TypeError("`main` must be [object Oo3d] not " + this.main);
+      }
+      gl = this.main.gl;
+      this.vertexShader = gl.createShader(gl.VERTEX_SHADER);
+      gl.shaderSource(this.vertexShader, this.vertexSource());
+      gl.compileShader(this.vertexShader);
+      if (!gl.getShaderParameter(this.vertexShader, gl.COMPILE_STATUS)) {
+        this.cleanUp();
+        throw Error("vertexShader did not compile successfully");
+      }
+      this.fragmentShader = gl.createShader(gl.FRAGMENT_SHADER);
+      gl.shaderSource(this.fragmentShader, this.fragmentSource());
+      gl.compileShader(this.fragmentShader);
+      if (!gl.getShaderParameter(this.fragmentShader, gl.COMPILE_STATUS)) {
+        this.cleanUp();
+        throw Error("fragmentShader did not compile successfully");
+      }
+      this.program = gl.createProgram();
+      gl.attachShader(this.program, this.vertexShader);
+      gl.attachShader(this.program, this.fragmentShader);
+      gl.linkProgram(this.program);
+      if (!gl.getProgramParameter(this.program, gl.LINK_STATUS)) {
+        this.cleanUp();
+        throw Error("program did not link successfully");
+      }
+    }
+
+    Program.prototype.cleanUp = function() {
+      if (this.vertexShader) {
+        this.main.gl.deleteShader(this.vertexShader);
+      }
+      if (this.fragmentShader) {
+        this.main.gl.deleteShader(this.fragmentShader);
+      }
+      if (this.program) {
+        return this.main.gl.deleteProgram(this.program);
+      }
+    };
+
+    Program.prototype.vertexSource = function() {
+      return "void main() {\n}";
+    };
+
+    Program.prototype.fragmentSource = function() {
+      return "void main() {\n}";
+    };
+
+    return Program;
+
+  })();
+
+  Program.Flat = (function(superClass) {
+    extend(Flat, superClass);
+
+    Flat.prototype.C = 'Program.Flat';
+
+    Flat.prototype.toString = function() {
+      return "[object " + this.C + "]";
+    };
+
+    function Flat(main, config) {
+      var gl;
+      if (config == null) {
+        config = {};
+      }
+      Flat.__super__.constructor.call(this, main, config);
+      gl = this.main.gl;
+      gl.useProgram(this.program);
+      this.aVtxPositionLoc = gl.getAttribLocation(this.program, 'aVtxPosition');
+      gl.enableVertexAttribArray(this.aVtxPositionLoc);
+      this.aVtxColorLoc = gl.getAttribLocation(this.program, 'aVtxColor');
+      this.uMatTransformLoc = gl.getUniformLocation(this.program, 'uMatTransform');
+      this.uMatCameraLoc = gl.getUniformLocation(this.program, 'uMatCamera');
+    }
+
+    Flat.prototype.vertexSource = function() {
+      return "attribute vec3 aVtxPosition;\nattribute vec4 aVtxColor;\n\nuniform mat4 uMatTransform;\nuniform mat4 uMatCamera;\n\nvarying vec4 vColor; // declare `vColor`\n\nvoid main() {\n\n  // \n  gl_PointSize = 4.0;\n\n  //// Multiply the position by the camera transformation and matrices. \n  //// Note that the order of these three is important. \n  gl_Position = uMatCamera * uMatTransform * vec4(aVtxPosition, 1);\n\n  // Convert from clipspace to colorspace, and send to the fragment-shader\n  // Clipspace goes -1.0 to +1.0\n  // Colorspace goes from 0.0 to 1.0\n  // vColor = gl_Position * 0.5 + 0.5; //vec4(4,4,4,4);\n\n  //// Pass the vertex-color attribute unchanged to the fragment-shader. \n  vColor = aVtxColor;\n}";
+    };
+
+    Flat.prototype.fragmentSource = function() {
+      return "precision mediump float; // boilerplate for mobile-friendly shaders\nvarying vec4 vColor;     // linear-interpolated input from fragment-shader\n\nvoid main(void) {\n  gl_FragColor = vColor;\n}";
+    };
+
+    return Flat;
+
+  })(Program);
+
+  Program.Flatwhite = (function(superClass) {
+    extend(Flatwhite, superClass);
+
+    Flatwhite.prototype.C = 'Program.Flatwhite';
+
+    Flatwhite.prototype.toString = function() {
+      return "[object " + this.C + "]";
+    };
+
+    function Flatwhite(main, config) {
+      var gl;
+      if (config == null) {
+        config = {};
+      }
+      Flatwhite.__super__.constructor.call(this, main, config);
+      gl = this.main.gl;
+      gl.useProgram(this.program);
+      this.aVtxPositionLoc = gl.getAttribLocation(this.program, 'aVtxPosition');
+      gl.enableVertexAttribArray(this.aVtxPositionLoc);
+      this.uMatTransformLoc = gl.getUniformLocation(this.program, 'uMatTransform');
+      this.uMatCameraLoc = gl.getUniformLocation(this.program, 'uMatCamera');
+    }
+
+    Flatwhite.prototype.vertexSource = function() {
+      return "attribute vec3 aVtxPosition;\n\nuniform mat4 uMatTransform;\nuniform mat4 uMatCamera;\n\nvoid main() {\n\n  //// Multiply the position by the camera transformation and matrices. \n  //// Note that the order of these three is important. \n  gl_Position = uMatCamera * uMatTransform * vec4(aVtxPosition, 1);\n\n}";
+    };
+
+    Flatwhite.prototype.fragmentSource = function() {
+      return "precision mediump float; // boilerplate for mobile-friendly shaders\n\nvec4 white = vec4(1.0,1.0,1.0,1.0);\n\nvoid main() {\n  gl_FragColor = white;\n}";
+    };
+
+    return Flatwhite;
+
+  })(Program);
+
   Renderer = (function() {
     var RendererTypeError;
 
@@ -1045,6 +1099,19 @@
       if ('[object Oo3d]' !== '' + this.main) {
         throw TypeError("`main` must be [object Oo3d] not " + this.main);
       }
+      if (ªN !== ªtype(config.programI)) {
+        throw TypeError("config.programI must be number not " + (ªtype(config.programI)));
+      }
+      this.program = this.main.programs[config.programI] || (function() {
+        throw RangeError("No such index " + config.programI + " in main.programs");
+      })();
+      if (ªN !== ªtype(config.cameraI)) {
+        throw TypeError("config.cameraI must be number not " + (ªtype(config.cameraI)));
+      }
+      this.camera = this.main.cameras[config.cameraI] || (function() {
+        throw RangeError("No such index " + config.cameraI + " in main.cameras");
+      })();
+      this.uMatCameraLoc = this.main.gl.getUniformLocation(this.program.program, 'uMatCamera');
       if (!config.itemIs) {
         this.items = [];
       } else if ('uint16array' !== ªtype(config.itemIs)) {
@@ -1063,18 +1130,6 @@
           return results;
         }).call(this);
       }
-      if (ªN !== ªtype(config.cameraI)) {
-        throw TypeError("config.cameraI must be number not " + (ªtype(config.cameraI)));
-      }
-      this.camera = this.main.cameras[config.cameraI] || (function() {
-        throw RangeError("No such index " + config.cameraI + " in main.cameras");
-      })();
-      if (ªN !== ªtype(config.programI)) {
-        throw TypeError("config.programI must be number not " + (ªtype(config.programI)));
-      }
-      this.program = this.main.programs[config.programI] || (function() {
-        throw RangeError("No such index " + config.programI + " in main.programs");
-      })();
     }
 
     Renderer.prototype.render = function() {
@@ -1082,20 +1137,27 @@
       main = this.main;
       $main = main.$main;
       gl = main.gl;
-      aVtxPositionLoc = main.aVtxPositionLoc;
-      aVtxColorLoc = main.aVtxColorLoc;
-      uMatTransformLoc = main.uMatTransformLoc;
+      aVtxPositionLoc = this.program.aVtxPositionLoc;
+      aVtxColorLoc = this.program.aVtxColorLoc || false;
+      uMatTransformLoc = this.program.uMatTransformLoc;
       if (!gl) {
         throw Error("The WebGL rendering context is " + (ªtype(gl)));
+      }
+      gl.useProgram(this.program.program);
+      gl.uniformMatrix4fv(this.uMatCameraLoc, false, this.camera.matCamera);
+      if (aVtxColorLoc) {
+        gl.enableVertexAttribArray(aVtxColorLoc);
       }
       index = this.items.length;
       while (index--) {
         item = this.items[index];
+        gl.uniformMatrix4fv(uMatTransformLoc, false, item.matTransform);
         gl.bindBuffer(gl.ARRAY_BUFFER, item.positionBuffer);
         gl.vertexAttribPointer(aVtxPositionLoc, 3, gl.FLOAT, false, 0, 0);
-        gl.bindBuffer(gl.ARRAY_BUFFER, item.colorBuffer);
-        gl.vertexAttribPointer(aVtxColorLoc, 4, gl.FLOAT, false, 0, 0);
-        gl.uniformMatrix4fv(uMatTransformLoc, false, item.matTransform);
+        if (aVtxColorLoc) {
+          gl.bindBuffer(gl.ARRAY_BUFFER, item.colorBuffer);
+          gl.vertexAttribPointer(aVtxColorLoc, 4, gl.FLOAT, false, 0, 0);
+        }
         if (null !== item.sBlend) {
           gl.enable(gl.BLEND);
           gl.blendFunc(item.sBlend, item.dBlend);
@@ -1105,6 +1167,9 @@
         mode = gl[item.renderMode];
         gl.drawArrays(mode, 0, item.count);
         gl.flush();
+      }
+      if (aVtxColorLoc) {
+        return gl.disableVertexAttribArray(aVtxColorLoc);
       }
     };
 
@@ -1128,57 +1193,19 @@
 
   })();
 
-  RendererXXOLD = (function() {
-    RendererXXOLD.prototype.C = 'Renderer';
+  Renderer.Wireframe = (function(superClass) {
+    extend(Wireframe, superClass);
 
-    RendererXXOLD.prototype.toString = function() {
-      return "[object " + this.C + "]";
-    };
+    Wireframe.prototype.C = 'Renderer.Wireframe';
 
-    function RendererXXOLD(main1, config) {
-      var float, j, len, ref;
-      this.main = main1;
+    function Wireframe(main, config) {
       if (config == null) {
         config = {};
       }
-      if (ªO !== ªtype(this.main || 'oo3d' !== '' + this.main)) {
-        throw Error("`main` must be Oo3d not " + (ªtype(this.main)));
-      }
-      this.scissor = config.scissor;
-      if (!this.scissor) {
-        this.scissor = null;
-      } else if ('float32array' !== ªtype(this.scissor)) {
-        throw TypeError("If set, config.scissor must be Float32Array not " + (ªtype(this.scissor)));
-      } else if (4 !== this.scissor.length) {
-        throw RangeError("If set, config.scissor.length must be 4 not " + this.scissor.length);
-      } else {
-        ref = this.scissor;
-        for (j = 0, len = ref.length; j < len; j++) {
-          float = ref[j];
-          if (0 > float || 1 < float) {
-            throw RangeError("config.scissor contains out-of-range " + float);
-          }
-        }
-      }
+      Wireframe.__super__.constructor.call(this, main, config);
     }
 
-    return RendererXXOLD;
-
-  })();
-
-  RendererWireframe = (function(superClass) {
-    extend(RendererWireframe, superClass);
-
-    RendererWireframe.prototype.C = 'RendererWireframe';
-
-    function RendererWireframe(main, config) {
-      if (config == null) {
-        config = {};
-      }
-      RendererWireframe.__super__.constructor.call(this, main, config);
-    }
-
-    return RendererWireframe;
+    return Wireframe;
 
   })(Renderer);
 

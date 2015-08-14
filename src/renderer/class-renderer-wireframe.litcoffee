@@ -1,11 +1,11 @@
-RendererWireframe
-=================
+Renderer.Wireframe
+==================
 
 
 #### Renders shapes as wireframes
 
-    class RendererWireframe extends Renderer
-      C: 'RendererWireframe'
+    class Renderer.Wireframe extends Renderer
+      C: 'Renderer.Wireframe'
 
       constructor: (main, config={}) ->
         super main, config

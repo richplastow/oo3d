@@ -2,7 +2,12 @@ Renderer
 ========
 
 
-#### The base class for all renderers
+#### The base class for all Renderers
+
+- Contains a Program, a Camera and an array of Items
+- Each Layer has an array of Renderers
+- A Renderer can be used by any number of Layers
+- All Renderers are stored in the main.renderers array
 
     class Renderer
       C: 'Renderer'
@@ -20,7 +25,7 @@ Properties
 
 
 #### `main <Oo3d>`
-Xx. @todo describe
+A reference to the main Oo3d instance which created this Renderer. 
 
         if ªO != ªtype @main then throw TypeError "
           `main` must be object not #{ªtype @main}"
@@ -28,14 +33,13 @@ Xx. @todo describe
           `main` must be [object Oo3d] not #{@main}"
 
 
-#### `items <array of Items>`
-This Renderer’s Items, referenced from the main instance’s `items` array. 
+#### `program <Program>`
+This Renderer’s Program, referenced from the main instance’s `programs` array. 
 
-        if ! config.itemIs then @items = []
-        else if 'uint16array' != ªtype config.itemIs then throw TypeError "
-          If set, config.itemIs must be Uint16Array not #{ªtype config.itemIs}"
-        else @items = (@main.items[i] or throw RangeError "
-          No such index #{i} in main.items" for i in config.itemIs)
+        if ªN != ªtype config.programI then throw TypeError "
+          config.programI must be number not #{ªtype config.programI}"
+        @program = @main.programs[config.programI] or throw RangeError "
+          No such index #{config.programI} in main.programs"
 
 
 #### `camera <Camera>`
@@ -47,13 +51,20 @@ This Renderer’s Camera, referenced from the main instance’s `cameras` array.
           No such index #{config.cameraI} in main.cameras"
 
 
-#### `program <Program>`
-This Renderer’s Program, referenced from the main instance’s `programs` array. 
+#### `uMatCameraLoc <WebGLUniformLocation>`
+Get the location of the 'uMatCamera' uniform in the Program’s vertex shader. 
 
-        if ªN != ªtype config.programI then throw TypeError "
-          config.programI must be number not #{ªtype config.programI}"
-        @program = @main.programs[config.programI] or throw RangeError "
-          No such index #{config.programI} in main.programs"
+        @uMatCameraLoc = @main.gl.getUniformLocation @program.program, 'uMatCamera'
+
+
+#### `items <array of Items>`
+This Renderer’s Items, referenced from the main instance’s `items` array. 
+
+        if ! config.itemIs then @items = []
+        else if 'uint16array' != ªtype config.itemIs then throw TypeError "
+          If set, config.itemIs must be Uint16Array not #{ªtype config.itemIs}"
+        else @items = (@main.items[i] or throw RangeError "
+          No such index #{i} in main.items" for i in config.itemIs)
 
 
 
@@ -72,16 +83,43 @@ For better performance, use local variables.
         main             = @main
         $main            = main.$main
         gl               = main.gl
-        aVtxPositionLoc  = main.aVtxPositionLoc
-        aVtxColorLoc     = main.aVtxColorLoc
-        uMatTransformLoc = main.uMatTransformLoc
+        aVtxPositionLoc  = @program.aVtxPositionLoc
+        aVtxColorLoc     = @program.aVtxColorLoc or false # some Programs, only
+        uMatTransformLoc = @program.uMatTransformLoc
 
         if ! gl then throw Error "The WebGL rendering context is #{ªtype gl}"
 
-        #@todo switch to this Renderer’s current program
+Switch to this Renderer’s Program. 
+
+        gl.useProgram @program.program
+
+Set the transform for this Renderer’s Camera. 
+
+        gl.uniformMatrix4fv(
+          @uMatCameraLoc,
+          false,
+          @camera.matCamera
+        )
+
+Before the loop, the previous Renderer’s Program may not have used `aVtxColor`. 
+
+        if aVtxColorLoc
+          gl.enableVertexAttribArray aVtxColorLoc
+
+Step through each of this Renderer’s Items, in reverse order. 
 
         index = @items.length
         while index--
+          item = @items[index]
+
+Set the transform for this Item. 
+
+          gl.uniformMatrix4fv(
+            uMatTransformLoc,
+            false,
+            item.matTransform
+          )
+
 
 Set each Item’s `positionBuffer` as the WebGLBuffer to be worked on. The 
 previous binding is automatically broken. 
@@ -91,7 +129,6 @@ previous binding is automatically broken.
   - `ELEMENT_ARRAY_BUFFER`  contains only indices — use `drawElements()`
 - `buffer <WebGLBuffer>`    a WebGLBuffer object to bind to the target
 
-          item = @items[index]
           gl.bindBuffer gl.ARRAY_BUFFER, item.positionBuffer
 
 
@@ -117,18 +154,11 @@ Specify the attribute-location and data-format for the newly bound item.
           gl.vertexAttribPointer aVtxPositionLoc, 3, gl.FLOAT, false, 0, 0
 
 
-Repeat the two steps above, for the vertex-colors. 
+Repeat the two steps above for the vertex-colors, if the Program supports it. 
 
-          gl.bindBuffer gl.ARRAY_BUFFER, item.colorBuffer
-          gl.vertexAttribPointer aVtxColorLoc, 4, gl.FLOAT, false, 0, 0
-
-Set the transform. 
-
-          gl.uniformMatrix4fv(
-            uMatTransformLoc,
-            false,
-            item.matTransform
-          )
+          if aVtxColorLoc
+            gl.bindBuffer gl.ARRAY_BUFFER, item.colorBuffer
+            gl.vertexAttribPointer aVtxColorLoc, 4, gl.FLOAT, false, 0, 0
 
 Apply the blend-mode, if any.  
 @todo gather Items with identical blend-modes, and draw them one after another
@@ -163,9 +193,11 @@ Render geometric primitives, using the currently bound vertex data.
 
           gl.flush()
 
-Prevent CoffeeScript converting the `while` loop into an array. 
+After the loop, the next Renderer’s Program may not use `aVtxColor`. 
+@todo is this needed?
 
-        return
+        if aVtxColorLoc
+          gl.disableVertexAttribArray aVtxColorLoc
 
 
 

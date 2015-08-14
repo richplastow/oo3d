@@ -52,8 +52,9 @@ Xx. @todo describe
 
 #### `uMatCameraLoc <WebGLUniformLocation|null>`
 Get the location of the 'uMatCamera' uniform in the Vertex Shader. 
+@todo remove, as moved elsewhere
 
-        @uMatCameraLoc = @main.gl.getUniformLocation @main.program, 'uMatCamera'
+        #@uMatCameraLoc = @main.gl.getUniformLocation @main.program, 'uMatCamera'
 
 
 #### `rX, rY, rZ <number>`
@@ -118,15 +119,15 @@ Methods
 
 
 #### `updateCamera()`
-Calculate the camera-matrix, and update the 'uMatCamera' uniform. @todo move commented block elsewhere
+Calculate the camera-matrix, and update the 'uMatCamera' uniform. @todo remove commented block, as moved elsewhere
 
       updateCamera: ->
-        @matCamera = mat4.multiply @matProjection, @matTransform
-        @main.gl.uniformMatrix4fv(
-          @uMatCameraLoc,
-          false,
-          new Float32Array @matCamera
-        )
+        @matCamera = new Float32Array mat4.multiply @matProjection, @matTransform
+        #@main.gl.uniformMatrix4fv(
+        #  @uMatCameraLoc,
+        #  false,
+        #  new Float32Array @matCamera
+        #)
 
 
 

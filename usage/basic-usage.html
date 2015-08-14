@@ -126,31 +126,31 @@
              0.25,  0.5,  1.0,  0.05, // translucent light cyan
              0.25,  0.5,  1.0,  0.05  // translucent light cyan
           ])
-         ,rgbTri = oo3d.addShape({
-            positionIndex:  rgbTriPositions
-           ,colorIndex:     rgbTriColors
-           ,blend:          ['SRC_COLOR','SRC_COLOR'] // sfactor, dfactor
-          })
-         ,cmyTri = oo3d.addShape({
-            positionIndex:  cmyTriPositions
-           ,colorIndex:     cmyTriColors
-           ,renderMode:     'LINE_LOOP'
-          })
-         ,pyramid = oo3d.addShape({
-            positionIndex:  pyramidPositions
-           ,colorIndex:     pyramidColors
-           ,blend:          ['ONE','DST_COLOR'] // sfactor, dfactor
-          })
-         ,usualScene = oo3d.addScene({
-            shapeIndices: [rgbTri,pyramid]
-           ,width:        0.55
-           ,isActive:     true
-          })
-         ,pickerScene = oo3d.addScene({
-            shapeIndices: [cmyTri,pyramid]
-           ,left:         0.45
-           ,width:        0.55
-          })
+         // ,rgbTri = oo3d.addShape({
+         //    positionIndex:  rgbTriPositions
+         //   ,colorIndex:     rgbTriColors
+         //   ,blend:          ['SRC_COLOR','SRC_COLOR'] // sfactor, dfactor
+         //  })
+         // ,cmyTri = oo3d.addShape({
+         //    positionIndex:  cmyTriPositions
+         //   ,colorIndex:     cmyTriColors
+         //   ,renderMode:     'LINE_LOOP'
+         //  })
+         // ,pyramid = oo3d.addShape({
+         //    positionIndex:  pyramidPositions
+         //   ,colorIndex:     pyramidColors
+         //   ,blend:          ['ONE','DST_COLOR'] // sfactor, dfactor
+         //  })
+         // ,usualScene = oo3d.addScene({
+         //    shapeIndices: [rgbTri,pyramid]
+         //   ,width:        0.55
+         //   ,isActive:     true
+         //  })
+         // ,pickerScene = oo3d.addScene({
+         //    shapeIndices: [cmyTri,pyramid]
+         //   ,left:         0.45
+         //   ,width:        0.55
+         //  })
 
 
           //// Create Items
@@ -183,19 +183,23 @@
 
 
           //// Create Programs
-         ,usualProgramI = oo3d.addProgram({
+         ,flatwhiteProgramI = oo3d.addProgram({
+            subclass: 'Flatwhite'
+          })
+         ,flatProgramI = oo3d.addProgram({
+            subclass: 'Flat'
           })
 
 
           //// Create Renderers
          ,usualRendererI = oo3d.addRenderer({
             cameraI:  usualCameraI
-           ,programI: usualProgramI
+           ,programI: flatwhiteProgramI
            ,itemIs:   new Uint16Array([rgbTriI,pyramidI])
           })
          ,pickerRendererI = oo3d.addRenderer({
-            cameraI:  secondCameraI
-           ,programI: usualProgramI
+            cameraI:  usualCameraI
+           ,programI: flatProgramI
            ,itemIs:   new Uint16Array([cmyTriI,pyramidI])
           })
 
@@ -215,7 +219,7 @@
         $target.onchange = updateMeasurements;
 
 
-        oo3d.rotate(0,1,0,pyramid);
+        oo3d.rotate(0,1,0,pyramidI);
         oo3d.render();
         // console.log(oo3d.scenes[usualScene]);
         // console.log('indexes: ', rgbTri, cmyTri, pyramid);

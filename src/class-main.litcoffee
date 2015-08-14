@@ -90,26 +90,6 @@ The canvas’s background clear-color.
           @bkgndA = 1
 
 
-#### `vertexShader and fragmentShader <WebGLShader|null>`
-Xx. @todo delete
-
-        @vertexShader   = null
-        @fragmentShader = null
-
-
-#### `program <WebGLProgram|null>`
-Xx. @todo delete
-
-        @program = null
-
-
-#### `aVtxPositionLoc and aVtxColorLoc <WebGLUniformLocation|null>`
-Locations of the `aVtxPosition` and `aVtxColor` attributes in the Vertex Shader.
-
-        @aVtxPositionLoc = null
-        @aVtxColorLoc    = null
-
-
 #### `cameras <array of Cameras>`
 Contains all Camera instances, whether or not any Renderers use them. 
 
@@ -134,12 +114,6 @@ An list of Layer instances in the order they will be rendered by main.render().
         @layers = []
 
 
-#### `scenes <array of Scenes>`
-Contains all current Scene instances, which are collections of Renderers. 
-
-        @scenes = []
-
-
 #### `items <array of Items>`
 Contains all current Item instances, whether or not any Renderers are using 
 them. An Item can be present in any number of Renderers, or in none at all. In 
@@ -149,26 +123,11 @@ top of itself, which might make sense for some kinds of translucent effects.
         @items = []
 
 
-#### `shapes <array of Shapes>`
-Contains all current Shape instances, whether or not any Scenes use them. 
-A Shape can be present in any number of scenes, or in no Scenes at all. In 
-theory a Shape could appear in a Scene more than once, so that it renders on 
-top of itself, but in practice that should be avoided. 
-
-        @shapes = []
-
-
 #### `positionBuffers and colorBuffers <array of WebGLBuffers>`
-Contains all position and color buffers, whether or not any Shapes use them.
+Contains all position and color buffers, whether or not any Items use them.
 
         @positionBuffers = []
         @colorBuffers    = []
-
-
-#### `shaders <array of WebGLShaders>`
-Contains all vertex and fragment shaders, whether or not any Programs use them. 
-
-        @shaders = []
 
 
 
@@ -183,18 +142,7 @@ Initialize the instance, if `@$main` has been defined.
           @initGL()
           if @gl
             @initCanvas()
-            @initShaders()
-            @initProgram()
 
-
-
-
-
-        #ª ''+new RendererWireframe @, 
-        #  scissor:  new Float32Array [0,0,1,1]
-        #  itemIs:   new Uint16Array  [0,1,4,7]
-        #  cameraI:  0
-        #  programI: 0
 
 
 
@@ -250,76 +198,11 @@ Set the canvas context background, and set various WebGL parameters.
 
 
 
-#### `initShaders()`
-Create the two types of shader. Compile them from source code defined below.  
-[From MDN’s second WebGL article.](https://goo.gl/q6YFNe)  
-
-      initShaders: ->
-        @vertexShader   = @gl.createShader @gl.VERTEX_SHADER
-        @fragmentShader = @gl.createShader @gl.FRAGMENT_SHADER
-        @gl.shaderSource @vertexShader  , getVertexSource()
-        @gl.shaderSource @fragmentShader, getFragmentSource()
-        @gl.compileShader @vertexShader
-        @gl.compileShader @fragmentShader
-
-Check that they compiled successfully. 
-
-        if ! @gl.getShaderParameter @vertexShader,   @gl.COMPILE_STATUS
-          @cleanUp(); throw Error "@vertexShader did not compile successfully"
-        if ! @gl.getShaderParameter @fragmentShader, @gl.COMPILE_STATUS
-          @cleanUp(); throw Error "@fragmentShader did not compile successfully"
-
-
-
-
-#### `initProgram()`
-Xx.  
-[From MDN’s second WebGL article, again.](https://goo.gl/q6YFNe)  
-
-      initProgram: ->
-        @program = @gl.createProgram()
-        @gl.attachShader @program, @vertexShader
-        @gl.attachShader @program, @fragmentShader
-        @gl.linkProgram @program
-
-Check that it linked successfully. 
-
-        if ! @gl.getProgramParameter @program, @gl.LINK_STATUS
-          @cleanUp(); throw Error "@program did not link successfully"
-
-The WebGL specs say that locations can be got as soon as the program is linked. 
-But some implementations may require that we also `useprogram()` before getting 
-the locations, [according to wiki.lwjgl.org.](http://goo.gl/HBuA8U)
-
-        @gl.useProgram @program
-
-Get the index of the vertex-position and vertex-color attributes in the shader 
-program we just created. The index allows us to switch on these attributes, and 
-bind each Shape’s position and color buffer to `aVtxPosition` and `aVtxColor`. 
-
-        @aVtxPositionLoc = @gl.getAttribLocation @program, 'aVtxPosition'
-        @aVtxColorLoc    = @gl.getAttribLocation @program, 'aVtxColor'
-
-Enable the vertex-position and -color attributes. `enableVertexAttribArray()` 
-takes the index of the vertex attribute which should be enabled. 
-
-        @gl.enableVertexAttribArray @aVtxPositionLoc
-        @gl.enableVertexAttribArray @aVtxColorLoc
-
-Get the location of the 'uMatTransform' vertex shader uniform. 
-
-        @uMatTransformLoc = @gl.getUniformLocation @program, 'uMatTransform' 
-
-
-
-
 #### `cleanUp()`
 Xx.  
 
       cleanUp: ->
-        if @vertexShader   then @gl.deleteShader @vertexShader
-        if @fragmentShader then @gl.deleteShader @fragmentShader
-        if @program        then @gl.deleteProgram @program
+        #@todo tell every Program (and other objects?) to clearUp()
 
 
 
@@ -357,6 +240,8 @@ Records a new `Camera` instance in `cameras` and returns its index.
         return index
 
 
+
+
 #### `addProgram()`
 - `config <object>`  passed to the `Program` contructor
 - `<integer>`        index of the newly added Program in `@programs`
@@ -364,9 +249,19 @@ Records a new `Camera` instance in `cameras` and returns its index.
 Records a new `Program` instance in `programs` and returns its index. 
 
       addProgram: (config) ->
+
+        if ªO != ªtype config then throw TypeError "
+          `config` must be object not #{ªtype config}"
+        if ªS != ªtype config.subclass then throw TypeError "
+          `config.subclass` must be string not #{ªtype config.subclass}"
+        if ! Program[config.subclass] then throw RangeError "
+          `Program.#{config.subclass}` does not exist"
+
         index = @programs.length
-        @programs[index] = new Program @, config
+        @programs[index] = new Program[config.subclass] @, config
         return index
+
+
 
 
 #### `addRenderer()`
@@ -381,6 +276,8 @@ Records a new `Renderer` instance in `renderers` and returns its index.
         return index
 
 
+
+
 #### `addLayer()`
 - `config <object>`  passed to the `Layer` contructor
 - `<integer>`        index of the newly added Layer in `@layers`
@@ -390,21 +287,6 @@ Records a new `Layer` instance in `layers` and returns its index.
       addLayer: (config) ->
         index = @layers.length
         @layers[index] = new Layer @, config
-        return index
-
-
-
-
-
-#### `addScene()`
-- `config <object>`  passed to the `Scene` contructor
-- `<integer>`        index of the newly added Scene in `@scenes`
-
-Records a new instance of the `Scene` class in `scenes` and returns its index. 
-
-      addScene: (config) ->
-        index = @scenes.length
-        @scenes[index] = new Scene config, @
         return index
 
 
@@ -453,24 +335,6 @@ Records a new `WebGLBuffer` instance in `colorBuffers` and returns its index.
           @gl.ARRAY_BUFFER,
           new Float32Array(colors), @gl.STATIC_DRAW
         )
-        return index
-
-
-
-
-#### `addShape()`
-- `config.renderMode <string>`  (optional)
-- `config.positions <array>`    x, y, and z coordinates
-- `config.colors <array>`       (optional) r, g, b, and alpha (each [0,1])
-- `<integer>`                   index of the newly added shape in `@shapes`
-
-Records a new instance of the `Shape` class in `shapes` and returns its index. 
-If `config.colors` is not set, all vertices are set to 100% opacity white.  
-[From MDN’s second WebGL article, again.](https://goo.gl/q6YFNe)  
-
-      addShape: (config) ->
-        index = @shapes.length
-        @shapes[index] = new Shape config, @
         return index
 
 
@@ -736,59 +600,5 @@ Draw each layer to the canvas.
 
         layer.render() for layer in @layers
 
-        #index = @scenes.length
-        #while index--
-        #  scene = @scenes[index]
-        #  if scene.isActive then scene.render()
-
-
-
-
-
-Functions
----------
-
-
-#### `getVertexSource() <string>` and `getFragmentSource() <string>`
-Many WebGL tutorials read these strings from `<SCRIPT>` elements. But for 
-simplicity, `initShaders()` just grabs the strings from these functions. 
-
-    getVertexSource = -> """
-      attribute vec3 aVtxPosition;
-      attribute vec4 aVtxColor;
-
-      uniform mat4 uMatTransform;
-      uniform mat4 uMatCamera;
-
-      varying vec4 vColor; // declare `vColor`
-
-      void main() {
-
-        // 
-        gl_PointSize = 4.0;
-
-        // Multiply the position by the camera transformation and matrices
-        // Note that the order of these three is important
-        gl_Position = uMatCamera * uMatTransform * vec4(aVtxPosition, 1);
-
-        // Convert from clipspace to colorspace, and send to the fragment-shader
-        // Clipspace goes -1.0 to +1.0
-        // Colorspace goes from 0.0 to 1.0
-        // vColor = gl_Position * 0.5 + 0.5; //vec4(4,4,4,4);
-
-        // Just pass the vertex-color attribute unchanged to the fragment-shader
-        vColor = aVtxColor;
-      }
-      """
-
-    getFragmentSource = -> """
-      precision mediump float; // boilerplate for mobile-friendly shaders
-      varying vec4 vColor;     // linear-interpolated input from fragment-shader
-      vec4 blue = vec4(0.1,0.1,0.9,0.5);
-
-      void main(void) {
-        gl_FragColor = vColor;
-      }
-      """
 
 
