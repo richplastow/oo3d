@@ -212,10 +212,11 @@ API Methods
 
 
 #### `addItem()`
-- `config.renderMode <string>`  (optional)
-- `config.positions <array>`    x, y, and z coordinates
-- `config.colors <array>`       (optional) r, g, b, and alpha (each [0,1])
-- `<integer>`                   index of the newly added item in `@items`
+- `config.renderMode <string>`  (optional) 'POINTS', 'TRIANGLES', etc
+- `config.blend <array>`        (optional) eg `['ONE','DST_COLOR']`
+- `config.positionI <integer>`  index in `positionBuffers`
+- `config.colorI <integer>`     (optional) index in `colorBuffers`
+- `<integer>`                   index of the newly added item in `items`
 
 Records a new `Item` instance in `items` and returns its index. 
 If `config.colors` is not set, all vertices are set to 100% opacity white.  
@@ -223,7 +224,7 @@ If `config.colors` is not set, all vertices are set to 100% opacity white.
 
       addItem: (config) ->
         index = @items.length
-        @items[index] = new Shape config, @
+        @items[index] = new Item @, config
         return index
 
 

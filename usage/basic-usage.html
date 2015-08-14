@@ -155,19 +155,19 @@
 
           //// Create Items
          ,rgbTriI = oo3d.addItem({
-            positionIndex:  rgbTriPositions
-           ,colorIndex:     rgbTriColors
-           ,blend:          ['SRC_COLOR','SRC_COLOR'] // sfactor, dfactor
+            positionI:  rgbTriPositions
+           ,colorI:     rgbTriColors
+           ,blend:      ['SRC_COLOR','SRC_COLOR'] // sfactor, dfactor
           })
          ,cmyTriI = oo3d.addItem({
-            positionIndex:  cmyTriPositions
-           ,colorIndex:     cmyTriColors
-           ,renderMode:     'LINE_LOOP'
+            positionI:  cmyTriPositions
+           ,colorI:     cmyTriColors
+           ,renderMode: 'LINE_LOOP'
           })
          ,pyramidI = oo3d.addItem({
-            positionIndex:  pyramidPositions
-           ,colorIndex:     pyramidColors
-           ,blend:          ['ONE','DST_COLOR'] // sfactor, dfactor
+            positionI:  pyramidPositions
+           ,colorI:     pyramidColors
+           ,blend:      ['ONE','DST_COLOR'] // sfactor, dfactor
           })
 
 
@@ -207,11 +207,11 @@
           //// Create Layers
          ,someLayerI = oo3d.addLayer({
             rendererIs: new Uint16Array([usualRendererI])
-           ,scissor:    new Float32Array([0,0,0.6,1])
+           ,scissor:    new Float32Array([0,0,0.45,1])
           })
          ,anotherLayerI = oo3d.addLayer({
             rendererIs: new Uint16Array([pickerRendererI])
-           ,scissor:    new Float32Array([0.4,0,0.5,1])
+           ,scissor:    new Float32Array([0.4,0,0.6,1])
           })
 
         ;
@@ -220,6 +220,7 @@
 
 
         oo3d.rotate(0,1,0,pyramidI);
+        oo3d.rotate(0,-2.3,0,cmyTriI);
         oo3d.render();
         // console.log(oo3d.scenes[usualScene]);
         // console.log('indexes: ', rgbTri, cmyTri, pyramid);

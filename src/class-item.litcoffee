@@ -1,13 +1,16 @@
-Shape
-=====
+Item
+====
 
-#### An individual object which can appear in a Scene
 
-    class Shape
-      C: 'Shape'
+#### An individual object which can be rendered
+
+    class Item
+      C: 'Item'
       toString: -> "[object #{@C}]"
 
-      constructor: (config={}, main) ->
+      constructor: (@main, config={}) ->
+        if ªO != ªtype config then throw TypeError "
+          `config` must be object not #{ªtype config}"
 
 
 
@@ -16,36 +19,36 @@ Properties
 ----------
 
 
-#### `gl <WebGLRenderingContext>`
-WebGL context, passed from the `Main` instance. 
+#### `main <Oo3d>`
+A reference to the main Oo3d instance which created this Renderer. 
 
-        @gl = main.gl
-        if 'webglrenderingcontext' != ªtype @gl then throw Error """
-          main.gl must be WebGLRenderingContext not #{ªtype @gl}"""
+        if ªO != ªtype @main then throw TypeError "
+          `main` must be object not #{ªtype @main}"
+        if '[object Oo3d]' != ''+@main then throw TypeError "
+          `main` must be [object Oo3d] not #{@main}"
 
 
 #### `positionBuffer <WebGLBuffer>`
 Xx. @todo describe
 
-        @positionBuffer = main.positionBuffers[config.positionIndex]
+        @positionBuffer = @main.positionBuffers[config.positionI]
         if ! @positionBuffer then throw Error """
-          config.positionIndex #{config.positionIndex} does not exist"""
+          config.positionI #{config.positionI} does not exist"""
 
 
 #### `colorBuffer <WebGLBuffer>`
 Xx. @todo describe
 
-        @colorBuffer = main.colorBuffers[config.colorIndex]
+        @colorBuffer = @main.colorBuffers[config.colorI]
         if ! @colorBuffer then throw Error """
-          config.colorIndex #{config.colorIndex} does not exist"""
+          config.colorI #{config.colorI} does not exist"""
 
 
 #### `count <integer>`
 Xx. @todo describe
 
         if @positionBuffer.count != @colorBuffer.count
-          ª @positionBuffer.count, '!=', @colorBuffer.count
-          throw Error "config.positionIndex mismatches config.colorIndex"
+          throw Error "config.positionI mismatches config.colorI"
         @count = @positionBuffer.count
 
 
@@ -76,15 +79,15 @@ Xx. @todo describe
                          Multiply by the smaller of source or dest alpha value
 
         if ªA == ªtype config.blend
-          @sBlend = @gl[ config.blend[0] ]
-          @dBlend = @gl[ config.blend[1] ]
+          @sBlend = @main.gl[ config.blend[0] ]
+          @dBlend = @main.gl[ config.blend[1] ]
         else
           @sBlend = null
           @dBlend = null
 
 
 #### `matTransform <Float32Array>`
-The transformation-matrix currently applied to this shape. Starts at identity. 
+The transformation-matrix currently applied to this Item. Starts at identity. 
 
         @matTransform = new Float32Array([
           1,  0,  0,  0
@@ -95,7 +98,7 @@ The transformation-matrix currently applied to this shape. Starts at identity.
 
 
 #### `rX, rY, rZ <number>`
-Keeps track of rotation currently applied to this shape. All start at 0. 
+Keeps track of rotation currently applied to this Item. All start at 0. 
 
         @rX = 0
         @rY = 0
@@ -103,7 +106,7 @@ Keeps track of rotation currently applied to this shape. All start at 0.
 
 
 #### `sX, sY, sZ <number>`
-Keeps track of rotation currently applied to this shape. All start at 1. 
+Keeps track of rotation currently applied to this Item. All start at 1. 
 
         @sX = 1
         @sY = 1
@@ -111,7 +114,7 @@ Keeps track of rotation currently applied to this shape. All start at 1.
 
 
 #### `tX, tY, tZ <number>`
-Keeps track of translation currently applied to this shape. All start at 0. 
+Keeps track of translation currently applied to this Item. All start at 0. 
 
         @tX = 0
         @tY = 0
@@ -121,11 +124,11 @@ Keeps track of translation currently applied to this shape. All start at 0.
 #### `renderMode <string>`
 'POINTS', 'LINE_STRIP', 'TRIANGLES', etc. Equates to an integer in the `gl` 
 object, eg `gl.TRIANGLES` is `4`. This integer becomes the `mode` argument 
-passed to `gl.drawArrays()` when this Shape is rendered. 
+passed to `gl.drawArrays()` when this Item is rendered. 
 @todo override at the level of a Scene
 
         @renderMode = config.renderMode or 'TRIANGLES' # default
-        if ªN != ªtype @gl[@renderMode] then throw Error """
+        if ªN != ªtype @main.gl[@renderMode] then throw Error """
           `renderMode` #{@renderMode} is not recognised by WebGL"""
 
 
