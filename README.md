@@ -14,3 +14,4 @@ Oo3d
 #### Usage
 
 - [Basic Usage](http://oo3d.richplastow.com/usage/basic-usage.html)
+- [Basic Picker](http://oo3d.richplastow.com/usage/basic-picker.html)

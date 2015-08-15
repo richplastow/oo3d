@@ -154,10 +154,15 @@ Init Methods
 Try to grab the standard WebGL context. If it fails, fallback to experimental. 
 If that fails, show an error alert. [From MDN’s article.](https://goo.gl/DYPEVk)
 
+Note that despite a possible performance penalty, `preserveDrawingBuffer` is 
+required for `readPixels()` in `getColorAt()` to work. 
+
       initGL: ->
         try
-          @gl =
-            @$main.getContext 'webgl' or @$main.getContext 'experimental-webgl'
+          for ctx in ['webgl','experimental-webgl']
+            ª ctx
+            @gl = @$main.getContext ctx, { preserveDrawingBuffer:true }
+            if @gl then break
         catch
         if ! @gl then throw Error """
           Unable to initialize WebGL. Your browser may not support it."""
@@ -589,6 +594,41 @@ entire Scene. @todo scene
 
 
 
+#### `getColorAt()`
+- `x <number>`             position on the x-axis
+- `y <number>`             position on the y-axis
+- `<Float32Array>`         xx @todo describe
+
+Get the color value at the given coordinates. 
+
+      getColorAt: (x, y) ->
+        pixels = new Uint8Array [1, 1, 1, 1]
+        @gl.readPixels(
+          x,                 # `x <number>`
+          y,                 # `y <number>`
+          1,                 # `width <number>`
+          1,                 # `height <number>`
+          @gl.RGBA,          # `format` “only `gl.RGBA` is supported” @todo why?
+          @gl.UNSIGNED_BYTE, # `type <number>`
+          pixels             # `pixels <Uint8Array>`
+        )
+        return pixels
+
+
+
+
+#### `getItemIByColor()`
+- `<Float32Array>`  xx @todo describe
+- `<number>`        position on the x-axis
+
+Get the index of the Item in `items` which corresponds to `color`. 
+
+      getItemIByColor: (color) ->
+        return pick.colorToIndex color
+
+
+
+
 #### `render()`
 Draw each layer to the canvas. 
 
@@ -601,5 +641,6 @@ Draw each layer to the canvas.
 
         layer.render() for layer in @layers
 
+        @gl.flush()
 
 
