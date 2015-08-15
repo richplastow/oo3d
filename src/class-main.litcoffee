@@ -224,7 +224,7 @@ If `config.colors` is not set, all vertices are set to 100% opacity white.
 
       addItem: (config) ->
         index = @items.length
-        @items[index] = new Item @, config
+        @items[index] = new Item @, index, config
         return index
 
 

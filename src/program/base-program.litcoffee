@@ -9,6 +9,7 @@ Program
 - A Program can be used by any number of Renderers
 - All Programs are stored in the main.programs array
 
+
     class Program
       C: 'Program'
       toString: -> "[object #{@C}]"
@@ -45,7 +46,7 @@ class will usually override the base `vertexSource()` method.
         gl.shaderSource @vertexShader, @vertexSource()
         gl.compileShader @vertexShader
         if ! gl.getShaderParameter @vertexShader, gl.COMPILE_STATUS
-          @cleanUp(); throw Error "vertexShader did not compile successfully"
+          @cleanUp(); throw Error "#{@C}.vertexShader failed to compile"
 
 
 #### `fragmentShader <WebGLShader>`
@@ -56,7 +57,7 @@ class will usually override the base `fragmentSource()` method.
         gl.shaderSource @fragmentShader, @fragmentSource()
         gl.compileShader @fragmentShader
         if ! gl.getShaderParameter @fragmentShader, gl.COMPILE_STATUS
-          @cleanUp(); throw Error "fragmentShader did not compile successfully"
+          @cleanUp(); throw Error "#{@C}.fragmentShader failed to compile"
 
 
 #### `program <WebGLProgram>`
@@ -67,7 +68,7 @@ Xx.
         gl.attachShader @program, @fragmentShader
         gl.linkProgram @program
         if ! gl.getProgramParameter @program, gl.LINK_STATUS
-          @cleanUp(); throw Error "program did not link successfully"
+          @cleanUp(); throw Error "#{@C}.program failed to link"
 
 
 

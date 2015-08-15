@@ -1,11 +1,11 @@
-Program.Flat
-============
+Program.FlatItem
+================
 
 
-#### A simple Program for vertex-colored shapes with no shading
+#### Xx @todo describe
 
-    class Program.Flat extends Program
-      C: 'Program.Flat'
+    class Program.FlatItem extends Program
+      C: 'Program.FlatItem'
       toString: -> "[object #{@C}]"
 
       constructor: (main, config={}) ->
@@ -38,19 +38,17 @@ to `aVtxPosition`. Then, enable the vertex-position attribute.
         gl.enableVertexAttribArray @aVtxPositionLoc
 
 
-#### `aVtxColorLoc <integer>`
-Repeat the first of the two steps above for the vertex-colors.  
-The `gl.enableVertexAttribArray @aVtxColorLoc` is done before rendering, and 
-then xx. 
-
-        @aVtxColorLoc = gl.getAttribLocation @program, 'aVtxColor'
-
-
 #### `uMatTransformLoc and uMatCameraLoc <WebGLUniformLocation>`
 Get the location of the `uMatTransform` and `uMatCamera` uniforms. 
 
         @uMatTransformLoc = gl.getUniformLocation @program, 'uMatTransform'
         @uMatCameraLoc    = gl.getUniformLocation @program, 'uMatCamera'
+
+
+#### `uItemColorLoc <WebGLUniformLocation>`
+Get the location of the `uItemColor` uniforms. 
+
+        @uItemColorLoc = gl.getUniformLocation @program, 'uItemColor'
 
 
 
@@ -60,28 +58,28 @@ Methods
 
 
 #### `vertexSource()`
-Draws the transformed vertices, and sends vertex-colors to the fragment shader. 
+Simply draws the transformed vertices. 
 
       vertexSource: -> """
       attribute vec3 aVtxPosition;
-      attribute vec4 aVtxColor;
 
       uniform mat4 uMatTransform;
       uniform mat4 uMatCamera;
+
+      uniform vec4 uItemColor; // the Item renders as a single flat color
+
 
       varying vec4 vColor; // declare `vColor`
 
       void main() {
 
-        //// Increase the size of gl.POINT from 1px to 4px. 
-        gl_PointSize = 4.0;
-
-        //// Apply the Camera and Item transforms to each vertex position. 
+        //// Multiply the position by the camera transformation and matrices. 
         //// Note that the order of these three is important. 
         gl_Position = uMatCamera * uMatTransform * vec4(aVtxPosition, 1);
 
         //// Pass the vertex-color attribute unchanged to the fragment-shader. 
-        vColor = aVtxColor;
+        vColor = uItemColor;
+
       }
       """
 
@@ -89,14 +87,14 @@ Draws the transformed vertices, and sends vertex-colors to the fragment shader.
 
 
 #### `fragmentSource()`
-Renders every fragment according to a color passed from the vertex shader. 
+Renders every fragment as a single flat color. 
 
       fragmentSource: -> """
       precision mediump float; // boilerplate for mobile-friendly shaders
 
       varying vec4 vColor; // linear-interpolated input from fragment-shader
 
-      void main(void) {
+      void main() {
         gl_FragColor = vColor;
       }
       """

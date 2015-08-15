@@ -9,6 +9,7 @@ Renderer
 - A Renderer can be used by any number of Layers
 - All Renderers are stored in the main.renderers array
 
+
     class Renderer
       C: 'Renderer'
       toString: -> "[object #{@C}]"
@@ -86,6 +87,7 @@ For better performance, use local variables.
         aVtxPositionLoc  = @program.aVtxPositionLoc
         aVtxColorLoc     = @program.aVtxColorLoc or false # some Programs, only
         uMatTransformLoc = @program.uMatTransformLoc
+        uItemColorLoc    = @program.uItemColorLoc
 
         if ! gl then throw Error "The WebGL rendering context is #{ªtype gl}"
 
@@ -101,7 +103,7 @@ Set the transform for this Renderer’s Camera.
           @camera.matCamera
         )
 
-Before the loop, the previous Renderer’s Program may not have used `aVtxColor`. 
+Xx. @todo move this to a less-repeated place
 
         if aVtxColorLoc
           gl.enableVertexAttribArray aVtxColorLoc
@@ -115,11 +117,18 @@ Step through each of this Renderer’s Items, in reverse order.
 Set the transform for this Item. 
 
           gl.uniformMatrix4fv(
-            uMatTransformLoc,
-            false,
-            item.matTransform
+            uMatTransformLoc, # `location <WebGLUniformLocation>`
+            gl.FALSE,         # `transpose` must be set to gl.FALSE @todo why?
+            item.matTransform # `value <Float32Array>` 
           )
 
+Set the Item color. 
+
+          if uItemColorLoc
+            gl.uniform4fv(
+              uItemColorLoc,
+              item.color
+            )
 
 Set each Item’s `positionBuffer` as the WebGLBuffer to be worked on. The 
 previous binding is automatically broken. 

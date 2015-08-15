@@ -20,7 +20,7 @@ Properties
 
 
 #### `main <Oo3d>`
-Xx. @todo describe
+A reference to the main Oo3d instance which created this Layer. 
 
         if ªO != ªtype @main then throw TypeError "
           `main` must be object not #{ªtype @main}"

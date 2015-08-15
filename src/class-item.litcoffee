@@ -8,7 +8,7 @@ Item
       C: 'Item'
       toString: -> "[object #{@C}]"
 
-      constructor: (@main, config={}) ->
+      constructor: (@main, @index, config={}) ->
         if ªO != ªtype config then throw TypeError "
           `config` must be object not #{ªtype config}"
 
@@ -20,12 +20,25 @@ Properties
 
 
 #### `main <Oo3d>`
-A reference to the main Oo3d instance which created this Renderer. 
+A reference to the main Oo3d instance which created this Item. 
 
         if ªO != ªtype @main then throw TypeError "
           `main` must be object not #{ªtype @main}"
         if '[object Oo3d]' != ''+@main then throw TypeError "
           `main` must be [object Oo3d] not #{@main}"
+
+
+#### `index <integer>`
+This Item’s index in the `main.items` array. 
+
+        if ªN != ªtype @index then throw TypeError "
+          `index` must be number not #{ªtype @index}"
+
+
+#### `color <Float32Array>`
+A color which can act as an ID. Useful for picking. 
+
+        @color = pick.indexToColor @index # defined in /src/pick.coffee
 
 
 #### `positionBuffer <WebGLBuffer>`
