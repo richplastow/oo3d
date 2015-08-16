@@ -631,27 +631,65 @@ Get the index of the Item in `items` which corresponds to `color`.
 
 
 
-#### `itemInfo()`
+#### `getItemSnapshot()`
 - `itemI <integer>`  xx @todo describe
-- `<number>`        position on the x-axis
+- `<object>`         xx @todo describe
 
-Retrieve an object which summarizes the given Item’s current state. 
+Create an object which describes the given Item’s current state.  
+@todo also `item.dBlend` etc, not just the transform state
 
-      getItemInfo: (itemI) ->
+      getItemSnapshot: (itemI) ->
         item = @items[itemI]
 
-Flips are taken from the Item’s scale. 
+Clone, don’t reference, `matTransform`. 
 
-        flipX = if 0 == item.sX then 0 else if 0 > item.sX then '-' else '+'
-        flipY = if 0 == item.sY then 0 else if 0 > item.sY then '-' else '+'
-        flipZ = if 0 == item.sZ then 0 else if 0 > item.sZ then '-' else '+'
+        mat = new Float32Array 16
+        mat.set item.matTransform
 
-Build and return the summary. 
+Return the snapshot. 
 
-        flipX: flipX
-        flipY: flipY
-        flipZ: flipZ
-        flips: "#{flipX}#{flipY}#{flipZ}"
+        mat: mat
+        rX:  item.rX
+        rY:  item.rY
+        rZ:  item.rZ
+        sX:  item.sX
+        sY:  item.sY
+        sZ:  item.sZ
+        tX:  item.tX
+        tY:  item.tY
+        tZ:  item.tZ
+
+
+
+
+#### `setItemSnapshot()`
+- `snapshot <object>`  a snapshot of an Item, eg returned by `getItemSnapshot()`
+- `itemI <integer>`    the index, in `items`, of the target Item
+
+Replaces the given Item’s state with the properties in a snapshot object `s`. 
+@todo also `item.dBlend` etc, not just the transform state  
+@todo check that `mat` is the outcome of the individual transforms?  
+@todo check that all of the properties are valid?  
+
+      setItemSnapshot: (snapshot, itemI) ->
+        item = @items[itemI]
+
+Clone, don’t reference, `matTransform`. 
+
+        item.matTransform = new Float32Array 16
+        item.matTransform.set snapshot.mat
+
+Copy the remaining snapshot into the Item’s state. 
+
+        item.rX = snapshot.rX
+        item.rY = snapshot.rY
+        item.rZ = snapshot.rZ
+        item.sX = snapshot.sX
+        item.sY = snapshot.sY
+        item.sZ = snapshot.sZ
+        item.tX = snapshot.tX
+        item.tY = snapshot.tY
+        item.tZ = snapshot.tZ
 
 
 

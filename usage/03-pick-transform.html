@@ -8,23 +8,6 @@
   <script src="../build/oo3d.js"></script>
   <script>
     addEventListener('load', function () {
-
-      //// Hide the address bar on iOS. 
-      // setTimeout(function(){
-      //   window.scrollTo(0, 1);
-      // }, 0);
-
-      // sort of emulate safari's "bounce back to top" scroll
-      // window.addEventListener('scroll', function(ev) {
-      //     // avoids scrolling when the focused element is e.g. an input
-      //     if (
-      //         !document.activeElement
-      //         || document.activeElement === document.body
-      //     ) {
-      //         document.body.scrollIntoViewIfNeeded(true);
-      //     }
-      // });
-
       try {
         var
           //// Micro jQuery. 
@@ -37,8 +20,8 @@
          ,$btnTxy   = $('#btn-txy')
          ,$btnTxz   = $('#btn-txz')
          ,$btnRxy   = $('#btn-rxy')
-         ,$btnScale = $('#btn-scale')
          ,$btnRxz   = $('#btn-rxz')
+         ,$btnScale = $('#btn-scale')
 
          ,$guiFlip  = $('#gui-flip')
          ,$btnFlipH = $('#btn-flip-h') // home
@@ -47,6 +30,21 @@
          ,$btnFlipZ = $('#btn-flip-z')
          ,$btnFlipR = $('#btn-flip-r') // reset flip
 
+         ,$guiHomeInfo  = $('#gui-home i')
+         ,$btnFlipInfo  = $('#btn-flip i')
+         ,$btnTxyInfo   = $('#btn-txy i')
+         ,$btnTxzInfo   = $('#btn-txz i')
+         ,$btnRxyInfo   = $('#btn-rxy i')
+         ,$btnRxzInfo   = $('#btn-rxz i')
+         ,$btnScaleInfo = $('#btn-scale i')
+
+         ,$guiFlipInfo  = $('#gui-flip i')
+         ,$btnFlipHInfo = $('#btn-flip-h i') // home
+         ,$btnFlipXInfo = $('#btn-flip-x i')
+         ,$btnFlipYInfo = $('#btn-flip-y i')
+         ,$btnFlipZInfo = $('#btn-flip-z i')
+         ,$btnFlipRInfo = $('#btn-flip-r i') // reset flip
+
 
           //// Other Elements. 
          ,$error = $('#error')
@@ -54,7 +52,10 @@
 
 
           //// GUI State. 
-         ,focusI = null
+         ,focusI       = null
+         ,downPos      = null // mousedown position
+         ,moveHandler  = function (x, y) {}
+         ,itemSnapshot = null
 
 
           //// Oo3d Instance. 
@@ -224,33 +225,112 @@
             if (0 === itemI || itemI) { oo3d.setRenderMode('LINE_LOOP', itemI); }
           }
 
+          //// `verboseSnapshot()`
+          //// - `s <object>`  Item info returned by `oo3d.getItemSnapshot()`
+          //// - `<object>`    the snapshot with extra properties
+          ////
+          //// Create an object which `updateItemInfo()` can use. 
+
+          verboseSnapshot = function (s) {
+
+            //// Flips are taken from the Item’s scale properties. 
+            s.fX = 0 == s.sX ? 0 : 0 > s.sX ? '-' : '+';
+            s.fY = 0 == s.sY ? 0 : 0 > s.sY ? '-' : '+';
+            s.fZ = 0 == s.sZ ? 0 : 0 > s.sZ ? '-' : '+';
+
+            //// Round translate values. 
+            s.tXround = ((Math.round(s.tX * 1000)) / 1000);
+            s.tYround = ((Math.round(s.tY * 1000)) / 1000);
+            s.tZround = ((Math.round(s.tZ * 1000)) / 1000);
+
+            //// Return the modified snapshot. 
+            return s;
+          }
+
+
+
+
           //// `updateItemInfo()`
           //// Displays various values from a given Item’s state. 
           //// `itemI` is optional. If not set, the displays are reset. 
          ,updateItemInfo = function (itemI) {
             if (0 === itemI || itemI) {
-              itemInfo = oo3d.getItemInfo(itemI);
-              $btnFlip.innerHTML  = '<b>Flip</b ><i>' + itemInfo.flips + '</i>';
-              $btnTxy.innerHTML   = '<b>Txy</b  ><i>@todo</i>';
-              $btnTxz.innerHTML   = '<b>Txz</b  ><i>@todo</i>';
-              $btnRxy.innerHTML   = '<b>Rxy</b  ><i>@todo</i>';
-              $btnScale.innerHTML = '<b>Scale</b><i>@todo</i>';
-              $btnRxz.innerHTML   = '<b>Rxz</b  ><i>@todo</i>';
-              $btnFlipX.innerHTML = '<b>FlipX</b><i>' + itemInfo.flipX + '</i>';
-              $btnFlipY.innerHTML = '<b>FlipY</b><i>' + itemInfo.flipY + '</i>';
-              $btnFlipZ.innerHTML = '<b>FlipZ</b><i>' + itemInfo.flipZ + '</i>';
+              info = verboseSnapshot( oo3d.getItemSnapshot(itemI) );
+              $btnFlipInfo.innerHTML  = '' + info.fX + info.fY + info.fZ;
+              $btnTxyInfo.innerHTML   = info.tXround + '<br>' + info.tYround;
+              $btnTxzInfo.innerHTML   = info.tXround + '<br>' + info.tZround;
+              $btnRxyInfo.innerHTML   = '@todo';
+              $btnRxzInfo.innerHTML   = '@todo';
+              $btnScaleInfo.innerHTML = '@todo';
+              $btnFlipXInfo.innerHTML = info.fX;
+              $btnFlipYInfo.innerHTML = info.fY;
+              $btnFlipZInfo.innerHTML = info.fZ;
             } else {
-              $btnFlip.innerHTML  = '<b>Flip</b ><i></i>';
-              $btnTxy.innerHTML   = '<b>Txy</b  ><i></i>';
-              $btnTxz.innerHTML   = '<b>Txz</b  ><i></i>';
-              $btnRxy.innerHTML   = '<b>Rxy</b  ><i></i>';
-              $btnScale.innerHTML = '<b>Scale</b><i></i>';
-              $btnRxz.innerHTML   = '<b>Rxz</b  ><i></i>';
-              $btnFlipX.innerHTML = '<b>FlipX</b><i></i>';
-              $btnFlipY.innerHTML = '<b>FlipY</b><i></i>';
-              $btnFlipZ.innerHTML = '<b>FlipZ</b><i></i>';
+              $btnFlipInfo.innerHTML  = '';
+              $btnTxyInfo.innerHTML   = '';
+              $btnTxzInfo.innerHTML   = '';
+              $btnRxyInfo.innerHTML   = '';
+              $btnRxzInfo.innerHTML   = '';
+              $btnScaleInfo.innerHTML = '';
+              $btnFlipXInfo.innerHTML = '';
+              $btnFlipYInfo.innerHTML = '';
+              $btnFlipZInfo.innerHTML = '';
             }
           }
+
+          //// `onMousemove()`
+          //// Xx. @todo describe
+         ,onMousemove = function (event) {
+            if (0 === focusI || focusI) {
+              moveHandler(event.clientX - downPos[0], event.clientY - downPos[1]);
+            }
+          }
+
+          //// `onMouseup()`
+          //// Xx. @todo describe
+         ,onMouseup = function (event) {
+            window.removeEventListener('mousemove', onMousemove);
+            window.removeEventListener('mouseup'  , onMouseup);
+            downPos = null;
+            moveHandler = function (x, y) {};
+          }
+
+          //// `onTouchmove()`
+          //// Xx. @todo describe
+         ,onTouchmove = function (event) {
+            if (0 === focusI || focusI) {
+              var touches = event.changedTouches;
+              moveHandler(touches[0].pageX - downPos[0], touches[0].pageY - downPos[1]);
+            }
+          }
+
+          //// `onTouchend()`
+          //// Xx. @todo describe
+         ,onTouchend = function (event) {
+            console.log('T END!');
+            window.removeEventListener('touchmove', onTouchmove);
+            window.removeEventListener('touchend' , onTouchend);
+            downPos = null;
+            moveHandler = function (x, y) {};
+          }
+
+          //// `moveHandlerTxy()`
+          //// Xx. @todo describe
+         ,moveHandlerTxy = function (x, y) {
+            oo3d.setItemSnapshot(itemSnapshot, focusI);
+            oo3d.translate(x/500, -(y/500), 0, focusI);
+            updateItemInfo(focusI);
+            oo3d.render();
+         }
+
+          //// `moveHandlerTxz()`
+          //// Xx. @todo describe
+         ,moveHandlerTxz = function (x, y) {
+            oo3d.setItemSnapshot(itemSnapshot, focusI);
+            oo3d.translate(x/500, 0, y/500, focusI);
+            updateItemInfo(focusI);
+            oo3d.render();
+         }
 
         ;
 
@@ -262,7 +342,7 @@
         oo3d.translate(-0.5,0,2,cmyTri1I);
         oo3d.translate(-1,0,2.5,cmyTri2I);
         oo3d.translate(1.5,0,1,cmyTri3I);
-        oo3d.rotate(0,1,0,pyramidI);
+        //oo3d.rotate(0,1,0,pyramidI);
         oo3d.render();
 
 
@@ -295,15 +375,68 @@
         });
         $btnFlipR.addEventListener('mousedown', function (event) {
           if ( 'gui active' !== $guiFlip.getAttribute('class') ) { return; }
-          itemInfo = oo3d.getItemInfo(focusI);
+          itemSnapshot = oo3d.getItemSnapshot(focusI);
+          itemInfo = oo3d.getItemSnapshot(focusI);
           oo3d.scale(
-            '+' == itemInfo.flipX ? 1 : -1,
-            '+' == itemInfo.flipY ? 1 : -1,
-            '+' == itemInfo.flipZ ? 1 : -1,
+            '+' == itemSnapshot.fX ? 1 : -1,
+            '+' == itemSnapshot.fY ? 1 : -1,
+            '+' == itemSnapshot.fZ ? 1 : -1,
             focusI
           );
           updateItemInfo(focusI);
           oo3d.render();
+        });
+
+
+        //// 'Translate XY' GUI. 
+        $btnTxy.addEventListener('mousedown', function (event) {
+          if ( 'gui active' !== $guiHome.getAttribute('class') ) { return; }
+          event.preventDefault();
+          if (0 === focusI || focusI) {
+            downPos = [event.clientX, event.clientY];
+            itemSnapshot = oo3d.getItemSnapshot(focusI);
+            moveHandler = moveHandlerTxy;
+            window.addEventListener('mousemove', onMousemove);
+            window.addEventListener('mouseup'  , onMouseup  );
+          }
+        });
+        $btnTxy.addEventListener('touchstart', function (event) {
+          if ( 'gui active' !== $guiHome.getAttribute('class') ) { return; }
+          event.preventDefault();
+          if (0 === focusI || focusI) {
+            var touches = event.changedTouches;
+            downPos = [touches[0].pageX, touches[0].pageY];
+            itemSnapshot = oo3d.getItemSnapshot(focusI);
+            moveHandler = moveHandlerTxy;
+            window.addEventListener('touchmove', onTouchmove);
+            window.addEventListener('touchend' , onTouchend );
+          }
+        });
+
+
+        //// 'Translate XZ' GUI. 
+        $btnTxz.addEventListener('mousedown', function (event) {
+          if ( 'gui active' !== $guiHome.getAttribute('class') ) { return; }
+          event.preventDefault();
+          if (0 === focusI || focusI) {
+            downPos = [event.clientX, event.clientY];
+            itemSnapshot = oo3d.getItemSnapshot(focusI);
+            moveHandler = moveHandlerTxz;
+            window.addEventListener('mousemove', onMousemove);
+            window.addEventListener('mouseup'  , onMouseup  );
+          }
+        });
+        $btnTxz.addEventListener('touchstart', function (event) {
+          if ( 'gui active' !== $guiHome.getAttribute('class') ) { return; }
+          event.preventDefault();
+          if (0 === focusI || focusI) {
+            var touches = event.changedTouches;
+            downPos = [touches[0].pageX, touches[0].pageY];
+            itemSnapshot = oo3d.getItemSnapshot(focusI);
+            moveHandler = moveHandlerTxz;
+            window.addEventListener('touchmove', onTouchmove);
+            window.addEventListener('touchend' , onTouchend );
+          }
         });
 
 
@@ -353,13 +486,12 @@
     });
   </script>
   <style>
+    html {
+      padding-bottom: 80px; /* space to scroll up for fullscreen on iOS 8 */
+    }
     html, body {
       margin: 0;
       font: bold 18px/24px "Arial", sans-serif;
-    }
-    html {
-        /* enough space to scroll up to get fullscreen on iOS8 */
-        padding-bottom: 80px;
     }
     #main {
       position: absolute;
@@ -380,8 +512,14 @@
       white-space: nowrap;
       background: rgba(16,16,16,0.9);
       color: #ccc;
-      font-size: 32px;
+      font-size: 26px;
       transition: background 0.3s, font-size 0.6s;
+      -webkit-touch-callout: none; /* Android and iOS callouts*/
+        -webkit-user-select: none; /* Chrome, Safari, Opera */
+         -khtml-user-select: none; /* Konqueror */
+           -moz-user-select: none; /* Firefox */
+            -ms-user-select: none; /* IE */
+                user-select: none;
     }
     h1:hover {
       background: rgba(0,0,0,0.95);
@@ -436,12 +574,6 @@
       opacity:     0;  /* '1' when active */
       z-index:     -5; /* '10' when active */
       transition: opacity 0.4s, z-index 0.1s 0.5s;
-      -webkit-touch-callout: none; /* Android and iOS callouts*/
-        -webkit-user-select: none; /* Chrome, Safari, Opera */
-         -khtml-user-select: none; /* Konqueror */
-           -moz-user-select: none; /* Firefox */
-            -ms-user-select: none; /* IE */
-                user-select: none;
     }
     .gui.active {
       z-index: 10;
@@ -469,6 +601,12 @@
     .gui >li >b,
     .gui >li >i {
       display: block;
+      -webkit-touch-callout: none; /* Android and iOS callouts*/
+        -webkit-user-select: none; /* Chrome, Safari, Opera */
+         -khtml-user-select: none; /* Konqueror */
+           -moz-user-select: none; /* Firefox */
+            -ms-user-select: none; /* IE */
+                user-select: none;
     }
     .gui >li >b {
       padding-top: 19px;
