@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <title>Oo3d Basic Picker</title>
+  <title>03 Oo3d Pick Transform</title>
   <meta http-equiv="Content-Type" content="text/html;charset=utf-8">
   <script src="../build/oo3d.js"></script>
   <script>
@@ -80,7 +80,7 @@
          ,rgbTri1I = oo3d.addItem({
             positionI:  rgbTriPositions
            ,colorI:     rgbTriColors
-           ,blend:      ['SRC_COLOR','SRC_COLOR'] // sfactor, dfactor
+           //,blend:      ['SRC_COLOR','SRC_COLOR'] // sfactor, dfactor
           })
          ,rgbTri2I = oo3d.addItem({
             positionI:  rgbTriPositions
@@ -105,7 +105,7 @@
          ,pyramidI = oo3d.addItem({
             positionI:  pyramidPositions
            ,colorI:     pyramidColors
-           ,blend:      ['ONE','DST_COLOR'] // sfactor, dfactor
+           //,blend:      ['ONE','DST_COLOR'] // sfactor, dfactor
           })
 
 
@@ -187,12 +187,20 @@
           //console.log(w, h, $main.width, $main.height, wRatio, hRatio, x, y);
           var color = oo3d.getColorAt(x, $main.height - y);
           var itemI = oo3d.getItemIByColor(color);
-          oo3d.setRenderMode('LINE_LOOP', itemI);
+          if (8001440 == itemI) { // `8001440` is background r0.1 g0.2 b0.4
+            oo3d.bkgndA = 0.5;
+            setTimeout(function () {
+              oo3d.bkgndA = 0.9;
+              oo3d.render();
+            }, 500);
+          } else {
+            oo3d.setRenderMode('LINE_LOOP', itemI);
+            setTimeout(function () {
+              oo3d.setRenderMode('TRIANGLES', itemI);
+              oo3d.render();
+            }, 500);
+          }
           oo3d.render();
-          setTimeout(function () {
-            oo3d.setRenderMode('TRIANGLES', itemI);
-            oo3d.render();
-          }, 500);
         });
 
       } catch (error) {
@@ -236,7 +244,7 @@
   </style>
 </head>
 <body style="background:#999;">
-  <h1>Oo3d Basic Picker</h1>
+  <h1>03 Oo3d Pick Transform</h1>
   <a href="../index.html">Home</a>
   <canvas id="main"></canvas>
   <div id="error" class="hidden"></div>

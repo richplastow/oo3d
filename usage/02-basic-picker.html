@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>02 Oo3d Basic Picker</title>
+  <meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+  <script src="../build/oo3d.js"></script>
+  <script>
+    addEventListener('load', function () {
+      try {
+        var
+          $ = document.querySelector.bind(document)
+         ,$error = $('#error')
+         ,$main = document.getElementById('main')
+         ,oo3d = new Oo3d({
+            $main: $main
+           ,background: [0.1, 0.2, 0.4, 0.9]
+          })
+
+
+          //// Create Buffers. 
+         ,rgbTriPositions = oo3d.addPositionBuffer([
+             0.0,  0.3,  1.0,
+            -0.4, -0.5,  1.0,
+             0.8, -0.3,  1.0
+          ])
+         ,rgbTriColors = oo3d.addColorBuffer([
+             1.0,  0.0,  0.0,  0.5, // red
+             0.0,  1.0,  0.0,  0.5, // green
+             0.0,  0.0,  1.0,  0.5  // blue
+          ])
+         ,cmyTriPositions = oo3d.addPositionBuffer([
+             1.0, -0.3,   0.0,
+             0.4,  0.5,  -1.0,
+             0.2,  0.3,  -1.0
+          ])
+         ,cmyTriColors = oo3d.addColorBuffer([
+             1.0,  1.0,  0.0,  0.9, // yellow
+             0.0,  1.0,  1.0,  0.9, // cyan
+             1.0,  0.0,  1.0,  0.9  // magenta
+          ])
+         ,pyramidPositions = oo3d.addPositionBuffer([
+            // Front face
+             0.0,  1.0,  0.0,
+            -1.0, -1.0,  1.0,
+             1.0, -1.0,  1.0,
+            // Right face
+             0.0,  1.0,  0.0,
+             1.0, -1.0,  1.0,
+             1.0, -1.0, -1.0,
+            // Back face
+             0.0,  1.0,  0.0,
+             1.0, -1.0, -1.0,
+            -1.0, -1.0, -1.0,
+            // Left face
+             0.0,  1.0,  0.0,
+            -1.0, -1.0, -1.0,
+            -1.0, -1.0,  1.0
+          ])
+         ,pyramidColors = oo3d.addColorBuffer([
+            // Front face
+             0.3,   0.0,  0.0,  0.95, // near-opaque dark red
+             0.3,   0.0,  0.0,  0.95, // near-opaque dark red
+             0.3,   0.0,  0.0,  0.95, // near-opaque dark red
+            // Right face
+             0.0,  0.25,  0.0,  0.75, // translucent lime
+             0.0,  0.25,  0.0,  0.75, // translucent lime
+             0.0,  0.25,  0.0,  0.75, // translucent lime
+            // Back face
+             1.0,  0.25,  0.0,  0.10, // translucent orange
+             1.0,  0.25,  0.0,  0.10, // translucent orange
+             1.0,  0.25,  0.0,  0.10, // translucent orange
+            // Left face
+             0.25,  0.5,  1.0,  0.05, // translucent light cyan
+             0.25,  0.5,  1.0,  0.05, // translucent light cyan
+             0.25,  0.5,  1.0,  0.05  // translucent light cyan
+          ])
+
+
+          //// Create Items. 
+         ,rgbTri1I = oo3d.addItem({
+            positionI:  rgbTriPositions
+           ,colorI:     rgbTriColors
+           //,blend:      ['SRC_COLOR','SRC_COLOR'] // sfactor, dfactor
+          })
+         ,rgbTri2I = oo3d.addItem({
+            positionI:  rgbTriPositions
+           ,colorI:     rgbTriColors
+          })
+         ,rgbTri3I = oo3d.addItem({
+            positionI:  rgbTriPositions
+           ,colorI:     rgbTriColors
+          })
+         ,cmyTri1I = oo3d.addItem({
+            positionI:  cmyTriPositions
+           ,colorI:     cmyTriColors
+          })
+         ,cmyTri2I = oo3d.addItem({
+            positionI:  cmyTriPositions
+           ,colorI:     cmyTriColors
+          })
+         ,cmyTri3I = oo3d.addItem({
+            positionI:  cmyTriPositions
+           ,colorI:     cmyTriColors
+          })
+         ,pyramidI = oo3d.addItem({
+            positionI:  pyramidPositions
+           ,colorI:     pyramidColors
+           //,blend:      ['ONE','DST_COLOR'] // sfactor, dfactor
+          })
+
+
+          //// Create Cameras. 
+         ,cameraI = oo3d.addCamera({
+            fovy:   0.785398163 // 45º
+           ,aspect: $main.width / $main.height
+          })
+
+
+          //// Create Programs. 
+         ,flatItemProgramI = oo3d.addProgram({
+            subclass: 'FlatItem'
+          })
+
+
+          //// Create Renderers. 
+         ,rendererI = oo3d.addRenderer({
+            cameraI:  cameraI
+           ,programI: flatItemProgramI
+           ,itemIs:   new Uint16Array([
+              rgbTri1I
+             ,rgbTri2I
+             ,rgbTri3I
+             ,cmyTri1I
+             ,cmyTri2I
+             ,cmyTri3I
+             ,pyramidI
+            ])
+          })
+
+
+          //// Create Layers. 
+         ,layerI = oo3d.addLayer({
+            rendererIs: new Uint16Array([rendererI])
+           ,scissor:    new Float32Array([0,0,1,1])
+          })
+
+          //// `vpSize()`
+          //// Returns an array with two elements, the viewport width and the viewport height. 
+          //// Based on [this Stack Overflow answer. ](http://stackoverflow.com/a/11744120)
+
+         ,vpSize = function () {
+            var
+              d = document
+             ,e = d.documentElement
+             ,b = d.getElementsByTagName('body')[0]
+             ,w = window.innerWidth  || e.clientWidth  || b.clientWidth
+             ,h = window.innerHeight || e.clientHeight || b.clientHeight
+            ;
+            return [w,h];
+          }
+
+        ;
+
+
+        //// Move Items so that they’re all visible. 
+        oo3d.translate(-0.5,0,0,rgbTri1I);
+        oo3d.translate(-1,0,-.5,rgbTri2I);
+        oo3d.translate(1.5,0,-2,rgbTri3I);
+        oo3d.translate(-0.5,0,2,cmyTri1I);
+        oo3d.translate(-1,0,2.5,cmyTri2I);
+        oo3d.translate(1.5,0,1,cmyTri3I);
+        oo3d.rotate(0,1,0,pyramidI);
+        oo3d.render();
+
+
+        //// Xx. 
+        $main.addEventListener('click', function (event) {
+          var
+            wh     = vpSize()
+           ,w      = wh[0]
+           ,h      = wh[1]
+           ,wRatio = $main.width  / w
+           ,hRatio = $main.height / h
+           ,x      = Math.round(wRatio * event.clientX)
+           ,y      = Math.round(hRatio * event.clientY)
+          ;
+          //console.log(w, h, $main.width, $main.height, wRatio, hRatio, x, y);
+          var color = oo3d.getColorAt(x, $main.height - y);
+          var itemI = oo3d.getItemIByColor(color);
+          if (8001440 == itemI) { // `8001440` is background r0.1 g0.2 b0.4
+            oo3d.bkgndA = 0.5;
+            setTimeout(function () {
+              oo3d.bkgndA = 0.9;
+              oo3d.render();
+            }, 500);
+          } else {
+            oo3d.setRenderMode('LINE_LOOP', itemI);
+            setTimeout(function () {
+              oo3d.setRenderMode('TRIANGLES', itemI);
+              oo3d.render();
+            }, 500);
+          }
+          oo3d.render();
+        });
+
+      } catch (error) {
+        console.log(error);
+        $error.innerHTML = error;
+        $error.className = ''; // remove '.hidden'
+      }
+    });
+  </script>
+  <style>
+    html, body {
+      margin: 0;
+      font: bold 18px/24px "Arial", sans-serif;
+    }
+    #main {
+      position: absolute;
+      top:     0;
+      left:    0;
+      width:   100%;
+      height:  100%;
+      z-index: -5;
+    }
+    #error {
+      position: absolute;
+      box-sizing: border-box;
+      bottom:  0;
+      left:    5%;
+      width:  90%;
+      padding: 1rem;
+      font-family: monaco, monospace;
+      background-color: #933;
+      color: #fff;
+      transition: all 0.5s;
+      opacity: 1;
+      z-index: 15;
+    }
+    #error.hidden {
+      padding-bottom: 0;
+      opacity: 0;
+    }
+  </style>
+</head>
+<body style="background:#999;">
+  <h1>02 Oo3d Basic Picker</h1>
+  <a href="../index.html">Home</a>
+  <canvas id="main"></canvas>
+  <div id="error" class="hidden"></div>
+</body>
+</html>

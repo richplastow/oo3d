@@ -233,6 +233,8 @@ If `config.colors` is not set, all vertices are set to 100% opacity white.
         return index
 
 
+
+
 #### `addCamera()`
 - `config <object>`  passed to the `Camera` contructor
 - `<integer>`        index of the newly added Camera in `@cameras`
@@ -599,11 +601,12 @@ entire Scene. @todo scene
 - `y <number>`             position on the y-axis
 - `<Float32Array>`         xx @todo describe
 
-Get the color value at the given coordinates. 
+Get the color value at the given coordinates.  
+[`readPixels()` specs](https://goo.gl/duAvjk)
 
       getColorAt: (x, y) ->
-        pixels = new Uint8Array [1, 1, 1, 1]
-        @gl.readPixels(
+        pixels = new Uint8Array 4
+        @gl.readPixels(      # read a block of pixels from the frame buffer
           x,                 # `x <number>`
           y,                 # `y <number>`
           1,                 # `width <number>`
@@ -641,6 +644,5 @@ Draw each layer to the canvas.
 
         layer.render() for layer in @layers
 
-        @gl.flush()
 
 
