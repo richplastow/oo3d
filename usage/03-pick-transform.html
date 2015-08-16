@@ -3,17 +3,46 @@
 <head>
   <title>03 Oo3d Pick Transform</title>
   <meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+  <meta name="viewport" content="width=device-width, user-scalable=no">
   <script src="../build/oo3d.js"></script>
   <script>
     addEventListener('load', function () {
       try {
         var
+          //// Micro jQuery. 
           $ = document.querySelector.bind(document)
+
+
+          //// GUI Elements. 
+         ,$guiHome  = $('#gui-home')
+         ,$btnFlip  = $('#btn-flip')
+         ,$btnTxy   = $('#btn-txy')
+         ,$btnTxz   = $('#btn-txz')
+         ,$btnRxy   = $('#btn-rxy')
+         ,$btnScale = $('#btn-scale')
+         ,$btnRxz   = $('#btn-rxz')
+
+         ,$guiFlip  = $('#gui-flip')
+         ,$btnFlipH = $('#btn-flip-h') // home
+         ,$btnFlipX = $('#btn-flip-x')
+         ,$btnFlipY = $('#btn-flip-y')
+         ,$btnFlipZ = $('#btn-flip-z')
+         ,$btnFlipR = $('#btn-flip-r') // reset flip
+
+
+          //// Other Elements. 
          ,$error = $('#error')
-         ,$main = document.getElementById('main')
+         ,$main  = $('#main')
+
+
+          //// GUI State. 
+         ,focusI = null
+
+
+          //// Oo3d Instance. 
          ,oo3d = new Oo3d({
             $main: $main
-           ,background: [0.1, 0.2, 0.4, 0.9]
+           ,background: [1.0, 1.0, 1.0, 1.0]
           })
 
 
@@ -147,7 +176,6 @@
           //// `vpSize()`
           //// Returns an array with two elements, the viewport width and the viewport height. 
           //// Based on [this Stack Overflow answer. ](http://stackoverflow.com/a/11744120)
-
          ,vpSize = function () {
             var
               d = document
@@ -157,6 +185,53 @@
              ,h = window.innerHeight || e.clientHeight || b.clientHeight
             ;
             return [w,h];
+          }
+
+          //// `onlyShow()`
+          //// Removes the 'active' class from all GUI elements, except `$el`. 
+          //// `$el` is optional. 
+         ,onlyShow = function ($el) {
+            $guiHome.setAttribute('class', 'gui');
+            $guiFlip.setAttribute('class', 'gui');
+            if ($el) { $el.setAttribute('class', 'gui active'); }
+          }
+
+          //// `onlyWireframe()`
+          //// Removes 'LINE_LOOP' from all Items, except `itemI`. 
+          //// `itemI` is optional. 
+         ,onlyWireframe = function (itemI) {
+            for (var i=0, l=oo3d.items.length; i<l; i++) {
+              oo3d.setRenderMode('TRIANGLES', i);
+            }
+            if (0 === itemI || itemI) { oo3d.setRenderMode('LINE_LOOP', itemI); }
+          }
+
+          //// `updateItemInfo()`
+          //// Displays various values from a given Item’s state. 
+          //// `itemI` is optional. If not set, the displays are reset. 
+         ,updateItemInfo = function (itemI) {
+            if (0 === itemI || itemI) {
+              itemInfo = oo3d.getItemInfo(itemI);
+              $btnFlip.innerHTML  = '<b>Flip</b ><i>' + itemInfo.flips + '</i>';
+              $btnTxy.innerHTML   = '<b>Txy</b  ><i>@todo</i>';
+              $btnTxz.innerHTML   = '<b>Txz</b  ><i>@todo</i>';
+              $btnRxy.innerHTML   = '<b>Rxy</b  ><i>@todo</i>';
+              $btnScale.innerHTML = '<b>Scale</b><i>@todo</i>';
+              $btnRxz.innerHTML   = '<b>Rxz</b  ><i>@todo</i>';
+              $btnFlipX.innerHTML = '<b>FlipX</b><i>' + itemInfo.flipX + '</i>';
+              $btnFlipY.innerHTML = '<b>FlipY</b><i>' + itemInfo.flipY + '</i>';
+              $btnFlipZ.innerHTML = '<b>FlipZ</b><i>' + itemInfo.flipZ + '</i>';
+            } else {
+              $btnFlip.innerHTML  = '<b>Flip</b ><i></i>';
+              $btnTxy.innerHTML   = '<b>Txy</b  ><i></i>';
+              $btnTxz.innerHTML   = '<b>Txz</b  ><i></i>';
+              $btnRxy.innerHTML   = '<b>Rxy</b  ><i></i>';
+              $btnScale.innerHTML = '<b>Scale</b><i></i>';
+              $btnRxz.innerHTML   = '<b>Rxz</b  ><i></i>';
+              $btnFlipX.innerHTML = '<b>FlipX</b><i></i>';
+              $btnFlipY.innerHTML = '<b>FlipY</b><i></i>';
+              $btnFlipZ.innerHTML = '<b>FlipZ</b><i></i>';
+            }
           }
 
         ;
@@ -173,8 +248,49 @@
         oo3d.render();
 
 
+        //// 'Flip' GUI. 
+        $btnFlip.addEventListener('mousedown', function (event) {
+          if ( 'gui active' !== $guiHome.getAttribute('class') ) { return; }
+          onlyShow($guiFlip);
+        });
+        $btnFlipH.addEventListener('mousedown', function (event) {
+          if ( 'gui active' !== $guiFlip.getAttribute('class') ) { return; }
+          onlyShow($guiHome);
+        });
+        $btnFlipX.addEventListener('mousedown', function (event) {
+          if ( 'gui active' !== $guiFlip.getAttribute('class') ) { return; }
+          oo3d.scale(-1, 1, 1, focusI);
+          updateItemInfo(focusI);
+          oo3d.render();
+        });
+        $btnFlipY.addEventListener('mousedown', function (event) {
+          if ( 'gui active' !== $guiFlip.getAttribute('class') ) { return; }
+          oo3d.scale(1, -1, 1, focusI);
+          updateItemInfo(focusI);
+          oo3d.render();
+        });
+        $btnFlipZ.addEventListener('mousedown', function (event) {
+          if ( 'gui active' !== $guiFlip.getAttribute('class') ) { return; }
+          oo3d.scale(1, 1, -1, focusI);
+          updateItemInfo(focusI);
+          oo3d.render();
+        });
+        $btnFlipR.addEventListener('mousedown', function (event) {
+          if ( 'gui active' !== $guiFlip.getAttribute('class') ) { return; }
+          itemInfo = oo3d.getItemInfo(focusI);
+          oo3d.scale(
+            '+' == itemInfo.flipX ? 1 : -1,
+            '+' == itemInfo.flipY ? 1 : -1,
+            '+' == itemInfo.flipZ ? 1 : -1,
+            focusI
+          );
+          updateItemInfo(focusI);
+          oo3d.render();
+        });
+
+
         //// Xx. 
-        $main.addEventListener('click', function (event) {
+        $main.addEventListener('mousedown', function (event) {
           var
             wh     = vpSize()
            ,w      = wh[0]
@@ -184,21 +300,29 @@
            ,x      = Math.round(wRatio * event.clientX)
            ,y      = Math.round(hRatio * event.clientY)
           ;
-          //console.log(w, h, $main.width, $main.height, wRatio, hRatio, x, y);
+
           var color = oo3d.getColorAt(x, $main.height - y);
           var itemI = oo3d.getItemIByColor(color);
-          if (8001440 == itemI) { // `8001440` is background r0.1 g0.2 b0.4
-            oo3d.bkgndA = 0.5;
-            setTimeout(function () {
-              oo3d.bkgndA = 0.9;
-              oo3d.render();
-            }, 500);
+
+          if (16777215 == itemI) { // `16777215` is the white background
+            focusI = null; 
+            onlyShow();
+            onlyWireframe();
+            updateItemInfo();
+            // oo3d.bkgndA = 0.5;
+            // setTimeout(function () {
+            //   oo3d.bkgndA = 0.9;
+            //   oo3d.render();
+            // }, 500);
           } else {
-            oo3d.setRenderMode('LINE_LOOP', itemI);
-            setTimeout(function () {
-              oo3d.setRenderMode('TRIANGLES', itemI);
-              oo3d.render();
-            }, 500);
+            focusI = itemI; 
+            onlyShow($guiHome);
+            onlyWireframe(itemI);
+            updateItemInfo(itemI);
+            // setTimeout(function () {
+            //   oo3d.setRenderMode('TRIANGLES', itemI);
+            //   oo3d.render();
+            // }, 500);
           }
           oo3d.render();
         });
@@ -223,6 +347,37 @@
       height:  100%;
       z-index: -5;
     }
+
+    h1 {
+      position: absolute;
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0 15px 0 10px;
+      width: 100%;
+      overflow: hidden;
+      white-space: nowrap;
+      background: rgba(16,16,16,0.9);
+      color: #ccc;
+      font-size: 32px;
+      transition: background 0.3s, font-size 0.6s;
+    }
+    h1:hover {
+      background: rgba(0,0,0,0.95);
+    }
+    h1 a {
+      display: inline-block;
+      padding: 12px 5px 15px 5px;
+      color: #ccc;
+      text-decoration: none;
+      transition: color 0.3s;
+    }
+    h1 a:hover {
+      color: #fff;
+    }
+    @media screen and (max-width: 600px) {
+      h1 { font-size: 16px; }
+    }
+
     #error {
       position: absolute;
       box-sizing: border-box;
@@ -241,11 +396,103 @@
       padding-bottom: 0;
       opacity: 0;
     }
+
+    .gui {
+      position:    absolute;
+      display:     block;
+      padding:     0;
+      width:       0;
+      height:      0;
+      left:        50%;
+      margin-left: -145px;
+      top:         50%;
+      margin-top:  -145px;
+      opacity:     0;  /* '1' when active */
+      z-index:     -5; /* '10' when active */
+      transition: opacity 0.4s, z-index 0.1s 0.5s;
+      -webkit-touch-callout: none; /* Android and iOS callouts*/
+        -webkit-user-select: none; /* Chrome, Safari, Opera */
+         -khtml-user-select: none; /* Konqueror */
+           -moz-user-select: none; /* Firefox */
+            -ms-user-select: none; /* IE */
+                user-select: none;
+    }
+    .gui.active {
+      z-index: 10;
+      opacity: 1;
+      transition: opacity 0.4s;
+    }
+    .gui >li {
+      position:    absolute;
+      width:       90px;
+      height:      90px;
+      list-style:  none;
+      text-align:  center;
+      color: #ccc;
+      background:  rgba(16,16,16,0.9);
+      cursor: default;
+      transition:  all 0.4s;
+    }
+    .gui >li:hover {
+      color:       #fff;
+      background:  rgba(0,0,0,0.95);
+    }
+    .gui.active >li { /* eg during transition */
+      cursor: pointer;
+    }
+    .gui >li >b,
+    .gui >li >i {
+      display: block;
+    }
+    .gui >li >b {
+      padding-top: 19px;
+    }
+    .btn-left {
+      
+    }
+    .btn-center {
+      margin-left: 100px;
+    }
+    .btn-right {
+      margin-left: 200px;
+    }
+    .btn-top {
+      
+    }
+    .btn-middle {
+      margin-top: 100px;
+    }
+    .btn-bottom {
+      margin-top: 200px;
+    }
   </style>
 </head>
 <body style="background:#999;">
-  <h1>03 Oo3d Pick Transform</h1>
-  <a href="../index.html">Home</a>
+  <h1>
+    <a href="../index.html" title="Oo3d Homepage">Oo3d</a> /
+    <a href="../index.html#/doc/usage" title="Oo3d Usage">Usage</a> /
+    <a href="03-pick-transform.html" title="Refresh this page">03 Pick Transform</a>
+  </h1>
+
+
+  <!-- The Home GUI appears when an Item in the 3D scene is clicked -->
+  <ul id="gui-home" class="gui">
+    <li id="btn-flip"   class="btn-right  btn-top   "><b>Flip</b ><i></i></li>
+    <li id="btn-txy"    class="btn-left   btn-middle"><b>Txy</b  ><i></i></li>
+    <li id="btn-txz"    class="btn-right  btn-middle"><b>Txz</b  ><i></i></li>
+    <li id="btn-rxy"    class="btn-left   btn-bottom"><b>Rxy</b  ><i></i></li>
+    <li id="btn-scale"  class="btn-center btn-bottom"><b>Scale</b><i></i></li>
+    <li id="btn-rxz"    class="btn-right  btn-bottom"><b>Rxz</b  ><i></i></li>
+  </ul>
+
+  <ul id="gui-flip" class="gui">
+    <li id="btn-flip-x" class="btn-left   btn-middle"><b>FlipX</b><i></i></li>
+    <li id="btn-flip-h" class="btn-center btn-middle"><b>Home</b ><i></i></li>
+    <li id="btn-flip-y" class="btn-right  btn-middle"><b>FlipY</b><i></i></li>
+    <li id="btn-flip-r" class="btn-left   btn-bottom"><b>Reset</b><i></i></li>
+    <li id="btn-flip-z" class="btn-center btn-bottom"><b>FlipZ</b><i></i></li>
+  </ul>
+
   <canvas id="main"></canvas>
   <div id="error" class="hidden"></div>
 </body>

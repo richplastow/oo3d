@@ -621,13 +621,37 @@ Get the color value at the given coordinates.
 
 
 #### `getItemIByColor()`
-- `<Float32Array>`  xx @todo describe
-- `<number>`        position on the x-axis
+- `color <Float32Array>`  xx @todo describe
+- `<integer>`             index of the Item in `main.items`
 
 Get the index of the Item in `items` which corresponds to `color`. 
 
-      getItemIByColor: (color) ->
-        return pick.colorToIndex color
+      getItemIByColor: (color) -> pick.colorToIndex color
+
+
+
+
+#### `itemInfo()`
+- `itemI <integer>`  xx @todo describe
+- `<number>`        position on the x-axis
+
+Retrieve an object which summarizes the given Item’s current state. 
+
+      getItemInfo: (itemI) ->
+        item = @items[itemI]
+
+Flips are taken from the Item’s scale. 
+
+        flipX = if 0 == item.sX then 0 else if 0 > item.sX then '-' else '+'
+        flipY = if 0 == item.sY then 0 else if 0 > item.sY then '-' else '+'
+        flipZ = if 0 == item.sZ then 0 else if 0 > item.sZ then '-' else '+'
+
+Build and return the summary. 
+
+        flipX: flipX
+        flipY: flipY
+        flipZ: flipZ
+        flips: "#{flipX}#{flipY}#{flipZ}"
 
 
 
