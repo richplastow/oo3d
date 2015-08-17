@@ -602,7 +602,8 @@
     };
 
     Main.prototype.setRenderMode = function(renderMode, targetIndex) {
-      return this.items[targetIndex].renderMode = renderMode;
+      this.items[targetIndex].renderMode = renderMode;
+      return this;
     };
 
     Main.prototype.getColorAt = function(x, y) {
@@ -648,11 +649,12 @@
       item.sZ = snapshot.sZ;
       item.tX = snapshot.tX;
       item.tY = snapshot.tY;
-      return item.tZ = snapshot.tZ;
+      item.tZ = snapshot.tZ;
+      return this;
     };
 
     Main.prototype.render = function() {
-      var j, layer, len, ref, results;
+      var j, layer, len, ref;
       if (!this.gl) {
         throw Error("The WebGL rendering context is " + (ªtype(this.gl)));
       }
@@ -660,12 +662,11 @@
       this.gl.scissor(0, 0, this.$main.width, this.$main.height);
       this.gl.clear(this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT);
       ref = this.layers;
-      results = [];
       for (j = 0, len = ref.length; j < len; j++) {
         layer = ref[j];
-        results.push(layer.render());
+        layer.render();
       }
-      return results;
+      return this;
     };
 
     return Main;

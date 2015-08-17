@@ -19,8 +19,8 @@
          ,$btnFlip  = $('#btn-flip')
          ,$btnTxy   = $('#btn-txy')
          ,$btnTxz   = $('#btn-txz')
-         ,$btnRxy   = $('#btn-rxy')
-         ,$btnRxz   = $('#btn-rxz')
+         ,$btnRyx   = $('#btn-ryx')
+         ,$btnRyz   = $('#btn-ryz')
          ,$btnScale = $('#btn-scale')
 
          ,$guiFlip  = $('#gui-flip')
@@ -34,8 +34,8 @@
          ,$btnFlipInfo  = $('#btn-flip i')
          ,$btnTxyInfo   = $('#btn-txy i')
          ,$btnTxzInfo   = $('#btn-txz i')
-         ,$btnRxyInfo   = $('#btn-rxy i')
-         ,$btnRxzInfo   = $('#btn-rxz i')
+         ,$btnRyxInfo   = $('#btn-ryx i')
+         ,$btnRyzInfo   = $('#btn-ryz i')
          ,$btnScaleInfo = $('#btn-scale i')
 
          ,$guiFlipInfo  = $('#gui-flip i')
@@ -215,6 +215,7 @@
             if ($el) { $el.setAttribute('class', 'gui active'); }
           }
 
+
           //// `onlyWireframe()`
           //// Removes 'LINE_LOOP' from all Items, except `itemI`. 
           //// `itemI` is optional. 
@@ -238,10 +239,51 @@
             s.fY = 0 == s.sY ? 0 : 0 > s.sY ? '-' : '+';
             s.fZ = 0 == s.sZ ? 0 : 0 > s.sZ ? '-' : '+';
 
-            //// Round translate values. 
+            //// Round translation values. 
             s.tXround = ((Math.round(s.tX * 1000)) / 1000);
             s.tYround = ((Math.round(s.tY * 1000)) / 1000);
             s.tZround = ((Math.round(s.tZ * 1000)) / 1000);
+
+            //// Round rotation values. 
+            s.rXround = ((Math.round(s.rX * 1000)) / 1000);
+            s.rYround = ((Math.round(s.rY * 1000)) / 1000);
+            s.rZround = ((Math.round(s.rZ * 1000)) / 1000);
+
+            //// Convert to string. 
+            s.tXround += ''; s.tYround += ''; s.tZround += '';
+            s.rXround += ''; s.rYround += ''; s.rZround += '';
+
+            //// Zero-pad decimal places. 
+            s.tXround += s.tXround.indexOf('.') ? '000' : '.000'
+            s.tYround += s.tYround.indexOf('.') ? '000' : '.000'
+            s.tZround += s.tZround.indexOf('.') ? '000' : '.000'
+            s.rXround += s.rXround.indexOf('.') ? '000' : '.000'
+            s.rYround += s.rYround.indexOf('.') ? '000' : '.000'
+            s.rZround += s.rZround.indexOf('.') ? '000' : '.000'
+
+            //// Prefix a plud for positive values. 
+            if ('-' != s.tXround[0]) { s.tXround = '+' + s.tXround; }
+            if ('-' != s.tYround[0]) { s.tYround = '+' + s.tYround; }
+            if ('-' != s.tZround[0]) { s.tZround = '+' + s.tZround; }
+            if ('-' != s.rXround[0]) { s.rXround = '+' + s.rXround; }
+            if ('-' != s.rYround[0]) { s.rYround = '+' + s.rYround; }
+            if ('-' != s.rZround[0]) { s.rZround = '+' + s.rZround; }
+
+            //// Trim to six characters. 
+            s.tXround = s.tXround.slice(0, 6);
+            s.tYround = s.tYround.slice(0, 6);
+            s.tZround = s.tZround.slice(0, 6);
+            s.rXround = s.rXround.slice(0, 6);
+            s.rYround = s.rYround.slice(0, 6);
+            s.rZround = s.rZround.slice(0, 6);
+
+            //// Tidy zero. 
+            s.tXround = '+0000' == s.tXround ? '+0.000' : s.tXround;
+            s.tYround = '+0000' == s.tYround ? '+0.000' : s.tYround;
+            s.tZround = '+0000' == s.tZround ? '+0.000' : s.tZround;
+            s.rXround = '+0000' == s.rXround ? '+0.000' : s.rXround;
+            s.rYround = '+0000' == s.rYround ? '+0.000' : s.rYround;
+            s.rZround = '+0000' == s.rZround ? '+0.000' : s.rZround;
 
             //// Return the modified snapshot. 
             return s;
@@ -259,8 +301,8 @@
               $btnFlipInfo.innerHTML  = '' + info.fX + info.fY + info.fZ;
               $btnTxyInfo.innerHTML   = info.tXround + '<br>' + info.tYround;
               $btnTxzInfo.innerHTML   = info.tXround + '<br>' + info.tZround;
-              $btnRxyInfo.innerHTML   = '@todo';
-              $btnRxzInfo.innerHTML   = '@todo';
+              $btnRyxInfo.innerHTML   = info.rYround + '<br>' + info.rXround;
+              $btnRyzInfo.innerHTML   = info.rYround + '<br>' + info.rZround;
               $btnScaleInfo.innerHTML = '@todo';
               $btnFlipXInfo.innerHTML = info.fX;
               $btnFlipYInfo.innerHTML = info.fY;
@@ -269,12 +311,45 @@
               $btnFlipInfo.innerHTML  = '';
               $btnTxyInfo.innerHTML   = '';
               $btnTxzInfo.innerHTML   = '';
-              $btnRxyInfo.innerHTML   = '';
-              $btnRxzInfo.innerHTML   = '';
+              $btnRyxInfo.innerHTML   = '';
+              $btnRyzInfo.innerHTML   = '';
               $btnScaleInfo.innerHTML = '';
               $btnFlipXInfo.innerHTML = '';
               $btnFlipYInfo.innerHTML = '';
               $btnFlipZInfo.innerHTML = '';
+            }
+          }
+
+          //// `isActive()`
+          //// @todo describe
+         ,isActive = function ($el) {
+            return 'gui active' === $el.getAttribute('class');
+          }
+
+          //// `onMousedown()`
+          //// @todo describe
+          onMousedown = function (event, $el, customMoveHandler) {
+            event.preventDefault();
+            if ( (0 === focusI || focusI) && isActive($guiHome) ) {
+              moveHandler = customMoveHandler;
+              downPos = [event.clientX, event.clientY];
+              itemSnapshot = oo3d.getItemSnapshot(focusI);
+              window.addEventListener('mousemove', onMousemove);
+              window.addEventListener('mouseup'  , onMouseup  );
+            }
+          }
+
+          //// `onTouchstart()`
+          //// @todo describe
+          onTouchstart = function (event, $el, customMoveHandler) {
+            event.preventDefault();
+            if ( (0 === focusI || focusI) && isActive($guiHome) ) {
+              moveHandler = customMoveHandler;
+              var touches = event.changedTouches;
+              downPos = [touches[0].pageX, touches[0].pageY];
+              itemSnapshot = oo3d.getItemSnapshot(focusI);
+              window.addEventListener('touchmove', onTouchmove);
+              window.addEventListener('touchend' , onTouchend );
             }
           }
 
@@ -317,19 +392,38 @@
           //// `moveHandlerTxy()`
           //// Xx. @todo describe
          ,moveHandlerTxy = function (x, y) {
-            oo3d.setItemSnapshot(itemSnapshot, focusI);
-            oo3d.translate(x/500, -(y/500), 0, focusI);
+            oo3d.setItemSnapshot(itemSnapshot, focusI)
+             .translate(x/500, y/-500, 0, focusI)
+             .render();
             updateItemInfo(focusI);
-            oo3d.render();
          }
 
           //// `moveHandlerTxz()`
           //// Xx. @todo describe
          ,moveHandlerTxz = function (x, y) {
-            oo3d.setItemSnapshot(itemSnapshot, focusI);
-            oo3d.translate(x/500, 0, y/500, focusI);
+            oo3d.setItemSnapshot(itemSnapshot, focusI)
+             .translate(x/500, 0, y/500, focusI)
+             .render();
             updateItemInfo(focusI);
-            oo3d.render();
+         }
+
+
+          //// `moveHandlerRyx()`
+          //// Xx. @todo describe
+         ,moveHandlerRyx = function (x, y) {
+            oo3d.setItemSnapshot(itemSnapshot, focusI)
+             .rotate(y/500, x/500, 0, focusI)
+             .render();
+            updateItemInfo(focusI);
+         }
+
+          //// `moveHandlerRyz()`
+          //// Xx. @todo describe
+         ,moveHandlerRyz = function (x, y) {
+            oo3d.setItemSnapshot(itemSnapshot, focusI)
+             .rotate(0, x/500, y/-500, focusI)
+             .render();
+            updateItemInfo(focusI);
          }
 
         ;
@@ -341,7 +435,7 @@
         oo3d.translate(1.5,0,-2,rgbTri3I);
         oo3d.translate(-0.5,0,2,cmyTri1I);
         oo3d.translate(-1,0,2.5,cmyTri2I);
-        oo3d.translate(1.5,0,1,cmyTri3I);
+        oo3d.translate(1.5,0,1 ,cmyTri3I);
         //oo3d.rotate(0,1,0,pyramidI);
         oo3d.render();
 
@@ -390,53 +484,41 @@
 
         //// 'Translate XY' GUI. 
         $btnTxy.addEventListener('mousedown', function (event) {
-          if ( 'gui active' !== $guiHome.getAttribute('class') ) { return; }
-          event.preventDefault();
-          if (0 === focusI || focusI) {
-            downPos = [event.clientX, event.clientY];
-            itemSnapshot = oo3d.getItemSnapshot(focusI);
-            moveHandler = moveHandlerTxy;
-            window.addEventListener('mousemove', onMousemove);
-            window.addEventListener('mouseup'  , onMouseup  );
-          }
+          onMousedown(event, $guiHome, moveHandlerTxy);
+
         });
         $btnTxy.addEventListener('touchstart', function (event) {
-          if ( 'gui active' !== $guiHome.getAttribute('class') ) { return; }
-          event.preventDefault();
-          if (0 === focusI || focusI) {
-            var touches = event.changedTouches;
-            downPos = [touches[0].pageX, touches[0].pageY];
-            itemSnapshot = oo3d.getItemSnapshot(focusI);
-            moveHandler = moveHandlerTxy;
-            window.addEventListener('touchmove', onTouchmove);
-            window.addEventListener('touchend' , onTouchend );
-          }
+          onTouchstart(event, $guiHome, moveHandlerTxy);
         });
 
 
         //// 'Translate XZ' GUI. 
         $btnTxz.addEventListener('mousedown', function (event) {
-          if ( 'gui active' !== $guiHome.getAttribute('class') ) { return; }
-          event.preventDefault();
-          if (0 === focusI || focusI) {
-            downPos = [event.clientX, event.clientY];
-            itemSnapshot = oo3d.getItemSnapshot(focusI);
-            moveHandler = moveHandlerTxz;
-            window.addEventListener('mousemove', onMousemove);
-            window.addEventListener('mouseup'  , onMouseup  );
-          }
+          onMousedown(event, $guiHome, moveHandlerTxz);
+
         });
         $btnTxz.addEventListener('touchstart', function (event) {
-          if ( 'gui active' !== $guiHome.getAttribute('class') ) { return; }
-          event.preventDefault();
-          if (0 === focusI || focusI) {
-            var touches = event.changedTouches;
-            downPos = [touches[0].pageX, touches[0].pageY];
-            itemSnapshot = oo3d.getItemSnapshot(focusI);
-            moveHandler = moveHandlerTxz;
-            window.addEventListener('touchmove', onTouchmove);
-            window.addEventListener('touchend' , onTouchend );
-          }
+          onTouchstart(event, $guiHome, moveHandlerTxz);
+        });
+
+
+        //// 'Rotate XY' GUI. 
+        $btnRyx.addEventListener('mousedown', function (event) {
+          onMousedown(event, $guiHome, moveHandlerRyx);
+
+        });
+        $btnRyx.addEventListener('touchstart', function (event) {
+          onTouchstart(event, $guiHome, moveHandlerRyx);
+        });
+
+
+        //// 'Rotate XZ' GUI. 
+        $btnRyz.addEventListener('mousedown', function (event) {
+          onMousedown(event, $guiHome, moveHandlerRyz);
+
+        });
+        $btnRyz.addEventListener('touchstart', function (event) {
+          onTouchstart(event, $guiHome, moveHandlerRyz);
         });
 
 
@@ -609,7 +691,11 @@
                 user-select: none;
     }
     .gui >li >b {
-      padding-top: 19px;
+      padding: 10px 0;
+    }
+    .gui >li >i {
+      font-family: monospace;
+      line-height: 1;
     }
     .btn-left {
       
@@ -644,9 +730,9 @@
     <li id="btn-flip"   class="btn-right  btn-top   "><b>Flip</b ><i></i></li>
     <li id="btn-txy"    class="btn-left   btn-middle"><b>Txy</b  ><i></i></li>
     <li id="btn-txz"    class="btn-right  btn-middle"><b>Txz</b  ><i></i></li>
-    <li id="btn-rxy"    class="btn-left   btn-bottom"><b>Rxy</b  ><i></i></li>
+    <li id="btn-ryx"    class="btn-left   btn-bottom"><b>Ryx</b  ><i></i></li>
     <li id="btn-scale"  class="btn-center btn-bottom"><b>Scale</b><i></i></li>
-    <li id="btn-rxz"    class="btn-right  btn-bottom"><b>Rxz</b  ><i></i></li>
+    <li id="btn-ryz"    class="btn-right  btn-bottom"><b>Ryz</b  ><i></i></li>
   </ul>
 
   <ul id="gui-flip" class="gui">

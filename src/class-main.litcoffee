@@ -593,6 +593,10 @@ entire Scene. @todo scene
       setRenderMode: (renderMode, targetIndex) ->
         @items[targetIndex].renderMode = renderMode
 
+Return this Oo3d instance (allows chaining). 
+
+        return @
+
 
 
 
@@ -668,13 +672,13 @@ Return the snapshot.
 
 Replaces the given Item’s state with the properties in a snapshot object `s`. 
 @todo also `item.dBlend` etc, not just the transform state  
-@todo check that `mat` is the outcome of the individual transforms?  
+@todo check that `snapshot.mat` is the outcome of the individual transforms?  
 @todo check that all of the properties are valid?  
 
       setItemSnapshot: (snapshot, itemI) ->
         item = @items[itemI]
 
-Clone, don’t reference, `matTransform`. 
+Clone, don’t reference, `snapshot.mat`. 
 
         item.matTransform = new Float32Array 16
         item.matTransform.set snapshot.mat
@@ -691,6 +695,10 @@ Copy the remaining snapshot into the Item’s state.
         item.tY = snapshot.tY
         item.tZ = snapshot.tZ
 
+Return this Oo3d instance (allows chaining). 
+
+        return @
+
 
 
 
@@ -705,6 +713,10 @@ Draw each layer to the canvas.
         @gl.clear @gl.COLOR_BUFFER_BIT | @gl.DEPTH_BUFFER_BIT
 
         layer.render() for layer in @layers
+
+Return this Oo3d instance (allows chaining). 
+
+        return @
 
 
 
