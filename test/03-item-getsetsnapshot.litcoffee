@@ -62,29 +62,30 @@
 
 
       "Snapshot URI from a default Item as expected"
-      "AAA"
+      "AAALLL"
       (oo3d, item) -> item.getSnapshot 'uri'
 
 
       (oo3d, item) ->
         oo3d.rotate 0.001, (Math.PI * -2 / 2306) + 0.0001, (Math.PI / 6) + (Math.PI * 10), 0 # x, y, z, targetIndex
+        oo3d.scale  0.001, -0.5000001, 1345, 0 # x, y, z, targetIndex
         [oo3d, item]
 
 
-      "Snapshot object from a rotated Item as expected"
+      "Snapshot object from a transformed Item as expected"
       "
-      ,rX:0.001,rY:-0.0026247117550648683,rZ:31.93952531149623,sX:1,sY:1,sZ:1,tX:0,tY:0,tZ:0}
+      ,rX:0.001,rY:-0.0026247117550648683,rZ:31.93952531149623,sX:0.001,sY:-0.5000001,sZ:1345,tX:0,tY:0,tZ:0}
       "
-      (oo3d, item) -> (JSON.stringify item.getSnapshot()).replace(/"/g, '').slice -87
+      (oo3d, item) -> (JSON.stringify item.getSnapshot()).replace(/"/g, '').slice -103
 
 
-      "Snapshot log from a rotated Item as expected"
-      "rX:0.001, rY:-0.0026247117550648683, rZ:31.93952531149623, sX:1, sY:1, sZ:1, tX:0, tY:0, tZ:0"
+      "Snapshot log from a transformed Item as expected"
+      "rX:0.001, rY:-0.0026247117550648683, rZ:31.93952531149623, sX:0.001, sY:-0.5000001, sZ:1345, tX:0, tY:0, tZ:0"
       (oo3d, item) -> item.getSnapshot 'log'
 
 
-      "Snapshot URI from a rotated Item as expected"
-      "Az-B"
+      "Snapshot URI from a transformed Item as expected"
+      "Az-BoEfDi1l"
       (oo3d, item) -> item.getSnapshot 'uri'
 
 

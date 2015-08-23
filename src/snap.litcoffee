@@ -40,36 +40,106 @@ Xx.
 
     snap.r2snap = (r) ->
 
-        P2 = Math.PI * 2 # 6.283185307179586
+      P2 = Math.PI * 2 # 6.283185307179586
 
 Ignore ‘windings’. That is, any complete rotations beyond the first 360°. 
 @todo test ignore number of rotations
 
-        r = r % P2
+      r = r % P2
 
 Normalize negative `r`. 
 @todo test
 
-        if 0 > r then r += P2
+      if 0 > r then r += P2
 
 Round the value up or down to the nearest unit (a unit is one 64th of 10°). 
 
-        u = Math.round r * snap.RESOLUTION_R
+      u = Math.round r * snap.RESOLUTION_R
 
 Return a single uppercase letter for certain commonly encountered angles. 
 
-        c1 = snap.USUAL_R[u]
-        if c1 then ª r, u, c1; return c1
+      c1 = snap.USUAL_R[u]
+      if c1 then return c1
 
 Otherwise, convert the unit to a pair of ascii characters, where `c1` is 0-9a-z,
 and `c2` is 0-9a-zA-Z_- making 36 * 64 combinations. 
 
-        uM36 = u % 36 # the remainder (modulo), when `u` is divided by 36
-        #ª u, uM36, (u - uM36) / 36
-        c1 = "0123456789abcdefghijklmnopqrstuvwxyz"[uM36]
-        c2 = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_-"[(u - uM36) / 36]
-        ª r, u, '' + c1 + c2
-        '' + c1 + c2
+      uM36 = u % 36 # the remainder (modulo), when `u` is divided by 36
+      c1 = "0123456789abcdefghijklmnopqrstuvwxyz"[uM36]
+      c2 = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_-"[(u - uM36) / 36]
+      '' + c1 + c2
+
+
+
+
+#### `s2snap()`
+- `s <number>`   the scale, from -9999 to 9999 @todo beyond 9999?
+- `<string>`     xx
+
+Xx. 
+
+    snap.s2snap = (s) ->
+
+Record and remove the sign of a negative number. 
+
+      if 0 > s
+        neg = true
+        s = Math.abs s
+
+Shortcut for zero. 
+
+      if 0.0001 > s then return 'A' # signifies zero
+
+Normalize the scale to fit within the range `0` to `9999`, and record a code 
+for the multiplier. 
+
+      if      0.001 > s # 0.0001000 to 0.0009999 => 1000 to 9999
+        m = if neg then 'a' else 'p'
+        n = s * 1000000
+      else if 0.01  > s # 0.0010000 to 0.0099999 => 1000 to 9999
+        m = if neg then 'b' else 'o'
+        n = s * 1000000
+      else if 0.1   > s # 0.0100000 to 0.0999999 => 1000 to 9999
+        m = if neg then 'c' else 'n'
+        n = s *  100000
+      else if 1     > s # 0.1000000 to 0.9999999 => 1000 to 9999
+        m = if neg then 'd' else 'm'
+        n = s *   10000
+      else if 10    > s # 1.0000000 to 9.9999999 => 1000 to 9999
+        m = if neg then 'e' else 'l'
+        n = s *    1000
+      else if 100   > s # 10.000000 to 99.999999 => 1000 to 9999
+        m = if neg then 'f' else 'k'
+        n = s *     100
+      else if 1000  > s # 100.00000 to 999.99999 => 1000 to 9999
+        m = if neg then 'g' else 'j'
+        n = s *      10
+      else if 10000 > s # 1000.0000 to 9999.9999 => 1000 to 9999
+        m = if neg then 'h' else 'i'
+        n = s
+      else
+        return 'Z' # signifies that `s` was 10000 or greater @todo better response?
+
+Trim decimal places.  
+@todo maybe `Math.round()` the value up or down instead?
+
+      n = Math.floor n
+
+Return a single uppercase letter for certain commonly encountered scales. 
+
+      c1 = snap.USUAL_S[m + n]
+      if c1 then ª s, n, c1; return c1
+
+Otherwise, convert `n` and `m` to a sequence of three ascii characters, where 
+`c1` is a-z, and `c2` and `c3` are 0-9a-zA-Z_- making 36 * 64 * 64 combinations.
+
+      nM64 = n % 64 # the remainder (modulo), when `n` is divided by 64
+      c1 = m
+      c2 = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_-"[nM64]
+      c3 = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_-"[(n - nM64) / 64]
+      ª s, n, nM64, (n - nM64) / 64, '' + c1 + c2 + c3
+      '' + c1 + c2 + c3
+
 
 
 
@@ -77,7 +147,7 @@ Properties
 ----------
 
 
-#### `R`
+#### `RESOLUTION_R`
 The maximum resolution of `r2snap()` and `snap2r()`, in radians. 
 
     snap.RESOLUTION_R = 1 / (Math.PI * 2 / 36 / 64) # 366.692988883726881
@@ -109,9 +179,31 @@ Xx.
       USUAL_R)()
 
 
+#### `USUAL_S`
+Xx.  
+@todo more of these
+
+    snap.USUAL_S =
+      d1250: 'B' # -0.125
+      d2500: 'C' # -0.25
+      d5000: 'D' # -0.5
+      e1000: 'E' # -1
+      e2000: 'F' # -2
+      e4000: 'G' # -4
+      e8000: 'H' # -8
+
+      m1250: 'I' # +0.125
+      m2500: 'J' # +0.25
+      m5000: 'K' # +0.5
+      l1000: 'L' # +1
+      l2000: 'M' # +2
+      l4000: 'N' # +4
+      l8000: 'O' # +8
+
 
     #for i in [2300..2306]
     #  r = Math.PI * 2 * i / 2304
     #  snap.r2snap r
 
     #ª '---'
+

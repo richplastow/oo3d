@@ -160,6 +160,9 @@ Return the uri snapshot. These functions are defined in /src/snap.litcoffee
             snap.r2snap @rX
             snap.r2snap @rY
             snap.r2snap @rZ
+            snap.s2snap @sX
+            snap.s2snap @sY
+            snap.s2snap @sZ
           ].join ''
 
         else # any other `format` is treated as 'object'

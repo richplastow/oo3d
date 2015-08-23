@@ -224,7 +224,7 @@
       if ('log' === format) {
         return "rX:" + this.rX + ", rY:" + this.rY + ", rZ:" + this.rZ + ", sX:" + this.sX + ", sY:" + this.sY + ", sZ:" + this.sZ + ", tX:" + this.tX + ", tY:" + this.tY + ", tZ:" + this.tZ;
       } else if ('uri' === format) {
-        return [snap.r2snap(this.rX), snap.r2snap(this.rY), snap.r2snap(this.rZ)].join('');
+        return [snap.r2snap(this.rX), snap.r2snap(this.rY), snap.r2snap(this.rZ), snap.s2snap(this.sX), snap.s2snap(this.sY), snap.s2snap(this.sZ)].join('');
       } else {
         mat = new Float32Array(16);
         mat.set(this.matTransform);
@@ -1010,14 +1010,62 @@
     u = Math.round(r * snap.RESOLUTION_R);
     c1 = snap.USUAL_R[u];
     if (c1) {
-      ª(r, u, c1);
       return c1;
     }
     uM36 = u % 36;
     c1 = "0123456789abcdefghijklmnopqrstuvwxyz"[uM36];
     c2 = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_-"[(u - uM36) / 36];
-    ª(r, u, '' + c1 + c2);
     return '' + c1 + c2;
+  };
+
+  snap.s2snap = function(s) {
+    var c1, c2, c3, m, n, nM64, neg;
+    if (0 > s) {
+      neg = true;
+      s = Math.abs(s);
+    }
+    if (0.0001 > s) {
+      return 'A';
+    }
+    if (0.001 > s) {
+      m = neg ? 'a' : 'p';
+      n = s * 1000000;
+    } else if (0.01 > s) {
+      m = neg ? 'b' : 'o';
+      n = s * 1000000;
+    } else if (0.1 > s) {
+      m = neg ? 'c' : 'n';
+      n = s * 100000;
+    } else if (1 > s) {
+      m = neg ? 'd' : 'm';
+      n = s * 10000;
+    } else if (10 > s) {
+      m = neg ? 'e' : 'l';
+      n = s * 1000;
+    } else if (100 > s) {
+      m = neg ? 'f' : 'k';
+      n = s * 100;
+    } else if (1000 > s) {
+      m = neg ? 'g' : 'j';
+      n = s * 10;
+    } else if (10000 > s) {
+      m = neg ? 'h' : 'i';
+      n = s;
+    } else {
+      return 'Z';
+    }
+    n = Math.floor(n);
+    c1 = snap.USUAL_S[m + n];
+    if (c1) {
+      ª(s, n, c1);
+      return c1;
+    }
+    nM64 = n % 64;
+    c1 = m;
+    c2 = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_-"[nM64];
+    c3 = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_-"[(n - nM64) / 64];
+    ª(s, n, nM64, (n - nM64) / 64, '' + c1 + c2 + c3);
+    return '' + c1 + c2 + c3;
   };
 
   snap.RESOLUTION_R = 1 / (Math.PI * 2 / 36 / 64);
@@ -1045,6 +1093,23 @@
     USUAL_R[snap.r2Unit(PI * 2.0)] = 'Q';
     return USUAL_R;
   })();
+
+  snap.USUAL_S = {
+    d1250: 'B',
+    d2500: 'C',
+    d5000: 'D',
+    e1000: 'E',
+    e2000: 'F',
+    e4000: 'G',
+    e8000: 'H',
+    m1250: 'I',
+    m2500: 'J',
+    m5000: 'K',
+    l1000: 'L',
+    l2000: 'M',
+    l4000: 'N',
+    l8000: 'O'
+  };
 
   Program = (function() {
     Program.prototype.C = 'Program';
