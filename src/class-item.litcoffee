@@ -69,7 +69,7 @@ Xx. @todo describe
 #### `renderMode <string>`
 'POINTS', 'LINE_STRIP', 'TRIANGLES', etc. Equates to an integer in the `gl` 
 object, eg `gl.TRIANGLES` is `4`. This integer becomes the `mode` argument 
-passed to `gl.drawArrays()` when this Item is rendered. 
+passed to `gl.drawArrays()` when this Item is rendered.  
 @todo override at the level of a Layer, and maybe at other levels too
 
         @renderMode = config.renderMode or 'TRIANGLES' # default if falsey
@@ -106,7 +106,7 @@ The transformation-matrix currently applied to this Item. Starts at identity.
 
 
 #### `rX, rY, rZ <number>`
-Keeps track of rotation currently applied to this Item. All start at 0. 
+Keep track of rotation currently applied to this Item. All start at 0. 
 
         @rX = 0
         @rY = 0
@@ -114,7 +114,7 @@ Keeps track of rotation currently applied to this Item. All start at 0.
 
 
 #### `sX, sY, sZ <number>`
-Keeps track of rotation currently applied to this Item. All start at 1. 
+Keep track of scale currently applied to this Item. All start at 1. 
 
         @sX = 1
         @sY = 1
@@ -122,7 +122,7 @@ Keeps track of rotation currently applied to this Item. All start at 1.
 
 
 #### `tX, tY, tZ <number>`
-Keeps track of translation currently applied to this Item. All start at 0. 
+Keep track of translation currently applied to this Item. All start at 0. 
 
         @tX = 0
         @tY = 0
@@ -136,9 +136,51 @@ Methods
 
 
 #### `getSnapshot()`
-Xx. 
+- format `<string>`  (optional) one of 'object' (default), 'log', 'uri'
+- `<object|string>`  xx @todo describe
 
-      getSnapshot: ->
+Create an object or string which describes the Item’s current state.  
+@todo also `item.dBlend` etc, not just the transform state
+
+      getSnapshot: (format) ->
+
+        if 'log' == format
+
+Return the log snapshot. 
+
+          "rX:#{@rX}, rY:#{@rY}, rZ:#{@rZ},
+           sX:#{@sX}, sY:#{@sY}, sZ:#{@sZ},
+           tX:#{@tX}, tY:#{@tY}, tZ:#{@tZ}"
+
+        else if 'uri' == format
+
+Return the uri snapshot. These functions are defined in /src/snap.litcoffee
+
+          [
+            snap.r2snap @rX
+            snap.r2snap @rY
+            snap.r2snap @rZ
+          ].join ''
+
+        else # any other `format` is treated as 'object'
+
+Clone, don’t reference, `matTransform`. 
+
+          mat = new Float32Array 16
+          mat.set @matTransform
+
+Return the object snapshot. 
+
+          mat: mat
+          rX: @rX
+          rY: @rY
+          rZ: @rZ
+          sX: @sX
+          sY: @sY
+          sZ: @sZ
+          tX: @tX
+          tY: @tY
+          tZ: @tZ
 
 
 
@@ -159,51 +201,54 @@ Static Properties
 
 #### `Item.validRenderMode <object>`
 Defines valid WebGL render-mode constants.  
-Used by /src/class-item.litcoffee:Item:constructor()  
-@todo more
+Used by [/src/class-item.litcoffee:Item:constructor()](https://goo.gl/wIUN6Y)  
 
     Item.validRenderMode =
-      'TRIANGLES'     :1
-      'LINE_STRIP'    :1
-      'POINTS'        :1
+      'POINTS'        :1 # a single dot per vertex, so 10 vertices draws 10 dots
+      'LINES'         :1 # lines between vertex pairs, 10 vertices draws 5 lines
+      'LINE_STRIP'    :1 # lines between all vertices, 10 vertices draws 9 lines
+      'LINE_LOOP'     :1 # as LINE_STRIP but connects last vertex back to first
+      'TRIANGLES'     :1 # a triangle for each set of three consecutive vertices
+      'TRIANGLE_STRIP':1 # vertex 4 adds a new triangle after the 1st is drawn
+      'TRIANGLE_FAN'  :1 # like TRIANGLE_STRIP, but creates a fan shaped output
 
 
 #### `validBlend <object>`
 Defines valid WebGL blend constants.  
-Used by /src/class-item.litcoffee:Item:constructor()
+Used by [/src/class-item.litcoffee:Item:constructor()](https://goo.gl/uEqa8U)
 
     Item.validBlend =
-      'ZERO'                :1
+      'ZERO'               :1
       # 0          0          0          0
       # Multiply all colors by 0
-      'ONE'                 :1
+      'ONE'                :1
       # 1          1          1          1
       # Multiply all colors by 1
-      'SRC_COLOR'           :1
+      'SRC_COLOR'          :1
       # Rs         Gs         Bs         As
       # Multiply by source color value
-      'ONE_MINUS_SRC_COLOR' :1
+      'ONE_MINUS_SRC_COLOR':1
       # (1-Rs)     (1-Gs)     (1-Bs)     (1-As)
       # Multiply by 1 minus each color value
-      'DST_COLOR'           :1
+      'DST_COLOR'          :1
       # Rd         Gd         Bd         Ad
       # Multiply by destination color value
-      'ONE_MINUS_DST_COLOR' :1
+      'ONE_MINUS_DST_COLOR':1
       # (1-Rd)     (1-Gd)     (1-Bd)     (1-Ad)
       # Multiply by 1 minus each color value
-      'SRC_ALPHA'           :1
+      'SRC_ALPHA'          :1
       # As         As         As         As
       # Multiply all colors by source alpha value
-      'ONE_MINUS_SRC_ALPHA' :1
+      'ONE_MINUS_SRC_ALPHA':1
       # (1-As)     (1-As)     (1-As)     (1-As)
       # Multiply all colors by 1 minus source alpha value
-      'DST_ALPHA'           :1
+      'DST_ALPHA'          :1
       # Ad         Ad         Ad         Ad
       # Multiply all colors by destination alpha value
-      'ONE_MINUS_DST_ALPHA' :1
+      'ONE_MINUS_DST_ALPHA':1
       # (1-Ad)     (1-Ad)     (1-Ad)     (1-Ad)
       # Multiply all colors by 1 minus each alpha value
-      'SRC_ALPHA_SATURATE'  :1
+      'SRC_ALPHA_SATURATE' :1
       # min(As,Ad) min(As,Ad) min(As,Ad) 1
       # Multiply by the smaller of source or dest alpha value
 
