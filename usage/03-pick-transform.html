@@ -226,12 +226,98 @@
             if (0 === itemI || itemI) { oo3d.setRenderMode('LINE_LOOP', itemI); }
           }
 
+
+          //// `neatNumber()`
+          //// - `n <number>`  xx
+          //// - `<string>`    xx
+          ////
+          //// Xx. 
+          ,neatNumber = function (n) {
+
+            //// Deal with numbers which round to more than four digits. 
+            ////  `9999.9994`  =>  '+10000'
+            //// `-9999.9994`  => '-10000'
+            ////  `9999.9996`  =>  '+10000'
+            //// `-9999.9996`  => '-10000'
+            ////  `10000`      =>  '+10000'
+            //// `-10000`      => '-10000'
+            ////  `10000.001`  =>  '+10000'
+            //// `-10000.001`  => '-10000'
+            ////  `123456`     =>  `+123456`
+            //// `-123456`     => `-123456`
+            var r = Math.round(n);
+            if ( 10000 <= r) { return '+' + r; }
+            if (-10000 >= r) { return ''  + r; }
+
+            //// Deal with numbers which round to exactly four digits. 
+            //// Note the trailing space. 
+            ////  `999.5`      =>  '+1000 '
+            //// `-999.5`      => '-1000 '
+            ////  `999.9994`   =>  '+1000 '
+            //// `-999.9994`   => '-1000 '
+            ////  `999.9996`   =>  '+1000 '
+            //// `-999.9996`   => '-1000 '
+            ////  `9999.4994`  =>  '+9999 '
+            //// `-9999.4994`  => '-9999 '
+            if ( 1000  <= r) { return '+' + r + '&nbsp;'; }
+            if (-1000  >= r) { return ''  + r + '&nbsp;'; }
+
+            //// Round the value to three decimal places. 
+            ////  `0`          =>  `0`
+            ////  `4.32`       =>  `4.32`
+            ////  `0.128812`   =>  `0.128`
+            //// `-87.65432`   => `-87.654`
+            ////  `99.9994`    =>  `99.999`
+            //// `-99.9994`    => `-99.999`
+            ////  `99.9996`    =>  `100`
+            //// `-99.9996`    => `-100`
+            ////  `100.0009`   =>  `100.001`
+            //// `-100.0009`   => `-100.001`
+            ////  `999.4999`   =>  `999.5`
+            //// `-999.4999`   => `-999.5`
+            n = ((Math.round(n * 1000)) / 1000);
+
+            //// Convert to string. 
+            n += '';
+
+            //// Pad three zeros. 
+            ////  '0'          =>  '0.000'
+            ////  '4.32'       =>  '4.32000'
+            ////  '0.128'      =>  '0.128000'
+            ////  '-87.654'    =>  '-87.654000'
+            ////  '99.999'     =>  '99.999000'
+            //// '-99.999'     => '-99.999000'
+            ////  '100'        =>  '100.000'
+            //// '-100'        => '-100.000'
+            ////  '100.001'    =>  '100.001000'
+            //// '-100.001'    => '-100.001000'
+            ////  '999.5'      =>  '999.5000'
+            //// '-999.5'      => '-999.5000'
+            n += -1 == n.indexOf('.') ? '.000' : '000'
+
+            //// Prefix a plus-sign for positive values and trim to six chars.  
+            ////  '0.000'      => '+0.000'
+            ////  '4.32000'    => '+4.320'
+            ////  '0.128000'   => '+0.128'
+            ////  '-87.654000' => '-87.65'
+            ////  '99.999000'  => '+99.99'
+            //// '-99.999000'  => '-99.99'
+            ////  '100.000'    => '+100.0'
+            //// '-100.000'    => '-100.0'
+            ////  '100.001000' => '+100.0'
+            //// '-100.001000' => '-100.0'
+            ////  '999.5000'   => '+999.5'
+            //// '-999.5000'   => '-999.5'
+            if ('-' != n[0]) { n = '+' + n; }
+            return n = n.slice(0, 6);
+          }
+
+
           //// `verboseSnapshot()`
           //// - `s <object>`  Item info returned by `oo3d.getItemSnapshot()`
           //// - `<object>`    the snapshot with extra properties
           ////
           //// Create an object which `updateItemInfo()` can use. 
-
           verboseSnapshot = function (s) {
 
             //// Flips are taken from the Item’s scale properties. 
@@ -239,59 +325,18 @@
             s.fY = 0 == s.sY ? 0 : 0 > s.sY ? '-' : '+';
             s.fZ = 0 == s.sZ ? 0 : 0 > s.sZ ? '-' : '+';
 
-            //// Round translation values. 
-            s.tXround = ((Math.round(s.tX * 1000)) / 1000);
-            s.tYround = ((Math.round(s.tY * 1000)) / 1000);
-            s.tZround = ((Math.round(s.tZ * 1000)) / 1000);
+            //// Neaten translation values. 
+            s.tXround = neatNumber(s.tX);
+            s.tYround = neatNumber(s.tY);
+            s.tZround = neatNumber(s.tZ);
 
-            //// Round rotation values. 
-            s.rXround = ((Math.round(s.rX * 1000)) / 1000);
-            s.rYround = ((Math.round(s.rY * 1000)) / 1000);
-            s.rZround = ((Math.round(s.rZ * 1000)) / 1000);
+            //// Neaten rotation values. 
+            s.rXround = neatNumber(s.rX);
+            s.rYround = neatNumber(s.rY);
+            s.rZround = neatNumber(s.rZ);
 
-            //// Round the scale-x value (sY and sZ will be the same as sX). 
-            s.sXround = ((Math.round(s.sX * 1000)) / 1000);
-
-            //// Convert to string. 
-            s.tXround += ''; s.tYround += ''; s.tZround += '';
-            s.rXround += ''; s.rYround += ''; s.rZround += '';
-            s.sXround += '';
-
-            //// Zero-pad decimal places. 
-            s.tXround += s.tXround.indexOf('.') ? '000' : '.000'
-            s.tYround += s.tYround.indexOf('.') ? '000' : '.000'
-            s.tZround += s.tZround.indexOf('.') ? '000' : '.000'
-            s.rXround += s.rXround.indexOf('.') ? '000' : '.000'
-            s.rYround += s.rYround.indexOf('.') ? '000' : '.000'
-            s.rZround += s.rZround.indexOf('.') ? '000' : '.000'
-            s.sXround += s.sXround.indexOf('.') ? '000' : '.000'
-
-            //// Prefix a plus-sign for positive values. 
-            if ('-' != s.tXround[0]) { s.tXround = '+' + s.tXround; }
-            if ('-' != s.tYround[0]) { s.tYround = '+' + s.tYround; }
-            if ('-' != s.tZround[0]) { s.tZround = '+' + s.tZround; }
-            if ('-' != s.rXround[0]) { s.rXround = '+' + s.rXround; }
-            if ('-' != s.rYround[0]) { s.rYround = '+' + s.rYround; }
-            if ('-' != s.rZround[0]) { s.rZround = '+' + s.rZround; }
-            if ('-' != s.sXround[0]) { s.sXround = '+' + s.sXround; }
-
-            //// Trim to six characters. 
-            s.tXround = s.tXround.slice(0, 6);
-            s.tYround = s.tYround.slice(0, 6);
-            s.tZround = s.tZround.slice(0, 6);
-            s.rXround = s.rXround.slice(0, 6);
-            s.rYround = s.rYround.slice(0, 6);
-            s.rZround = s.rZround.slice(0, 6);
-            s.sXround = s.sXround.slice(0, 6);
-
-            //// Tidy zero. 
-            s.tXround = '+0000' == s.tXround ? '+0.000' : s.tXround;
-            s.tYround = '+0000' == s.tYround ? '+0.000' : s.tYround;
-            s.tZround = '+0000' == s.tZround ? '+0.000' : s.tZround;
-            s.rXround = '+0000' == s.rXround ? '+0.000' : s.rXround;
-            s.rYround = '+0000' == s.rYround ? '+0.000' : s.rYround;
-            s.rZround = '+0000' == s.rZround ? '+0.000' : s.rZround;
-            s.sXround = '+0000' == s.sXround ? '+0.000' : s.sXround;
+            //// Neaten the scale-x value (sY and sZ will be the same as sX). 
+            s.sXround = neatNumber(s.sX);
 
             //// Return the modified snapshot. 
             return s;
