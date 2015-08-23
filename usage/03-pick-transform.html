@@ -249,9 +249,13 @@
             s.rYround = ((Math.round(s.rY * 1000)) / 1000);
             s.rZround = ((Math.round(s.rZ * 1000)) / 1000);
 
+            //// Round the scale-x value (sY and sZ will be the same as sX). 
+            s.sXround = ((Math.round(s.sX * 1000)) / 1000);
+
             //// Convert to string. 
             s.tXround += ''; s.tYround += ''; s.tZround += '';
             s.rXround += ''; s.rYround += ''; s.rZround += '';
+            s.sXround += '';
 
             //// Zero-pad decimal places. 
             s.tXround += s.tXround.indexOf('.') ? '000' : '.000'
@@ -260,14 +264,16 @@
             s.rXround += s.rXround.indexOf('.') ? '000' : '.000'
             s.rYround += s.rYround.indexOf('.') ? '000' : '.000'
             s.rZround += s.rZround.indexOf('.') ? '000' : '.000'
+            s.sXround += s.sXround.indexOf('.') ? '000' : '.000'
 
-            //// Prefix a plud for positive values. 
+            //// Prefix a plus-sign for positive values. 
             if ('-' != s.tXround[0]) { s.tXround = '+' + s.tXround; }
             if ('-' != s.tYround[0]) { s.tYround = '+' + s.tYround; }
             if ('-' != s.tZround[0]) { s.tZround = '+' + s.tZround; }
             if ('-' != s.rXround[0]) { s.rXround = '+' + s.rXround; }
             if ('-' != s.rYround[0]) { s.rYround = '+' + s.rYround; }
             if ('-' != s.rZround[0]) { s.rZround = '+' + s.rZround; }
+            if ('-' != s.sXround[0]) { s.sXround = '+' + s.sXround; }
 
             //// Trim to six characters. 
             s.tXround = s.tXround.slice(0, 6);
@@ -276,6 +282,7 @@
             s.rXround = s.rXround.slice(0, 6);
             s.rYround = s.rYround.slice(0, 6);
             s.rZround = s.rZround.slice(0, 6);
+            s.sXround = s.sXround.slice(0, 6);
 
             //// Tidy zero. 
             s.tXround = '+0000' == s.tXround ? '+0.000' : s.tXround;
@@ -284,6 +291,7 @@
             s.rXround = '+0000' == s.rXround ? '+0.000' : s.rXround;
             s.rYround = '+0000' == s.rYround ? '+0.000' : s.rYround;
             s.rZround = '+0000' == s.rZround ? '+0.000' : s.rZround;
+            s.sXround = '+0000' == s.sXround ? '+0.000' : s.sXround;
 
             //// Return the modified snapshot. 
             return s;
@@ -303,7 +311,7 @@
               $btnTxzInfo.innerHTML   = info.tXround + '<br>' + info.tZround;
               $btnRyxInfo.innerHTML   = info.rYround + '<br>' + info.rXround;
               $btnRyzInfo.innerHTML   = info.rYround + '<br>' + info.rZround;
-              $btnScaleInfo.innerHTML = '@todo';
+              $btnScaleInfo.innerHTML = info.sXround;
               $btnFlipXInfo.innerHTML = info.fX;
               $btnFlipYInfo.innerHTML = info.fY;
               $btnFlipZInfo.innerHTML = info.fZ;
@@ -426,6 +434,16 @@
             updateItemInfo(focusI);
          }
 
+          //// `moveHandlerScale()`
+          //// Xx. @todo describe
+         ,moveHandlerScale = function (x, y) {
+            scale = Math.abs( 1 + (x - y)/500 );
+            oo3d.setItemSnapshot(itemSnapshot, focusI)
+             .scale(scale, scale, scale, focusI)
+             .render();
+            updateItemInfo(focusI);
+         }
+
         ;
 
 
@@ -485,7 +503,6 @@
         //// 'Translate XY' GUI. 
         $btnTxy.addEventListener('mousedown', function (event) {
           onMousedown(event, $guiHome, moveHandlerTxy);
-
         });
         $btnTxy.addEventListener('touchstart', function (event) {
           onTouchstart(event, $guiHome, moveHandlerTxy);
@@ -495,7 +512,6 @@
         //// 'Translate XZ' GUI. 
         $btnTxz.addEventListener('mousedown', function (event) {
           onMousedown(event, $guiHome, moveHandlerTxz);
-
         });
         $btnTxz.addEventListener('touchstart', function (event) {
           onTouchstart(event, $guiHome, moveHandlerTxz);
@@ -505,7 +521,6 @@
         //// 'Rotate XY' GUI. 
         $btnRyx.addEventListener('mousedown', function (event) {
           onMousedown(event, $guiHome, moveHandlerRyx);
-
         });
         $btnRyx.addEventListener('touchstart', function (event) {
           onTouchstart(event, $guiHome, moveHandlerRyx);
@@ -515,10 +530,18 @@
         //// 'Rotate XZ' GUI. 
         $btnRyz.addEventListener('mousedown', function (event) {
           onMousedown(event, $guiHome, moveHandlerRyz);
-
         });
         $btnRyz.addEventListener('touchstart', function (event) {
           onTouchstart(event, $guiHome, moveHandlerRyz);
+        });
+
+
+        //// 'Scale' GUI. 
+        $btnScale.addEventListener('mousedown', function (event) {
+          onMousedown(event, $guiHome, moveHandlerScale);
+        });
+        $btnScale.addEventListener('touchstart', function (event) {
+          onTouchstart(event, $guiHome, moveHandlerScale);
         });
 
 
