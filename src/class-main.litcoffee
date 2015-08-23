@@ -142,6 +142,7 @@ Initialize the instance, if `@$main` has been defined.
           @initGL()
           if @gl
             @initCanvas()
+            @initBuffers()
 
 
 
@@ -199,6 +200,17 @@ Set the canvas context background, and set various WebGL parameters.
         #gl.blendEquationSeparate gl.FUNC_REVERSE_SUBTRACT, gl.FUNC_SUBTRACT
         #gl.depthMask true
         #gl.disable gl.DEPTH_TEST
+
+
+
+
+#### `initBuffers()`
+Guarantees that position and color buffers exist at index 0. These are used by 
+newly created Items, if `config.positionI` and `config.colorI` are not set. 
+
+      initBuffers: ->
+        @addPositionBuffer []
+        @addColorBuffer []
 
 
 

@@ -195,7 +195,7 @@ Initialize the output array, as well as `mock` and the page pass/fail tallies.
 
         pge = []
         mock = null
-        pgePass = pgeFail = 0
+        pgePass = pgeFail = mockFail = 0
 
         for article in @articles
           art = []
@@ -209,7 +209,10 @@ Initialize the output array, as well as `mock` and the page pass/fail tallies.
               switch ªtype job
                 when ªF # a mock-modifier
                   try mock = job.apply @, mock catch e then error = e.message
-                  if error then sec.push @formatMockModifierError job, error
+                  if error
+                    mockFail++
+                    secFail++ #@todo does this interfere with proper pass/fail tally?
+                    sec.push @formatMockModifierError job, error
                 when ªA # in the form `[ runner, heading, expect, actual ]`
                   [ runner, heading, expect, actual ] = job # dereference
                   result = runner expect, actual, mock # run the test
@@ -240,6 +243,8 @@ Generate a page summary message.
             "#{@cross} FAILED #{pgeFail}/#{pgePass + pgeFail}"
           else
             "#{@tick} Passed #{pgePass}/#{pgePass + pgeFail}"
+          if mockFail
+            summary = "\n#{@cross} (MOCK FAILS)"
 
 Return the result as a string, with summary at the start and end. 
 

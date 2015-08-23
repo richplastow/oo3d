@@ -17,7 +17,7 @@
       -> Main
 
 
-      "`new` returns as object"
+      "`new` returns an object"
       ªO
       -> new Main
 
