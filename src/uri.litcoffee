@@ -21,13 +21,13 @@ Methods
 -------
 
 
-#### `r2Unit()`
+#### `r2Tenmin()`
 - `r <number>`  an angle, in radians
-- `<number>`    xx
+- `<integer>`   the angle converted to tenmins
 
 Xx. 
 
-    uri.r2Unit = (r) -> Math.round r * uri.RESOLUTION_R
+    uri.r2Tenmin = (r) -> Math.round r * uri.RESOLUTION_R
 
 
 
@@ -38,36 +38,36 @@ Xx.
 
 Xx. 
 
-    uri.r2uri = (r) ->
+    uri.r2uri = (radians) ->
 
-      P2 = Math.PI * 2 # 6.283185307179586
+      PI2 = Math.PI * 2 # 6.283185307179586
 
 Ignore ‘windings’. That is, any complete rotations beyond the first 360°. 
 @todo test ignore number of rotations
 
-      r = r % P2
+      radians = radians % PI2
 
-Normalize negative `r`. 
+Normalize negative `radians`. 
 @todo test
 
-      if 0 > r then r += P2
+      if 0 > radians then radians += PI2
 
-Round the value up or down to the nearest unit (a unit is one 64th of 10°). 
+Round the value up or down to the nearest `tenmin` (a tenmin is one 6th of 1°). 
 
-      u = Math.round r * uri.RESOLUTION_R
+      tenmin = uri.r2Tenmin radians
 
 Return a single uppercase letter for certain commonly encountered angles. 
 
-      c1 = uri.USUAL_R[u]
+      c1 = uri.USUAL_R[tenmin]
       if c1 then return c1
 
-Otherwise, convert the unit to a pair of ascii characters, where `c1` is 0-9a-z,
-and `c2` is 0-9a-zA-Z_- making 36 * 64 combinations.  
-@todo use 60ths (minutes), not 64ths, which will avoid '_' and '-'
+Otherwise, convert the tenmin to a pair of ascii characters, where `c1` is 
+0-9a-z, and `c2` is 0-9a-zA-X, making 36 * 60 combinations. 
 
-      uM36 = u % 36 # the remainder (modulo), when `u` is divided by 36
-      c1 = "0123456789abcdefghijklmnopqrstuvwxyz"[uM36]
-      c2 = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_-"[(u - uM36) / 36]
+      c1i = tenmin % 36         # the modulo (remainder), when divided by 36
+      c2i = (tenmin - c1i) / 36 # the number of entire 36s which fit in tenmin
+      c1 = "0123456789abcdefghijklmnopqrstuvwxyz"[c1i]
+      c2 = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWX"[c2i]
       '' + c1 + c2
 
 
@@ -222,8 +222,7 @@ Properties
 #### `RESOLUTION_R`
 The maximum resolution of `r2uri()` and `uri2r()`, in radians. 
 
-    uri.RESOLUTION_R = 1 / (Math.PI * 2 / 36 / 64) # 366.692988883726881
-    #uri.RESOLUTION_R = 1 / (Math.PI * 2 / 36 / 60) # 343.774677078493951
+    uri.RESOLUTION_R = 1 / (Math.PI * 2 / 36 / 60) # 343.774677078493951
 
 
 #### `USUAL_R`
@@ -232,23 +231,24 @@ Xx.
     uri.USUAL_R = (->
       PI = Math.PI
       USUAL_R = {}
-      USUAL_R[0]                           = 'A' # 0°   0.0000000000000000    0
-      USUAL_R[ uri.r2Unit PI / 6.0      ] = 'B' # 30°  0.5235987755982988  192
-      USUAL_R[ uri.r2Unit PI / 4.0      ] = 'C' # 45°  0.7853981633974483  288
-      USUAL_R[ uri.r2Unit PI / 3.0      ] = 'D' # 60°  1.0471975511965976  384
-      USUAL_R[ uri.r2Unit PI * 0.5      ] = 'E' # 90°  1.5707963267948966  576
-      USUAL_R[ uri.r2Unit PI / 1.5      ] = 'F' # 120° 2.0943951023931953  768
-      USUAL_R[ uri.r2Unit PI * 0.75     ] = 'G' # 135° 2.3561944901923450  864
-      USUAL_R[ uri.r2Unit PI / 1.2      ] = 'H' # 150° 2.6179938779914944  960
-      USUAL_R[ uri.r2Unit PI            ] = 'I' # 180° 3.1415926535897930 1152
-      USUAL_R[ uri.r2Unit PI / 6.0 + PI ] = 'J' # 210° 3.6651914291880920 1344
-      USUAL_R[ uri.r2Unit PI / 4.0 + PI ] = 'K' # 225° 3.9269908169872414 1440
-      USUAL_R[ uri.r2Unit PI / 3.0 + PI ] = 'L' # 240° 4.1887902047863905 1536
-      USUAL_R[ uri.r2Unit PI * 1.5      ] = 'M' # 270° 4.7123889803846900 1728
-      USUAL_R[ uri.r2Unit PI / 1.5 + PI ] = 'N' # 300° 5.2359877559829890 1920
-      USUAL_R[ uri.r2Unit PI * 1.75     ] = 'O' # 315° 5.4977871437821380 2016
-      USUAL_R[ uri.r2Unit PI / 1.2 + PI ] = 'P' # 330° 5.7595865315812870 2112
-      USUAL_R[ uri.r2Unit PI * 2.0      ] = 'Q' # 360° 6.2831853071795860 2304
+      USUAL_R[0]                            = 'A' # 0°   0.0000000000000000    0
+      USUAL_R[ uri.r2Tenmin PI / 6.0      ] = 'B' # 30°  0.5235987755982988  180
+      USUAL_R[ uri.r2Tenmin PI / 4.0      ] = 'C' # 45°  0.7853981633974483  270
+      USUAL_R[ uri.r2Tenmin PI / 3.0      ] = 'D' # 60°  1.0471975511965976  384
+      USUAL_R[ uri.r2Tenmin PI * 0.5      ] = 'E' # 90°  1.5707963267948966  360
+      USUAL_R[ uri.r2Tenmin PI / 1.5      ] = 'F' # 120° 2.0943951023931953  720
+      USUAL_R[ uri.r2Tenmin PI * 0.75     ] = 'G' # 135° 2.3561944901923450  810
+      USUAL_R[ uri.r2Tenmin PI / 1.2      ] = 'H' # 150° 2.6179938779914944  900
+      USUAL_R[ uri.r2Tenmin PI            ] = 'I' # 180° 3.1415926535897930 1080
+      USUAL_R[ uri.r2Tenmin PI / 6.0 + PI ] = 'J' # 210° 3.6651914291880920 1260
+      USUAL_R[ uri.r2Tenmin PI / 4.0 + PI ] = 'K' # 225° 3.9269908169872414 1350
+      USUAL_R[ uri.r2Tenmin PI / 3.0 + PI ] = 'L' # 240° 4.1887902047863905 1440
+      USUAL_R[ uri.r2Tenmin PI * 1.5      ] = 'M' # 270° 4.7123889803846900 1620
+      USUAL_R[ uri.r2Tenmin PI / 1.5 + PI ] = 'N' # 300° 5.2359877559829890 1800
+      USUAL_R[ uri.r2Tenmin PI * 1.75     ] = 'O' # 315° 5.4977871437821380 1890
+      USUAL_R[ uri.r2Tenmin PI / 1.2 + PI ] = 'P' # 330° 5.7595865315812870 1980
+      USUAL_R[ uri.r2Tenmin PI * 2.0      ] = 'Q' # 360° 6.2831853071795860 2160
+      ª USUAL_R
       USUAL_R)()
 
 

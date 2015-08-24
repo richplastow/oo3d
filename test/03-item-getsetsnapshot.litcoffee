@@ -86,7 +86,7 @@
 
 
       "Snapshot URI from a transformed Item as expected"
-      "Az-BoEfEi1loEfEi1l"
+      "AzXBoEfEi1loEfEi1l"
       (oo3d, item) -> item.getSnapshot 'uri'
 
 
