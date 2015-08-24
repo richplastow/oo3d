@@ -1,7 +1,7 @@
-Snap
-====
+Uri
+===
 
-#### Helpers for snapshots
+#### Helpers for encoding Oo3d objects to URI-compatible strings, and back again
 
 Note that these functions will often be called 1000s of times per second, so 
 they’re designed to run as fast as possible. That means they do no type or 
@@ -12,7 +12,7 @@ range checking, so it’s up to the implementing app to pass valid arguments.
 
 @todo describe
 
-    snap = {}
+    uri = {}
 
 
 
@@ -27,18 +27,18 @@ Methods
 
 Xx. 
 
-    snap.r2Unit = (r) -> Math.round r * snap.RESOLUTION_R
+    uri.r2Unit = (r) -> Math.round r * uri.RESOLUTION_R
 
 
 
 
-#### `r2snap()`
+#### `r2uri()`
 - `r <number>`  an angle, in radians
 - `<string>`    xx
 
 Xx. 
 
-    snap.r2snap = (r) ->
+    uri.r2uri = (r) ->
 
       P2 = Math.PI * 2 # 6.283185307179586
 
@@ -54,11 +54,11 @@ Normalize negative `r`.
 
 Round the value up or down to the nearest unit (a unit is one 64th of 10°). 
 
-      u = Math.round r * snap.RESOLUTION_R
+      u = Math.round r * uri.RESOLUTION_R
 
 Return a single uppercase letter for certain commonly encountered angles. 
 
-      c1 = snap.USUAL_R[u]
+      c1 = uri.USUAL_R[u]
       if c1 then return c1
 
 Otherwise, convert the unit to a pair of ascii characters, where `c1` is 0-9a-z,
@@ -73,13 +73,13 @@ and `c2` is 0-9a-zA-Z_- making 36 * 64 combinations.
 
 
 
-#### `s2snap()`
+#### `s2uri()`
 - `s <number>`   the scale, from -9999 to 9999 @todo beyond 9999?
 - `<string>`     xx
 
 Xx. 
 
-    snap.s2snap = (s) ->
+    uri.s2uri = (s) ->
 
 Record and remove the sign of a negative number. 
 
@@ -128,7 +128,7 @@ Trim decimal places.
 
 Return a single uppercase letter for certain commonly encountered scales. 
 
-      c1 = snap.USUAL_S[m + n]
+      c1 = uri.USUAL_S[m + n]
       if c1 then return c1
 
 Otherwise, convert `n` and `m` to a sequence of three ascii characters, where 
@@ -144,13 +144,13 @@ Otherwise, convert `n` and `m` to a sequence of three ascii characters, where
 
 
 
-#### `t2snap()`
+#### `t2uri()`
 - `t <number>`   the translation, from -9999 to 9999 @todo beyond 9999?
 - `<string>`     xx
 
 Xx. 
 
-    snap.t2snap = (t) ->
+    uri.t2uri = (t) ->
 
 Record and remove the sign of a negative number. 
 
@@ -199,7 +199,7 @@ Trim decimal places.
 
 Return a single uppercase letter for certain commonly encountered translations. 
 
-      c1 = snap.USUAL_T[m + n]
+      c1 = uri.USUAL_T[m + n]
       if c1 then ª t, n, c1; return c1
 
 Otherwise, convert `n` and `m` to a sequence of three ascii characters, where 
@@ -220,35 +220,35 @@ Properties
 
 
 #### `RESOLUTION_R`
-The maximum resolution of `r2snap()` and `snap2r()`, in radians. 
+The maximum resolution of `r2uri()` and `uri2r()`, in radians. 
 
-    snap.RESOLUTION_R = 1 / (Math.PI * 2 / 36 / 64) # 366.692988883726881
-    #snap.RESOLUTION_R = 1 / (Math.PI * 2 / 36 / 60) # 343.774677078493951
+    uri.RESOLUTION_R = 1 / (Math.PI * 2 / 36 / 64) # 366.692988883726881
+    #uri.RESOLUTION_R = 1 / (Math.PI * 2 / 36 / 60) # 343.774677078493951
 
 
 #### `USUAL_R`
 Xx. 
 
-    snap.USUAL_R = (->
+    uri.USUAL_R = (->
       PI = Math.PI
       USUAL_R = {}
       USUAL_R[0]                           = 'A' # 0°   0.0000000000000000    0
-      USUAL_R[ snap.r2Unit PI / 6.0      ] = 'B' # 30°  0.5235987755982988  192
-      USUAL_R[ snap.r2Unit PI / 4.0      ] = 'C' # 45°  0.7853981633974483  288
-      USUAL_R[ snap.r2Unit PI / 3.0      ] = 'D' # 60°  1.0471975511965976  384
-      USUAL_R[ snap.r2Unit PI * 0.5      ] = 'E' # 90°  1.5707963267948966  576
-      USUAL_R[ snap.r2Unit PI / 1.5      ] = 'F' # 120° 2.0943951023931953  768
-      USUAL_R[ snap.r2Unit PI * 0.75     ] = 'G' # 135° 2.3561944901923450  864
-      USUAL_R[ snap.r2Unit PI / 1.2      ] = 'H' # 150° 2.6179938779914944  960
-      USUAL_R[ snap.r2Unit PI            ] = 'I' # 180° 3.1415926535897930 1152
-      USUAL_R[ snap.r2Unit PI / 6.0 + PI ] = 'J' # 210° 3.6651914291880920 1344
-      USUAL_R[ snap.r2Unit PI / 4.0 + PI ] = 'K' # 225° 3.9269908169872414 1440
-      USUAL_R[ snap.r2Unit PI / 3.0 + PI ] = 'L' # 240° 4.1887902047863905 1536
-      USUAL_R[ snap.r2Unit PI * 1.5      ] = 'M' # 270° 4.7123889803846900 1728
-      USUAL_R[ snap.r2Unit PI / 1.5 + PI ] = 'N' # 300° 5.2359877559829890 1920
-      USUAL_R[ snap.r2Unit PI * 1.75     ] = 'O' # 315° 5.4977871437821380 2016
-      USUAL_R[ snap.r2Unit PI / 1.2 + PI ] = 'P' # 330° 5.7595865315812870 2112
-      USUAL_R[ snap.r2Unit PI * 2.0      ] = 'Q' # 360° 6.2831853071795860 2304
+      USUAL_R[ uri.r2Unit PI / 6.0      ] = 'B' # 30°  0.5235987755982988  192
+      USUAL_R[ uri.r2Unit PI / 4.0      ] = 'C' # 45°  0.7853981633974483  288
+      USUAL_R[ uri.r2Unit PI / 3.0      ] = 'D' # 60°  1.0471975511965976  384
+      USUAL_R[ uri.r2Unit PI * 0.5      ] = 'E' # 90°  1.5707963267948966  576
+      USUAL_R[ uri.r2Unit PI / 1.5      ] = 'F' # 120° 2.0943951023931953  768
+      USUAL_R[ uri.r2Unit PI * 0.75     ] = 'G' # 135° 2.3561944901923450  864
+      USUAL_R[ uri.r2Unit PI / 1.2      ] = 'H' # 150° 2.6179938779914944  960
+      USUAL_R[ uri.r2Unit PI            ] = 'I' # 180° 3.1415926535897930 1152
+      USUAL_R[ uri.r2Unit PI / 6.0 + PI ] = 'J' # 210° 3.6651914291880920 1344
+      USUAL_R[ uri.r2Unit PI / 4.0 + PI ] = 'K' # 225° 3.9269908169872414 1440
+      USUAL_R[ uri.r2Unit PI / 3.0 + PI ] = 'L' # 240° 4.1887902047863905 1536
+      USUAL_R[ uri.r2Unit PI * 1.5      ] = 'M' # 270° 4.7123889803846900 1728
+      USUAL_R[ uri.r2Unit PI / 1.5 + PI ] = 'N' # 300° 5.2359877559829890 1920
+      USUAL_R[ uri.r2Unit PI * 1.75     ] = 'O' # 315° 5.4977871437821380 2016
+      USUAL_R[ uri.r2Unit PI / 1.2 + PI ] = 'P' # 330° 5.7595865315812870 2112
+      USUAL_R[ uri.r2Unit PI * 2.0      ] = 'Q' # 360° 6.2831853071795860 2304
       USUAL_R)()
 
 
@@ -256,7 +256,7 @@ Xx.
 Xx.  
 @todo more of these
 
-    snap.USUAL_S =
+    uri.USUAL_S =
       d1250: 'C' # -0.125
       d2500: 'D' # -0.25
       d5000: 'E' # -0.5
@@ -278,7 +278,7 @@ Xx.
 Xx.  
 @todo more of these
 
-    snap.USUAL_T =
+    uri.USUAL_T =
       d1250: 'C' # -0.125
       d2500: 'D' # -0.25
       d5000: 'E' # -0.5
@@ -298,7 +298,7 @@ Xx.
 
     #for i in [2300..2306]
     #  r = Math.PI * 2 * i / 2304
-    #  snap.r2snap r
+    #  uri.r2uri r
 
     #ª '---'
 

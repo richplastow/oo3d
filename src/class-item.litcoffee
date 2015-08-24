@@ -154,18 +154,18 @@ Return the log snapshot.
 
         else if 'uri' == format
 
-Return the uri snapshot. These functions are defined in /src/snap.litcoffee
+Return the uri snapshot. These functions are defined in /src/uri.litcoffee
 
           [
-            snap.r2snap @rX
-            snap.r2snap @rY
-            snap.r2snap @rZ
-            snap.s2snap @sX
-            snap.s2snap @sY
-            snap.s2snap @sZ
-            snap.t2snap @tX
-            snap.t2snap @tY
-            snap.t2snap @tZ
+            uri.r2uri @rX
+            uri.r2uri @rY
+            uri.r2uri @rZ
+            uri.s2uri @sX
+            uri.s2uri @sY
+            uri.s2uri @sZ
+            uri.t2uri @tX
+            uri.t2uri @tY
+            uri.t2uri @tZ
           ].join ''
 
         else # any other `format` is treated as 'object'
