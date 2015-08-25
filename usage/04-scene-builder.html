@@ -1,0 +1,904 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>04 Oo3d Scene Builder</title>
+  <meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <script src="../build/oo3d.js"></script>
+  <script>
+    addEventListener('load', function () {
+      try {
+        var
+          //// Micro jQuery. 
+          $ = document.querySelector.bind(document)
+
+
+          //// GUI Elements. 
+         ,$guiScene      = $('#gui-scene')
+         ,$btnSceneTxy   = $('#btn-scene-txy')
+         ,$btnSceneTxz   = $('#btn-scene-txz')
+         ,$btnSceneRyx   = $('#btn-scene-ryx')
+         ,$btnSceneRyz   = $('#btn-scene-ryz')
+         ,$btnSceneScale = $('#btn-scene-scale')
+
+         ,$guiItem      = $('#gui-item')
+         ,$btnItemFlip  = $('#btn-item-flip')
+         ,$btnItemTxy   = $('#btn-item-txy')
+         ,$btnItemTxz   = $('#btn-item-txz')
+         ,$btnItemRyx   = $('#btn-item-ryx')
+         ,$btnItemRyz   = $('#btn-item-ryz')
+         ,$btnItemScale = $('#btn-item-scale')
+
+         ,$guiFlip      = $('#gui-flip')
+         ,$btnFlipH     = $('#btn-flip-i') // item
+         ,$btnFlipX     = $('#btn-flip-x')
+         ,$btnFlipY     = $('#btn-flip-y')
+         ,$btnFlipZ     = $('#btn-flip-z')
+         ,$btnFlipR     = $('#btn-flip-r') // reset flip
+
+         ,$guiSceneInfo      = $('#gui-scene i')
+         ,$btnSceneTxyInfo   = $('#btn-scene-txy i')
+         ,$btnSceneTxzInfo   = $('#btn-scene-txz i')
+         ,$btnSceneRyxInfo   = $('#btn-scene-ryx i')
+         ,$btnSceneRyzInfo   = $('#btn-scene-ryz i')
+         ,$btnSceneScaleInfo = $('#btn-scene-scale i')
+
+         ,$guiItemInfo       = $('#gui-item i')
+         ,$btnItemFlipInfo   = $('#btn-item-flip i')
+         ,$btnItemTxyInfo    = $('#btn-item-txy i')
+         ,$btnItemTxzInfo    = $('#btn-item-txz i')
+         ,$btnItemRyxInfo    = $('#btn-item-ryx i')
+         ,$btnItemRyzInfo    = $('#btn-item-ryz i')
+         ,$btnItemScaleInfo  = $('#btn-item-scale i')
+
+         ,$guiFlipInfo       = $('#gui-flip i')
+         ,$btnFlipHInfo      = $('#btn-flip-i i') // item
+         ,$btnFlipXInfo      = $('#btn-flip-x i')
+         ,$btnFlipYInfo      = $('#btn-flip-y i')
+         ,$btnFlipZInfo      = $('#btn-flip-z i')
+         ,$btnFlipRInfo      = $('#btn-flip-r i') // reset flip
+
+
+          //// Other Elements. 
+         ,$error = $('#error')
+         ,$main  = $('#main')
+
+
+          //// GUI State. 
+         ,focusI         = null
+         ,toggleSceneGui = false
+         ,downPos        = null // mousedown position
+         ,moveHandler    = function (x, y) {}
+         ,itemSnapshot   = null
+         ,cameraSnapshot = null
+
+
+          //// Oo3d Instance. 
+         ,oo3d = new Oo3d({
+            $main: $main
+           ,background: [1.0, 1.0, 1.0, 1.0]
+          })
+
+
+          //// Create Buffers. 
+         ,rgbTriPositions = oo3d.addPositionBuffer([
+             0.0,  0.3,  1.0,
+            -0.4, -0.5,  1.0,
+             0.8, -0.3,  1.0
+          ])
+         ,rgbTriColors = oo3d.addColorBuffer([
+             1.0,  0.0,  0.0,  0.5, // red
+             0.0,  1.0,  0.0,  0.5, // green
+             0.0,  0.0,  1.0,  0.5  // blue
+          ])
+         ,cmyTriPositions = oo3d.addPositionBuffer([
+             1.0, -0.3,   0.0,
+             0.4,  0.5,  -1.0,
+             0.2,  0.3,  -1.0
+          ])
+         ,cmyTriColors = oo3d.addColorBuffer([
+             1.0,  1.0,  0.0,  0.9, // yellow
+             0.0,  1.0,  1.0,  0.9, // cyan
+             1.0,  0.0,  1.0,  0.9  // magenta
+          ])
+         ,pyramidPositions = oo3d.addPositionBuffer([
+            // Front face
+             0.0,  1.0,  0.0,
+            -1.0, -1.0,  1.0,
+             1.0, -1.0,  1.0,
+            // Right face
+             0.0,  1.0,  0.0,
+             1.0, -1.0,  1.0,
+             1.0, -1.0, -1.0,
+            // Back face
+             0.0,  1.0,  0.0,
+             1.0, -1.0, -1.0,
+            -1.0, -1.0, -1.0,
+            // Left face
+             0.0,  1.0,  0.0,
+            -1.0, -1.0, -1.0,
+            -1.0, -1.0,  1.0
+          ])
+         ,pyramidColors = oo3d.addColorBuffer([
+            // Front face
+             0.3,   0.0,  0.0,  0.95, // near-opaque dark red
+             0.3,   0.0,  0.0,  0.95, // near-opaque dark red
+             0.3,   0.0,  0.0,  0.95, // near-opaque dark red
+            // Right face
+             0.0,  0.25,  0.0,  0.75, // translucent lime
+             0.0,  0.25,  0.0,  0.75, // translucent lime
+             0.0,  0.25,  0.0,  0.75, // translucent lime
+            // Back face
+             1.0,  0.25,  0.0,  0.10, // translucent orange
+             1.0,  0.25,  0.0,  0.10, // translucent orange
+             1.0,  0.25,  0.0,  0.10, // translucent orange
+            // Left face
+             0.25,  0.5,  1.0,  0.05, // translucent light cyan
+             0.25,  0.5,  1.0,  0.05, // translucent light cyan
+             0.25,  0.5,  1.0,  0.05  // translucent light cyan
+          ])
+
+
+          //// Create Items. 
+         ,rgbTri1I = oo3d.addItem({
+            positionI:  rgbTriPositions
+           ,colorI:     rgbTriColors
+           //,blend:      ['SRC_COLOR','SRC_COLOR'] // sfactor, dfactor
+          })
+         ,rgbTri2I = oo3d.addItem({
+            positionI:  rgbTriPositions
+           ,colorI:     rgbTriColors
+          })
+         ,rgbTri3I = oo3d.addItem({
+            positionI:  rgbTriPositions
+           ,colorI:     rgbTriColors
+          })
+         ,cmyTri1I = oo3d.addItem({
+            positionI:  cmyTriPositions
+           ,colorI:     cmyTriColors
+          })
+         ,cmyTri2I = oo3d.addItem({
+            positionI:  cmyTriPositions
+           ,colorI:     cmyTriColors
+          })
+         ,cmyTri3I = oo3d.addItem({
+            positionI:  cmyTriPositions
+           ,colorI:     cmyTriColors
+          })
+         ,pyramidI = oo3d.addItem({
+            positionI:  pyramidPositions
+           ,colorI:     pyramidColors
+           //,blend:      ['ONE','DST_COLOR'] // sfactor, dfactor
+          })
+
+
+          //// Create Cameras. 
+         ,cameraI = oo3d.addCamera({
+            fovy:   0.785398163 // 45º
+           ,aspect: $main.width / $main.height
+          })
+
+
+          //// Create Programs. 
+         ,flatItemProgramI = oo3d.addProgram({
+            subclass: 'FlatItem'
+          })
+
+
+          //// Create Renderers. 
+         ,rendererI = oo3d.addRenderer({
+            cameraI:  cameraI
+           ,programI: flatItemProgramI
+           ,itemIs:   new Uint16Array([
+              rgbTri1I
+             ,rgbTri2I
+             ,rgbTri3I
+             ,cmyTri1I
+             ,cmyTri2I
+             ,cmyTri3I
+             ,pyramidI
+            ])
+          })
+
+
+          //// Create Layers. 
+         ,layerI = oo3d.addLayer({
+            rendererIs: new Uint16Array([rendererI])
+           ,scissor:    new Float32Array([0,0,1,1])
+          })
+
+          //// `vpSize()`
+          //// Returns an array with two elements, the viewport width and the viewport height. 
+          //// Based on [this Stack Overflow answer. ](http://stackoverflow.com/a/11744120)
+         ,vpSize = function () {
+            var
+              d = document
+             ,e = d.documentElement
+             ,b = d.getElementsByTagName('body')[0]
+             ,w = window.innerWidth  || e.clientWidth  || b.clientWidth
+             ,h = window.innerHeight || e.clientHeight || b.clientHeight
+            ;
+            return [w,h];
+          }
+
+          //// `onlyShow()`
+          //// Removes the 'active' class from all GUI elements, except `$el`. 
+          //// `$el` is optional. 
+         ,onlyShow = function ($el) {
+            $guiScene.setAttribute('class', 'gui');
+            $guiItem.setAttribute( 'class', 'gui');
+            $guiFlip.setAttribute( 'class', 'gui');
+            if ($el) { $el.setAttribute('class', 'gui active'); }
+          }
+
+
+          //// `onlyWireframe()`
+          //// Removes 'LINE_LOOP' from all Items, except `itemI`. 
+          //// `itemI` is optional. 
+         ,onlyWireframe = function (itemI) {
+            for (var i=0, l=oo3d.items.length; i<l; i++) {
+              oo3d.setRenderMode('TRIANGLES', i);
+            }
+            if (0 === itemI || itemI) { oo3d.setRenderMode('LINE_LOOP', itemI); }
+          }
+
+
+          //// `neatNumber()`
+          //// - `n <number>`  xx
+          //// - `<string>`    xx
+          ////
+          //// Xx. 
+          ,neatNumber = function (n) {
+
+            //// Deal with numbers which round to more than four digits. 
+            ////  `9999.9994`  =>  '+10000'
+            //// `-9999.9994`  => '-10000'
+            ////  `9999.9996`  =>  '+10000'
+            //// `-9999.9996`  => '-10000'
+            ////  `10000`      =>  '+10000'
+            //// `-10000`      => '-10000'
+            ////  `10000.001`  =>  '+10000'
+            //// `-10000.001`  => '-10000'
+            ////  `123456`     =>  `+123456`
+            //// `-123456`     => `-123456`
+            var r = Math.round(n);
+            if ( 10000 <= r) { return '+' + r; }
+            if (-10000 >= r) { return ''  + r; }
+
+            //// Deal with numbers which round to exactly four digits. 
+            //// Note the trailing space. 
+            ////  `999.5`      =>  '+1000 '
+            //// `-999.5`      => '-1000 '
+            ////  `999.9994`   =>  '+1000 '
+            //// `-999.9994`   => '-1000 '
+            ////  `999.9996`   =>  '+1000 '
+            //// `-999.9996`   => '-1000 '
+            ////  `9999.4994`  =>  '+9999 '
+            //// `-9999.4994`  => '-9999 '
+            if ( 1000  <= r) { return '+' + r + '&nbsp;'; }
+            if (-1000  >= r) { return ''  + r + '&nbsp;'; }
+
+            //// Round the value to three decimal places. 
+            ////  `0`          =>  `0`
+            ////  `4.32`       =>  `4.32`
+            ////  `0.128812`   =>  `0.128`
+            //// `-87.65432`   => `-87.654`
+            ////  `99.9994`    =>  `99.999`
+            //// `-99.9994`    => `-99.999`
+            ////  `99.9996`    =>  `100`
+            //// `-99.9996`    => `-100`
+            ////  `100.0009`   =>  `100.001`
+            //// `-100.0009`   => `-100.001`
+            ////  `999.4999`   =>  `999.5`
+            //// `-999.4999`   => `-999.5`
+            n = ((Math.round(n * 1000)) / 1000);
+
+            //// Convert to string. 
+            n += '';
+
+            //// Pad three zeros. 
+            ////  '0'          =>  '0.000'
+            ////  '4.32'       =>  '4.32000'
+            ////  '0.128'      =>  '0.128000'
+            ////  '-87.654'    =>  '-87.654000'
+            ////  '99.999'     =>  '99.999000'
+            //// '-99.999'     => '-99.999000'
+            ////  '100'        =>  '100.000'
+            //// '-100'        => '-100.000'
+            ////  '100.001'    =>  '100.001000'
+            //// '-100.001'    => '-100.001000'
+            ////  '999.5'      =>  '999.5000'
+            //// '-999.5'      => '-999.5000'
+            n += -1 == n.indexOf('.') ? '.000' : '000'
+
+            //// Prefix a plus-sign for positive values and trim to six chars.  
+            ////  '0.000'      => '+0.000'
+            ////  '4.32000'    => '+4.320'
+            ////  '0.128000'   => '+0.128'
+            ////  '-87.654000' => '-87.65'
+            ////  '99.999000'  => '+99.99'
+            //// '-99.999000'  => '-99.99'
+            ////  '100.000'    => '+100.0'
+            //// '-100.000'    => '-100.0'
+            ////  '100.001000' => '+100.0'
+            //// '-100.001000' => '-100.0'
+            ////  '999.5000'   => '+999.5'
+            //// '-999.5000'   => '-999.5'
+            if ('-' != n[0]) { n = '+' + n; }
+            return n = n.slice(0, 6);
+          }
+
+
+          //// `verboseSnapshot()`
+          //// - `s <object>`  Item info returned by `oo3d.getItemSnapshot()`
+          //// - `<object>`    the snapshot with extra properties
+          ////
+          //// Create an object which `updateItemInfo()` can use. 
+          verboseSnapshot = function (s) {
+
+            //// Flips are taken from the Item’s scale properties. 
+            s.fX = 0 == s.sX ? 0 : 0 > s.sX ? '-' : '+';
+            s.fY = 0 == s.sY ? 0 : 0 > s.sY ? '-' : '+';
+            s.fZ = 0 == s.sZ ? 0 : 0 > s.sZ ? '-' : '+';
+
+            //// Neaten translation values. 
+            s.tXround = neatNumber(s.tX);
+            s.tYround = neatNumber(s.tY);
+            s.tZround = neatNumber(s.tZ);
+
+            //// Neaten rotation values. 
+            s.rXround = neatNumber(s.rX);
+            s.rYround = neatNumber(s.rY);
+            s.rZround = neatNumber(s.rZ);
+
+            //// Neaten the scale-x value (sY and sZ will be the same as sX). 
+            s.sXround = neatNumber(s.sX);
+
+            //// Return the modified snapshot. 
+            return s;
+          }
+
+
+
+
+          //// `updateItemInfo()`
+          //// Displays various values from a given Item’s state. 
+          //// `itemI` is optional. If not set, the displays are reset. 
+         ,updateItemInfo = function (itemI) {
+            if (0 === itemI || itemI) {
+              info = verboseSnapshot( oo3d.getItemSnapshot(itemI) );
+              $btnItemFlipInfo.innerHTML  = '' + info.fX + info.fY + info.fZ;
+              $btnItemTxyInfo.innerHTML   = info.tXround + '<br>' + info.tYround;
+              $btnItemTxzInfo.innerHTML   = info.tXround + '<br>' + info.tZround;
+              $btnItemRyxInfo.innerHTML   = info.rYround + '<br>' + info.rXround;
+              $btnItemRyzInfo.innerHTML   = info.rYround + '<br>' + info.rZround;
+              $btnItemScaleInfo.innerHTML = info.sXround;
+              $btnFlipXInfo.innerHTML = info.fX;
+              $btnFlipYInfo.innerHTML = info.fY;
+              $btnFlipZInfo.innerHTML = info.fZ;
+            }
+            info = verboseSnapshot( oo3d.getCameraSnapshot(0) );
+            $btnSceneTxyInfo.innerHTML   = info.tXround + '<br>' + info.tYround;
+            $btnSceneTxzInfo.innerHTML   = info.tXround + '<br>' + info.tZround;
+            $btnSceneRyxInfo.innerHTML   = info.rYround + '<br>' + info.rXround;
+            $btnSceneRyzInfo.innerHTML   = info.rYround + '<br>' + info.rZround;
+            $btnSceneScaleInfo.innerHTML = info.sXround;
+          }
+
+          //// `isActive()`
+          //// @todo describe
+         ,isActive = function ($el) {
+            return 'gui active' === $el.getAttribute('class');
+          }
+
+          //// `onMousedown()`
+          //// @todo describe
+          onMousedown = function (event, $el, customMoveHandler) {
+            event.preventDefault();
+            if ( (0 === focusI || focusI) && isActive($guiItem) ) {
+              moveHandler = customMoveHandler;
+              downPos = [event.clientX, event.clientY];
+              itemSnapshot = oo3d.getItemSnapshot(focusI);
+              window.addEventListener('mousemove', onMousemove);
+              window.addEventListener('mouseup'  , onMouseup  );
+            } else if ( null == focusI && isActive($guiScene) ) {
+              moveHandler = customMoveHandler;
+              downPos = [event.clientX, event.clientY];
+              cameraSnapshot = oo3d.getCameraSnapshot(0);
+              window.addEventListener('mousemove', onMousemove);
+              window.addEventListener('mouseup'  , onMouseup  );
+            }
+          }
+
+          //// `onTouchstart()`
+          //// @todo describe
+          onTouchstart = function (event, $el, customMoveHandler) {
+            event.preventDefault();
+            if ( (0 === focusI || focusI) && isActive($guiItem) ) {
+              moveHandler = customMoveHandler;
+              var touches = event.changedTouches;
+              downPos = [touches[0].pageX, touches[0].pageY];
+              itemSnapshot = oo3d.getItemSnapshot(focusI);
+              window.addEventListener('touchmove', onTouchmove);
+              window.addEventListener('touchend' , onTouchend );
+            }
+          }
+
+          //// `onMousemove()`
+          //// Xx. @todo describe
+         ,onMousemove = function (event) {
+            if (0 === focusI || focusI || null == focusI) {
+              moveHandler(event.clientX - downPos[0], event.clientY - downPos[1]);
+            }
+          }
+
+          //// `onMouseup()`
+          //// Xx. @todo describe
+         ,onMouseup = function (event) {
+            window.removeEventListener('mousemove', onMousemove);
+            window.removeEventListener('mouseup'  , onMouseup);
+            downPos = null;
+            moveHandler = function (x, y) {};
+          }
+
+          //// `onTouchmove()`
+          //// Xx. @todo describe
+         ,onTouchmove = function (event) {
+            if (0 === focusI || focusI || null == focusI) {
+              var touches = event.changedTouches;
+              moveHandler(touches[0].pageX - downPos[0], touches[0].pageY - downPos[1]);
+            }
+          }
+
+          //// `onTouchend()`
+          //// Xx. @todo describe
+         ,onTouchend = function (event) {
+            console.log('T END!');
+            window.removeEventListener('touchmove', onTouchmove);
+            window.removeEventListener('touchend' , onTouchend);
+            downPos = null;
+            moveHandler = function (x, y) {};
+          }
+
+          //// `moveHandlerTxy()`
+          //// Xx. @todo describe
+         ,moveHandlerTxy = function (x, y) {
+            if (null == focusI) {
+              oo3d.setCameraSnapshot(cameraSnapshot, 0)
+               .translate(x/500, y/-500, 0)
+               .render();
+            } else if (0 === focusI || focusI) {
+              oo3d.setItemSnapshot(itemSnapshot, focusI)
+               .translate(x/500, y/-500, 0, focusI)
+               .render();
+            }
+            updateItemInfo(focusI);
+         }
+
+          //// `moveHandlerTxz()`
+          //// Xx. @todo describe
+         ,moveHandlerTxz = function (x, y) {
+            if (null == focusI) {
+              oo3d.setCameraSnapshot(cameraSnapshot, 0)
+               .translate(x/500, 0, y/500, focusI)
+               .render();
+            } else if (0 === focusI || focusI) {
+              oo3d.setItemSnapshot(itemSnapshot, focusI)
+               .translate(x/500, 0, y/500, focusI)
+               .render();
+            }
+            updateItemInfo(focusI);
+         }
+
+
+          //// `moveHandlerRyx()`
+          //// Xx. @todo describe
+         ,moveHandlerRyx = function (x, y) {
+            if (null == focusI) {
+              oo3d.setCameraSnapshot(cameraSnapshot, 0)
+               .rotate(y/500, x/500, 0, focusI)
+               .render();
+            } else if (0 === focusI || focusI) {
+              oo3d.setItemSnapshot(itemSnapshot, focusI)
+               .rotate(y/500, x/500, 0, focusI)
+               .render();
+            }
+            updateItemInfo(focusI);
+         }
+
+          //// `moveHandlerRyz()`
+          //// Xx. @todo describe
+         ,moveHandlerRyz = function (x, y) {
+            if (null == focusI) {
+              oo3d.setCameraSnapshot(cameraSnapshot, 0)
+               .rotate(0, x/500, y/-500, focusI)
+               .render();
+            } else if (0 === focusI || focusI) {
+              oo3d.setItemSnapshot(itemSnapshot, focusI)
+               .rotate(0, x/500, y/-500, focusI)
+               .render();
+            }
+            updateItemInfo(focusI);
+         }
+
+          //// `moveHandlerScale()`
+          //// Xx. @todo describe
+         ,moveHandlerScale = function (x, y) {
+            scale = Math.abs( 1 + (x - y)/500 );
+            if (null == focusI) {
+              oo3d.setCameraSnapshot(cameraSnapshot, 0)
+               .scale(scale, scale, scale, focusI)
+               .render();
+            } else if (0 === focusI || focusI) {
+              oo3d.setItemSnapshot(itemSnapshot, focusI)
+               .scale(scale, scale, scale, focusI)
+               .render();
+            }
+            updateItemInfo(focusI);
+         }
+
+        ;
+
+
+        //// Move Items so that they’re all visible. 
+        oo3d.translate(-0.5,0,0,rgbTri1I);
+        oo3d.translate(-1,0,-.5,rgbTri2I);
+        oo3d.translate(1.5,0,-2,rgbTri3I);
+        oo3d.translate(-0.5,0,2,cmyTri1I);
+        oo3d.translate(-1,0,2.5,cmyTri2I);
+        oo3d.translate(1.5,0,1 ,cmyTri3I);
+        //oo3d.rotate(0,1,0,pyramidI);
+        oo3d.render();
+
+
+        //// Scene GUI. 
+        $btnSceneTxy.addEventListener('mousedown', function (event) {
+          onMousedown(event, $guiScene, moveHandlerTxy);
+        });
+        $btnSceneTxy.addEventListener('touchstart', function (event) {
+          onTouchstart(event, $guiScene, moveHandlerTxy);
+        });
+        $btnSceneTxz.addEventListener('mousedown', function (event) {
+          onMousedown(event, $guiScene, moveHandlerTxz);
+        });
+        $btnSceneTxz.addEventListener('touchstart', function (event) {
+          onTouchstart(event, $guiScene, moveHandlerTxz);
+        });
+        $btnSceneRyx.addEventListener('mousedown', function (event) {
+          onMousedown(event, $guiScene, moveHandlerRyx);
+        });
+        $btnSceneRyx.addEventListener('touchstart', function (event) {
+          onTouchstart(event, $guiScene, moveHandlerRyx);
+        });
+        $btnSceneRyz.addEventListener('mousedown', function (event) {
+          onMousedown(event, $guiScene, moveHandlerRyz);
+        });
+        $btnSceneRyz.addEventListener('touchstart', function (event) {
+          onTouchstart(event, $guiScene, moveHandlerRyz);
+        });
+        $btnSceneScale.addEventListener('mousedown', function (event) {
+          onMousedown(event, $guiScene, moveHandlerScale);
+        });
+        $btnSceneScale.addEventListener('touchstart', function (event) {
+          onTouchstart(event, $guiScene, moveHandlerScale);
+        });
+
+
+        //// Item GUI. 
+        $btnItemTxy.addEventListener('mousedown', function (event) {
+          onMousedown(event, $guiItem, moveHandlerTxy);
+        });
+        $btnItemTxy.addEventListener('touchstart', function (event) {
+          onTouchstart(event, $guiItem, moveHandlerTxy);
+        });
+        $btnItemTxz.addEventListener('mousedown', function (event) {
+          onMousedown(event, $guiItem, moveHandlerTxz);
+        });
+        $btnItemTxz.addEventListener('touchstart', function (event) {
+          onTouchstart(event, $guiItem, moveHandlerTxz);
+        });
+        $btnItemRyx.addEventListener('mousedown', function (event) {
+          onMousedown(event, $guiItem, moveHandlerRyx);
+        });
+        $btnItemRyx.addEventListener('touchstart', function (event) {
+          onTouchstart(event, $guiItem, moveHandlerRyx);
+        });
+        $btnItemRyz.addEventListener('mousedown', function (event) {
+          onMousedown(event, $guiItem, moveHandlerRyz);
+        });
+        $btnItemRyz.addEventListener('touchstart', function (event) {
+          onTouchstart(event, $guiItem, moveHandlerRyz);
+        });
+        $btnItemScale.addEventListener('mousedown', function (event) {
+          onMousedown(event, $guiItem, moveHandlerScale);
+        });
+        $btnItemScale.addEventListener('touchstart', function (event) {
+          onTouchstart(event, $guiItem, moveHandlerScale);
+        });
+
+
+        //// 'Flip' GUI. 
+        $btnItemFlip.addEventListener('mousedown', function (event) {
+          if ( 'gui active' !== $guiItem.getAttribute('class') ) { return; }
+          onlyShow($guiFlip);
+        });
+        $btnFlipH.addEventListener('mousedown', function (event) {
+          if ( 'gui active' !== $guiFlip.getAttribute('class') ) { return; }
+          onlyShow($guiItem);
+        });
+        $btnFlipX.addEventListener('mousedown', function (event) {
+          if ( 'gui active' !== $guiFlip.getAttribute('class') ) { return; }
+          oo3d.scale(-1, 1, 1, focusI);
+          updateItemInfo(focusI);
+          oo3d.render();
+        });
+        $btnFlipY.addEventListener('mousedown', function (event) {
+          if ( 'gui active' !== $guiFlip.getAttribute('class') ) { return; }
+          oo3d.scale(1, -1, 1, focusI);
+          updateItemInfo(focusI);
+          oo3d.render();
+        });
+        $btnFlipZ.addEventListener('mousedown', function (event) {
+          if ( 'gui active' !== $guiFlip.getAttribute('class') ) { return; }
+          oo3d.scale(1, 1, -1, focusI);
+          updateItemInfo(focusI);
+          oo3d.render();
+        });
+        $btnFlipR.addEventListener('mousedown', function (event) {
+          if ( 'gui active' !== $guiFlip.getAttribute('class') ) { return; }
+          itemSnapshot = oo3d.getItemSnapshot(focusI);
+          itemInfo = oo3d.getItemSnapshot(focusI);
+          oo3d.scale(
+            '+' == itemSnapshot.fX ? 1 : -1,
+            '+' == itemSnapshot.fY ? 1 : -1,
+            '+' == itemSnapshot.fZ ? 1 : -1,
+            focusI
+          );
+          updateItemInfo(focusI);
+          oo3d.render();
+        });
+
+
+        //// Xx. 
+        $main.addEventListener('mousedown', function (event) {
+          var
+            wh     = vpSize()
+           ,w      = wh[0]
+           ,h      = wh[1]
+           ,wRatio = $main.width  / w
+           ,hRatio = $main.height / h
+           ,x      = Math.round(wRatio * event.clientX)
+           ,y      = Math.round(hRatio * event.clientY)
+          ;
+
+          var color = oo3d.getColorAt(x, $main.height - y);
+          var itemI = oo3d.getItemIByColor(color);
+
+          if (16777215 == itemI) { // `16777215` is the white background
+            itemI  = null; // signifies the camera
+            focusI = null; // signifies the camera
+            if (toggleSceneGui) {
+              toggleSceneGui = false;
+              onlyShow();
+            } else {
+              toggleSceneGui = true;
+              onlyShow($guiScene);
+            }
+            onlyWireframe();
+            updateItemInfo();
+          } else {
+            focusI = itemI; 
+            onlyShow($guiItem);
+            onlyWireframe(itemI);
+            updateItemInfo(itemI);
+            // setTimeout(function () {
+            //   oo3d.setRenderMode('TRIANGLES', itemI);
+            //   oo3d.render();
+            // }, 500);
+          }
+          oo3d.render();
+        });
+
+      } catch (error) {
+        console.log(error);
+        $error.innerHTML = error;
+        $error.className = ''; // remove '.hidden'
+      }
+    });
+  </script>
+  <style>
+    html {
+      padding-bottom: 80px; /* space to scroll up for fullscreen on iOS 8 */
+    }
+    html, body {
+      margin: 0;
+      font: bold 18px/24px "Arial", sans-serif;
+    }
+    #main {
+      position: absolute;
+      top:     0;
+      left:    0;
+      width:   100%;
+      height:  100%;
+      z-index: -5;
+    }
+
+    h1 {
+      position: absolute;
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0 15px 0 10px;
+      width: 100%;
+      overflow: hidden;
+      white-space: nowrap;
+      background: rgba(16,16,16,0.9);
+      color: #ccc;
+      font-size: 26px;
+      transition: background 0.3s, font-size 0.6s;
+      -webkit-touch-callout: none; /* Android and iOS callouts*/
+        -webkit-user-select: none; /* Chrome, Safari, Opera */
+         -khtml-user-select: none; /* Konqueror */
+           -moz-user-select: none; /* Firefox */
+            -ms-user-select: none; /* IE */
+                user-select: none;
+    }
+    h1:hover {
+      background: rgba(0,0,0,0.95);
+    }
+    h1 a {
+      display: inline-block;
+      padding: 12px 5px 15px 5px;
+      color: #ccc;
+      text-decoration: none;
+      transition: color 0.3s;
+    }
+    h1 a:hover {
+      color: #fff;
+    }
+
+    @media screen and (max-width: 736px) { /* iPhone 6 Plus Landscape */
+      h1 { font-size: 22px; }
+    }
+    @media screen and (max-width: 600px) {
+      h1 { font-size: 16px; }
+    }
+
+    #error {
+      position: absolute;
+      box-sizing: border-box;
+      bottom:  0;
+      left:    5%;
+      width:  90%;
+      padding: 1rem;
+      font-family: monaco, monospace;
+      background-color: #933;
+      color: #fff;
+      transition: all 0.5s;
+      opacity: 1;
+      z-index: 15;
+    }
+    #error.hidden {
+      padding-bottom: 0;
+      opacity: 0;
+    }
+
+    .gui {
+      position:    absolute;
+      display:     block;
+      padding:     0;
+      width:       0;
+      height:      0;
+      left:        50%;
+      margin-left: -145px;
+      top:         50%;
+      margin-top:  -125px;
+      opacity:     0;  /* '1' when active */
+      z-index:     -5; /* '10' when active */
+      transition: opacity 0.4s, z-index 0.1s 0.5s;
+    }
+    .gui.active {
+      z-index: 10;
+      opacity: 1;
+      transition: opacity 0.4s;
+    }
+    .gui >li {
+      position:    absolute;
+      width:       90px;
+      height:      90px;
+      list-style:  none;
+      text-align:  center;
+      color: #ccc;
+      background:  rgba(16,16,16,0.9);
+      cursor: default;
+      transition:  all 0.4s;
+    }
+    .gui >li:hover {
+      color:       #fff;
+      background:  rgba(0,0,0,0.95);
+    }
+    .gui.active >li { /* eg during transition */
+      cursor: pointer;
+    }
+    .gui >li >b,
+    .gui >li >i {
+      display: block;
+      -webkit-touch-callout: none; /* Android and iOS callouts*/
+        -webkit-user-select: none; /* Chrome, Safari, Opera */
+         -khtml-user-select: none; /* Konqueror */
+           -moz-user-select: none; /* Firefox */
+            -ms-user-select: none; /* IE */
+                user-select: none;
+    }
+    .gui >li >b {
+      padding: 10px 0;
+    }
+    .gui >li >i {
+      font-family: monospace;
+      line-height: 1;
+    }
+    .btn-left {
+      
+    }
+    .btn-center {
+      margin-left: 100px;
+    }
+    .btn-right {
+      margin-left: 200px;
+    }
+    .btn-top {
+      
+    }
+    .btn-middle {
+      margin-top: 100px;
+    }
+    .btn-bottom {
+      margin-top: 200px;
+    }
+
+    #btn-flip-i i {
+      font-style: normal;
+    }
+
+  </style>
+</head>
+<body style="background:#999;">
+  <h1>
+    <a href="../index.html" title="Oo3d Homepage">Oo3d</a> /
+    <a href="../index.html#/doc/usage" title="Oo3d Usage">Usage</a> /
+    <a href="04-scene-builder.html" title="Refresh this page">04 Scene Builder</a>
+  </h1>
+
+
+  <!-- The Scene GUI appears when the background is clicked -->
+  <ul id="gui-scene" class="gui">
+    <li id="btn-scene-txy"    class="btn-left   btn-middle"><b>Txy</b ><i></i></li>
+    <li id="btn-scene-txz"    class="btn-right  btn-middle"><b>Txz</b ><i></i></li>
+    <li id="btn-scene-ryx"    class="btn-left   btn-bottom"><b>Ryx</b ><i></i></li>
+    <li id="btn-scene-scale"  class="btn-center btn-bottom"><b>Zoom</b><i></i></li>
+    <li id="btn-scene-ryz"    class="btn-right  btn-bottom"><b>Ryz</b ><i></i></li>
+  </ul>
+
+  <!-- The Item GUI appears when an Item in the 3D scene is clicked -->
+  <ul id="gui-item" class="gui">
+    <li id="btn-item-flip"   class="btn-right  btn-top   "><b>Flip</b ><i></i></li>
+    <li id="btn-item-txy"    class="btn-left   btn-middle"><b>Txy</b  ><i></i></li>
+    <li id="btn-item-txz"    class="btn-right  btn-middle"><b>Txz</b  ><i></i></li>
+    <li id="btn-item-ryx"    class="btn-left   btn-bottom"><b>Ryx</b  ><i></i></li>
+    <li id="btn-item-scale"  class="btn-center btn-bottom"><b>Scale</b><i></i></li>
+    <li id="btn-item-ryz"    class="btn-right  btn-bottom"><b>Ryz</b  ><i></i></li>
+  </ul>
+
+  <!-- The Flip GUI appears when the 'Flip' button is clicked -->
+  <ul id="gui-flip" class="gui">
+    <li id="btn-flip-x" class="btn-left   btn-middle"><b>FlipX</b><i></i></li>
+    <li id="btn-flip-i" class="btn-center btn-middle"><b>Back</b ><i>&lt;</i></li>
+    <li id="btn-flip-y" class="btn-right  btn-middle"><b>FlipY</b><i></i></li>
+    <li id="btn-flip-r" class="btn-left   btn-bottom"><b>Reset</b><i></i></li>
+    <li id="btn-flip-z" class="btn-center btn-bottom"><b>FlipZ</b><i></i></li>
+  </ul>
+
+  <canvas id="main"></canvas>
+  <div id="error" class="hidden"></div>
+</body>
+</html>
