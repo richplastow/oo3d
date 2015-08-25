@@ -148,7 +148,12 @@ Create an object or string which describes the Item’s current state.
 
 Return the log snapshot. 
 
-          "rX:#{@rX}, rY:#{@rY}, rZ:#{@rZ},
+          m = @matTransform
+          "m:[#{m[0] },#{m[1] },#{m[2] },#{m[3] },
+              #{m[4] },#{m[5] },#{m[6] },#{m[7] },
+              #{m[8] },#{m[9] },#{m[10]},#{m[11]},
+              #{m[12]},#{m[13]},#{m[14]},#{m[15]}],
+           rX:#{@rX}, rY:#{@rY}, rZ:#{@rZ},
            sX:#{@sX}, sY:#{@sY}, sZ:#{@sZ},
            tX:#{@tX}, tY:#{@tY}, tZ:#{@tZ}"
 
@@ -192,11 +197,82 @@ Return the object snapshot.
 
 
 #### `setSnapshot()`
-- `s <object>`  (optional) a snapshot of an Item
+- snapshot `<string|object>`  eg returned by `getSnapshot('object|log|uri')`
 
 Xx. 
 
-      setSnapshot: (s) ->
+      setSnapshot: (snapshot) ->
+        M = "#{@C}:setSnapshot()\n  "
+
+Infer the format, 'object', 'log' or 'uri'. 
+
+        format = ªtype snapshot
+        if ªS == format
+          format = if 'm:[' == snapshot.slice 0, 3 then 'log' else 'uri'
+
+Record a log snapshot into the Item, eg:  
+m:[1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1],rX:0,rY:0,rZ:0,sX:1,sY:1,sZ:1,tX:0,tY:0,tZ:0
+
+        if 'log' == format
+          matches = snapshot.match(
+            ///^              # start of string
+            m:\[(.*)\]        # capture the sixteen matTransform values
+            ,\s*rX:(-?[.\d]*) # capture rotation-x
+            ,\s*rY:(-?[.\d]*) # capture rotation-y
+            ,\s*rZ:(-?[.\d]*) # capture rotation-z
+            ,\s*sX:(-?[.\d]*) # capture scale-x
+            ,\s*sY:(-?[.\d]*) # capture scale-y
+            ,\s*sZ:(-?[.\d]*) # capture scale-z
+            ,\s*tX:(-?[.\d]*) # capture translate-x
+            ,\s*tY:(-?[.\d]*) # capture translate-y
+            ,\s*tZ:(-?[.\d]*) # capture translate-z
+            $///              # end of string
+          )
+
+          if null == matches then throw Error "
+          #{M}log-format snapshot is invalid"
+
+          [snapshot, m, @rX, @rY, @rZ, @sX, @sY, @sZ, @tX, @tY, @tZ] = matches
+          @matTransform = new Float32Array(m.split ',')
+
+Record a uri snapshot into the Item, eg:  
+AzXBoEfEi1loEfEi1l
+
+        else if 'uri' == format
+
+          isUC = A:1,B:1,C:1,D:1,E:1,F:1,G:1,H:1,I:1,J:1,K:1,L:1,M:1
+                ,N:1,O:1,P:1,Q:1,R:1,S:1,T:1,U:1,V:1,W:1,X:1,Y:1,Z:1
+          captureKeys = [
+            'rX', 'rY', 'rZ',
+            'sX', 'sY', 'sZ',
+            'tX', 'tY', 'tZ'
+          ]
+          captureLengths = [
+            2, 2, 2
+            3, 3, 3
+            3, 3, 3
+          ]
+          captureFns  = [
+            uri.uri2r, uri.uri2r, uri.uri2r, 
+            uri.uri2s, uri.uri2s, uri.uri2s, 
+            uri.uri2t, uri.uri2t, uri.uri2t, 
+          ]
+          chI = 0; l = snapshot.length; captureI = 0
+          while chI < l
+            captureKey    = captureKeys[captureI]
+            captureLength = captureLengths[captureI]
+            captureFn     = captureFns[captureI]
+            ch = snapshot[chI]
+            if isUC[ch]
+              chI++
+              @[captureKey] = captureFn ch
+            else
+              @[captureKey] = captureFn snapshot.substr chI, captureLength
+              chI += captureLength
+            captureI++
+          #@todo NEXT apply new values to matTransform
+
+        #@todo accept object
 
 
 
