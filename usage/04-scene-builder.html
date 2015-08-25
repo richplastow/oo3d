@@ -16,26 +16,40 @@
 
           //// GUI Elements. 
          ,$guiScene      = $('#gui-scene')
+         ,$btnSceneAdd   = $('#btn-scene-add')
          ,$btnSceneTxy   = $('#btn-scene-txy')
+         ,$btnSceneScale = $('#btn-scene-scale')
          ,$btnSceneTxz   = $('#btn-scene-txz')
          ,$btnSceneRyx   = $('#btn-scene-ryx')
+         ,$btnSceneReset = $('#btn-scene-reset')
          ,$btnSceneRyz   = $('#btn-scene-ryz')
-         ,$btnSceneScale = $('#btn-scene-scale')
 
-         ,$guiItem      = $('#gui-item')
-         ,$btnItemFlip  = $('#btn-item-flip')
-         ,$btnItemTxy   = $('#btn-item-txy')
-         ,$btnItemTxz   = $('#btn-item-txz')
-         ,$btnItemRyx   = $('#btn-item-ryx')
-         ,$btnItemRyz   = $('#btn-item-ryz')
-         ,$btnItemScale = $('#btn-item-scale')
+         ,$guiAdd        = $('#gui-add')
+         ,$btnAddBack    = $('#btn-add-back')
+         ,$btnAddShape0  = $('#btn-add-shape-0')
+         ,$btnAddShape1  = $('#btn-add-shape-1')
+         ,$btnAddShape2  = $('#btn-add-shape-2')
+         ,$btnAddShape3  = $('#btn-add-shape-3')
+         ,$btnAddShape4  = $('#btn-add-shape-4')
+         ,$btnAddShape5  = $('#btn-add-shape-5')
+         ,$btnAddShape6  = $('#btn-add-shape-6')
+         ,$btnAddShape7  = $('#btn-add-shape-7')
 
-         ,$guiFlip      = $('#gui-flip')
-         ,$btnFlipH     = $('#btn-flip-i') // item
-         ,$btnFlipX     = $('#btn-flip-x')
-         ,$btnFlipY     = $('#btn-flip-y')
-         ,$btnFlipZ     = $('#btn-flip-z')
-         ,$btnFlipR     = $('#btn-flip-r') // reset flip
+         ,$guiItem       = $('#gui-item')
+         ,$btnItemFlip   = $('#btn-item-flip')
+         ,$btnItemTxy    = $('#btn-item-txy')
+         ,$btnItemScale  = $('#btn-item-scale')
+         ,$btnItemTxz    = $('#btn-item-txz')
+         ,$btnItemRyx    = $('#btn-item-ryx')
+         ,$btnItemReset  = $('#btn-item-reset')
+         ,$btnItemRyz    = $('#btn-item-ryz')
+
+         ,$guiFlip       = $('#gui-flip')
+         ,$btnFlipBack   = $('#btn-flip-back')
+         ,$btnFlipX      = $('#btn-flip-x')
+         ,$btnFlipY      = $('#btn-flip-y')
+         ,$btnFlipZ      = $('#btn-flip-z')
+         ,$btnFlipReset  = $('#btn-flip-reset')
 
          ,$guiSceneInfo      = $('#gui-scene i')
          ,$btnSceneTxyInfo   = $('#btn-scene-txy i')
@@ -53,11 +67,11 @@
          ,$btnItemScaleInfo  = $('#btn-item-scale i')
 
          ,$guiFlipInfo       = $('#gui-flip i')
-         ,$btnFlipHInfo      = $('#btn-flip-i i') // item
+         ,$btnFlipBackInfo   = $('#btn-flip-back i')
          ,$btnFlipXInfo      = $('#btn-flip-x i')
          ,$btnFlipYInfo      = $('#btn-flip-y i')
          ,$btnFlipZInfo      = $('#btn-flip-z i')
-         ,$btnFlipRInfo      = $('#btn-flip-r i') // reset flip
+         ,$btnFlipResetInfo  = $('#btn-flip-reset i')
 
 
           //// Other Elements. 
@@ -227,6 +241,7 @@
           //// `$el` is optional. 
          ,onlyShow = function ($el) {
             $guiScene.setAttribute('class', 'gui');
+            $guiAdd.setAttribute(  'class', 'gui');
             $guiItem.setAttribute( 'class', 'gui');
             $guiFlip.setAttribute( 'class', 'gui');
             if ($el) { $el.setAttribute('class', 'gui active'); }
@@ -538,6 +553,30 @@
             updateItemInfo(focusI);
          }
 
+          //// `clickHandlerReset()`
+          //// Xx. @todo describe
+         ,clickHandlerReset = function (event) {
+            if (null == focusI) {
+              oo3d.setCameraSnapshot(cameraSnapshot, 0)
+            } else if (0 === focusI || focusI) {
+              oo3d.setItemSnapshot(itemSnapshot, focusI)
+            }
+            oo3d.resetTransform(focusI).render();
+            updateItemInfo(focusI);
+         }
+
+          //// `addHandlerShape()`
+          ////@todo describe
+         ,addHandlerShape = function (itemConfig) {
+            focusI = oo3d.addItem(itemConfig);
+            oo3d.renderers[rendererI].items.push(
+              oo3d.items[focusI]
+            );
+            updateItemInfo(focusI);
+            onlyShow($guiItem);
+            onlyWireframe(focusI);
+            oo3d.render();
+          }
         ;
 
 
@@ -583,6 +622,74 @@
         $btnSceneScale.addEventListener('touchstart', function (event) {
           onTouchstart(event, $guiScene, moveHandlerScale);
         });
+        $btnSceneReset.addEventListener('click', clickHandlerReset);
+
+
+        //// 'Add' GUI. 
+        $btnSceneAdd.addEventListener('mousedown', function (event) {
+          if ( 'gui active' !== $guiScene.getAttribute('class') ) { return; }
+          onlyShow($guiAdd);
+        });
+        $btnAddBack.addEventListener('mousedown', function (event) {
+          if ( 'gui active' !== $guiAdd.getAttribute('class') ) { return; }
+          onlyShow($guiScene);
+        });
+        $btnAddShape0.addEventListener('mousedown', function (event) {
+          if ( 'gui active' !== $guiAdd.getAttribute('class') ) { return; }
+          addHandlerShape({
+            positionI:  pyramidPositions
+           ,colorI:     pyramidColors
+          });
+        });
+        $btnAddShape1.addEventListener('mousedown', function (event) {
+          if ( 'gui active' !== $guiAdd.getAttribute('class') ) { return; }
+          addHandlerShape({
+            positionI:  pyramidPositions
+           ,colorI:     pyramidColors
+          });
+        });
+        $btnAddShape2.addEventListener('mousedown', function (event) {
+          if ( 'gui active' !== $guiAdd.getAttribute('class') ) { return; }
+          addHandlerShape({
+            positionI:  pyramidPositions
+           ,colorI:     pyramidColors
+          });
+        });
+        $btnAddShape3.addEventListener('mousedown', function (event) {
+          if ( 'gui active' !== $guiAdd.getAttribute('class') ) { return; }
+          addHandlerShape({
+            positionI:  pyramidPositions
+           ,colorI:     pyramidColors
+          });
+        });
+        $btnAddShape4.addEventListener('mousedown', function (event) {
+          if ( 'gui active' !== $guiAdd.getAttribute('class') ) { return; }
+          addHandlerShape({
+            positionI:  pyramidPositions
+           ,colorI:     pyramidColors
+          });
+        });
+        $btnAddShape5.addEventListener('mousedown', function (event) {
+          if ( 'gui active' !== $guiAdd.getAttribute('class') ) { return; }
+          addHandlerShape({
+            positionI:  pyramidPositions
+           ,colorI:     pyramidColors
+          });
+        });
+        $btnAddShape6.addEventListener('mousedown', function (event) {
+          if ( 'gui active' !== $guiAdd.getAttribute('class') ) { return; }
+          addHandlerShape({
+            positionI:  pyramidPositions
+           ,colorI:     pyramidColors
+          });
+        });
+        $btnAddShape7.addEventListener('mousedown', function (event) {
+          if ( 'gui active' !== $guiAdd.getAttribute('class') ) { return; }
+          addHandlerShape({
+            positionI:  pyramidPositions
+           ,colorI:     pyramidColors
+          });
+        });
 
 
         //// Item GUI. 
@@ -616,6 +723,7 @@
         $btnItemScale.addEventListener('touchstart', function (event) {
           onTouchstart(event, $guiItem, moveHandlerScale);
         });
+        $btnItemReset.addEventListener('click', clickHandlerReset);
 
 
         //// 'Flip' GUI. 
@@ -623,7 +731,7 @@
           if ( 'gui active' !== $guiItem.getAttribute('class') ) { return; }
           onlyShow($guiFlip);
         });
-        $btnFlipH.addEventListener('mousedown', function (event) {
+        $btnFlipBack.addEventListener('mousedown', function (event) {
           if ( 'gui active' !== $guiFlip.getAttribute('class') ) { return; }
           onlyShow($guiItem);
         });
@@ -645,7 +753,7 @@
           updateItemInfo(focusI);
           oo3d.render();
         });
-        $btnFlipR.addEventListener('mousedown', function (event) {
+        $btnFlipReset.addEventListener('mousedown', function (event) {
           if ( 'gui active' !== $guiFlip.getAttribute('class') ) { return; }
           itemSnapshot = oo3d.getItemSnapshot(focusI);
           itemInfo = oo3d.getItemSnapshot(focusI);
@@ -856,7 +964,7 @@
       margin-top: 200px;
     }
 
-    #btn-flip-i i {
+    .gui i {
       font-style: normal;
     }
 
@@ -872,11 +980,26 @@
 
   <!-- The Scene GUI appears when the background is clicked -->
   <ul id="gui-scene" class="gui">
+    <li id="btn-scene-add"    class="btn-left   btn-top"   ><b>Add</b ><i>+</i></li>
     <li id="btn-scene-txy"    class="btn-left   btn-middle"><b>Txy</b ><i></i></li>
+    <li id="btn-scene-scale"  class="btn-center btn-middle"><b>Zoom</b><i></i></li>
     <li id="btn-scene-txz"    class="btn-right  btn-middle"><b>Txz</b ><i></i></li>
     <li id="btn-scene-ryx"    class="btn-left   btn-bottom"><b>Ryx</b ><i></i></li>
-    <li id="btn-scene-scale"  class="btn-center btn-bottom"><b>Zoom</b><i></i></li>
+    <li id="btn-scene-reset"  class="btn-center btn-bottom"><b>Reset</b><i>&times;</i></li>
     <li id="btn-scene-ryz"    class="btn-right  btn-bottom"><b>Ryz</b ><i></i></li>
+  </ul>
+
+  <!-- The Add GUI appears when the 'Add' button is clicked -->
+  <ul id="gui-add" class="gui">
+    <li id="btn-add-back"    class="btn-left   btn-top"   ><b>Back</b><i>&lt;</i></li>
+    <li id="btn-add-shape-0" class="btn-center btn-top"   ><b>Add</b><i>0</i></li>
+    <li id="btn-add-shape-1" class="btn-right  btn-top"   ><b>Add</b><i>1</i></li>
+    <li id="btn-add-shape-2" class="btn-left   btn-middle"><b>Add</b><i>2</i></li>
+    <li id="btn-add-shape-3" class="btn-center btn-middle"><b>Add</b><i>3</i></li>
+    <li id="btn-add-shape-4" class="btn-right  btn-middle"><b>Add</b><i>4</i></li>
+    <li id="btn-add-shape-5" class="btn-left   btn-bottom"><b>Add</b><i>5</i></li>
+    <li id="btn-add-shape-6" class="btn-center btn-bottom"><b>Add</b><i>6</i></li>
+    <li id="btn-add-shape-7" class="btn-right  btn-bottom"><b>Add</b><i>7</i></li>
   </ul>
 
   <!-- The Item GUI appears when an Item in the 3D scene is clicked -->
@@ -884,18 +1007,19 @@
     <li id="btn-item-flip"   class="btn-right  btn-top   "><b>Flip</b ><i></i></li>
     <li id="btn-item-txy"    class="btn-left   btn-middle"><b>Txy</b  ><i></i></li>
     <li id="btn-item-txz"    class="btn-right  btn-middle"><b>Txz</b  ><i></i></li>
+    <li id="btn-item-scale"  class="btn-center btn-middle"><b>Scale</b><i></i></li>
     <li id="btn-item-ryx"    class="btn-left   btn-bottom"><b>Ryx</b  ><i></i></li>
-    <li id="btn-item-scale"  class="btn-center btn-bottom"><b>Scale</b><i></i></li>
+    <li id="btn-item-reset"  class="btn-center btn-bottom"><b>Reset</b><i>&times;</i></li>
     <li id="btn-item-ryz"    class="btn-right  btn-bottom"><b>Ryz</b  ><i></i></li>
   </ul>
 
   <!-- The Flip GUI appears when the 'Flip' button is clicked -->
   <ul id="gui-flip" class="gui">
-    <li id="btn-flip-x" class="btn-left   btn-middle"><b>FlipX</b><i></i></li>
-    <li id="btn-flip-i" class="btn-center btn-middle"><b>Back</b ><i>&lt;</i></li>
-    <li id="btn-flip-y" class="btn-right  btn-middle"><b>FlipY</b><i></i></li>
-    <li id="btn-flip-r" class="btn-left   btn-bottom"><b>Reset</b><i></i></li>
-    <li id="btn-flip-z" class="btn-center btn-bottom"><b>FlipZ</b><i></i></li>
+    <li id="btn-flip-back"  class="btn-left   btn-top"   ><b>Back</b ><i>&lt;</i></li>
+    <li id="btn-flip-x"     class="btn-left   btn-middle"><b>FlipX</b><i></i></li>
+    <li id="btn-flip-y"     class="btn-right  btn-middle"><b>FlipY</b><i></i></li>
+    <li id="btn-flip-reset" class="btn-left   btn-bottom"><b>Reset</b><i>&times;</i></li>
+    <li id="btn-flip-z"     class="btn-center btn-bottom"><b>FlipZ</b><i></i></li>
   </ul>
 
   <canvas id="main"></canvas>

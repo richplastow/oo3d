@@ -595,6 +595,49 @@ Return this Oo3d instance (allows chaining).
 
 
 
+#### `resetTransform()`
+- `targetIndex <integer>`  (optional) a item-index, else target the camera
+
+@todo describe  
+
+      resetTransform: (targetIndex) ->
+
+Get a handy reference to the target, and its current transformation-matrix.  
+@todo deal with not-found
+
+        target = @items[targetIndex] or @cameras[0]
+        mat = target.matTransform
+
+Reset the individual transform properties. 
+
+        target.rX = target.rY = target.rZ = 0
+        target.sX = target.sY = target.sZ = 1
+        target.tX = target.tY = target.tZ = 0
+
+Reset the transform matrix. 
+
+        target.matTransform = new Float32Array([
+          1,  0,  0,  0
+          0,  1,  0,  0
+          0,  0,  1,  0
+          0,  0,  0,  1
+        ])
+
+For a camera transform, move to `Z = -4`, and update the `uMatCamera` uniform 
+in the vertex-shader. 
+
+        if target == @cameras[0]
+          @cameras[0].tZ = -4
+          @cameras[0].matTransform[14] = -4
+          @cameras[0].updateCamera()
+
+Return this Oo3d instance (allows chaining). 
+
+        return @
+
+
+
+
 #### `setRenderMode()`
 - `mode <string>`          'POINTS', 'LINE_STRIP', 'TRIANGLES', etc
 - `targetIndex <integer>`  (optional) a item-index, else target everything
