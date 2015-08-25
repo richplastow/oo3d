@@ -647,6 +647,37 @@ Get the index of the Item in `items` which corresponds to `color`.
 
 
 
+#### `getCameraSnapshot()`
+- `cameraI <integer>`  xx @todo describe
+- `<object>`           xx @todo describe
+
+Create an object which describes the given Camera’s current state.  
+@todo not just the transform state
+
+      getCameraSnapshot: (cameraI) ->
+        camera = @cameras[cameraI]
+
+Clone, don’t reference, `matTransform`. 
+
+        mat = new Float32Array 16
+        mat.set camera.matTransform
+
+Return the snapshot. 
+
+        mat: mat
+        rX:  camera.rX
+        rY:  camera.rY
+        rZ:  camera.rZ
+        sX:  camera.sX
+        sY:  camera.sY
+        sZ:  camera.sZ
+        tX:  camera.tX
+        tY:  camera.tY
+        tZ:  camera.tZ
+
+
+
+
 #### `getItemSnapshot()`
 - `itemI <integer>`  xx @todo describe
 - `<object>`         xx @todo describe
@@ -674,6 +705,42 @@ Return the snapshot.
         tX:  item.tX
         tY:  item.tY
         tZ:  item.tZ
+
+
+
+
+#### `setCameraSnapshot()`
+- `snapshot <object>`  a snapshot of an Camera, eg returned by `getCameraSnapshot()`
+- `cameraI <integer>`  the index, in `cameras`, of the target Camera
+
+Replaces the given Camera’s state with the properties in a snapshot object `s`. 
+@todo not just the transform state  
+@todo check that `snapshot.mat` is the outcome of the individual transforms?  
+@todo check that all of the properties are valid?  
+
+      setCameraSnapshot: (snapshot, cameraI) ->
+        camera = @cameras[cameraI]
+
+Clone, don’t reference, `snapshot.mat`. 
+
+        camera.matTransform = new Float32Array 16
+        camera.matTransform.set snapshot.mat
+
+Copy the remaining snapshot into the Camera’s state. 
+
+        camera.rX = snapshot.rX
+        camera.rY = snapshot.rY
+        camera.rZ = snapshot.rZ
+        camera.sX = snapshot.sX
+        camera.sY = snapshot.sY
+        camera.sZ = snapshot.sZ
+        camera.tX = snapshot.tX
+        camera.tY = snapshot.tY
+        camera.tZ = snapshot.tZ
+
+Return this Oo3d instance (allows chaining). 
+
+        return @
 
 
 
