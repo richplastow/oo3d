@@ -17,6 +17,7 @@
           //// GUI Elements. 
          ,$guiScene      = $('#gui-scene')
          ,$btnSceneAdd   = $('#btn-scene-add')
+         ,$btnSceneSave  = $('#btn-scene-save')
          ,$btnSceneTxy   = $('#btn-scene-txy')
          ,$btnSceneScale = $('#btn-scene-scale')
          ,$btnSceneTxz   = $('#btn-scene-txz')
@@ -154,7 +155,7 @@
           ])
 
 
-          //// Create Items. 
+          //// Create Default Items. 
          ,rgbTri1I = oo3d.addItem({
             positionI:  rgbTriPositions
            ,colorI:     rgbTriColors
@@ -200,19 +201,11 @@
           })
 
 
-          //// Create Renderers. 
+          //// Create Renderers (will be filled with items, below). 
          ,rendererI = oo3d.addRenderer({
             cameraI:  cameraI
            ,programI: flatItemProgramI
-           ,itemIs:   new Uint16Array([
-              rgbTri1I
-             ,rgbTri2I
-             ,rgbTri3I
-             ,cmyTri1I
-             ,cmyTri2I
-             ,cmyTri3I
-             ,pyramidI
-            ])
+           ,itemIs:   new Uint16Array(0)
           })
 
 
@@ -577,21 +570,55 @@
             onlyWireframe(focusI);
             oo3d.render();
           }
+
+         ,hash = window.location.hash.slice(1)
         ;
 
+        if (hash) {
+          alert ('@next convert hash to items: \n' + hash);
 
-        //// Move Items so that they’re all visible. 
-        oo3d.translate(-0.5,0,0,rgbTri1I);
-        oo3d.translate(-1,0,-.5,rgbTri2I);
-        oo3d.translate(1.5,0,-2,rgbTri3I);
-        oo3d.translate(-0.5,0,2,cmyTri1I);
-        oo3d.translate(-1,0,2.5,cmyTri2I);
-        oo3d.translate(1.5,0,1 ,cmyTri3I);
-        //oo3d.rotate(0,1,0,pyramidI);
+        } else {
+          //// Add default items to the Renderer. 
+          var itemIs = [
+            rgbTri1I
+           ,rgbTri2I
+           ,rgbTri3I
+           ,cmyTri1I
+           ,cmyTri2I
+           ,cmyTri3I
+           ,pyramidI
+          ];
+          for (var i=0, l=itemIs.length; i<l; i++) {
+            oo3d.renderers[rendererI].items.push(
+              oo3d.items[ itemIs[i] ]
+            );
+          }
+
+          //// Move Items so that they’re all visible. 
+          oo3d.translate(-0.5,0,0,rgbTri1I);
+          oo3d.translate(-1,0,-.5,rgbTri2I);
+          oo3d.translate(1.5,0,-2,rgbTri3I);
+          oo3d.translate(-0.5,0,2,cmyTri1I);
+          oo3d.translate(-1,0,2.5,cmyTri2I);
+          oo3d.translate(1.5,0,1 ,cmyTri3I);
+          //oo3d.rotate(0,1,0,pyramidI);
+        }
+
+
+        //// Draw the scene. 
         oo3d.render();
 
 
         //// Scene GUI. 
+        $btnSceneSave.addEventListener('mousedown', function (event) {
+          if ( 'gui active' !== $guiScene.getAttribute('class') ) { return; }
+          //prompt('Save URI:', 'http://oo3d.richplastow.com/usage/04-scene-builder.html#abc123');
+          var saveURI = '', i, l;
+          for (i=0, l=oo3d.items.length; i<l; i++) {
+            saveURI += oo3d.items[i].getSnapshot('uri') + ','
+          }
+          prompt('Save URI:', saveURI);
+        });
         $btnSceneTxy.addEventListener('mousedown', function (event) {
           onMousedown(event, $guiScene, moveHandlerTxy);
         });
@@ -981,11 +1008,12 @@
   <!-- The Scene GUI appears when the background is clicked -->
   <ul id="gui-scene" class="gui">
     <li id="btn-scene-add"    class="btn-left   btn-top"   ><b>Add</b ><i>+</i></li>
+    <li id="btn-scene-save"   class="btn-right  btn-top"   ><b>Save</b ><i>[]</i></li>
     <li id="btn-scene-txy"    class="btn-left   btn-middle"><b>Txy</b ><i></i></li>
     <li id="btn-scene-scale"  class="btn-center btn-middle"><b>Zoom</b><i></i></li>
     <li id="btn-scene-txz"    class="btn-right  btn-middle"><b>Txz</b ><i></i></li>
     <li id="btn-scene-ryx"    class="btn-left   btn-bottom"><b>Ryx</b ><i></i></li>
-    <li id="btn-scene-reset"  class="btn-center btn-bottom"><b>Reset</b><i>&times;</i></li>
+    <li id="btn-scene-reset"  class="btn-center btn-bottom"><b>Reset</b><i>/</i></li>
     <li id="btn-scene-ryz"    class="btn-right  btn-bottom"><b>Ryz</b ><i></i></li>
   </ul>
 
@@ -1009,7 +1037,7 @@
     <li id="btn-item-txz"    class="btn-right  btn-middle"><b>Txz</b  ><i></i></li>
     <li id="btn-item-scale"  class="btn-center btn-middle"><b>Scale</b><i></i></li>
     <li id="btn-item-ryx"    class="btn-left   btn-bottom"><b>Ryx</b  ><i></i></li>
-    <li id="btn-item-reset"  class="btn-center btn-bottom"><b>Reset</b><i>&times;</i></li>
+    <li id="btn-item-reset"  class="btn-center btn-bottom"><b>Reset</b><i>/</i></li>
     <li id="btn-item-ryz"    class="btn-right  btn-bottom"><b>Ryz</b  ><i></i></li>
   </ul>
 
