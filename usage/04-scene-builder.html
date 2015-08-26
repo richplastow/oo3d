@@ -37,6 +37,7 @@
          ,$btnAddShape7  = $('#btn-add-shape-7')
 
          ,$guiItem       = $('#gui-item')
+         ,$btnItemDelete = $('#btn-item-delete')
          ,$btnItemFlip   = $('#btn-item-flip')
          ,$btnItemTxy    = $('#btn-item-txy')
          ,$btnItemScale  = $('#btn-item-scale')
@@ -153,39 +154,6 @@
              0.25,  0.5,  1.0,  0.05, // translucent light cyan
              0.25,  0.5,  1.0,  0.05  // translucent light cyan
           ])
-
-
-          //// Create Default Items. 
-         ,rgbTri1I = oo3d.addItem({
-            positionI:  rgbTriPositions
-           ,colorI:     rgbTriColors
-           //,blend:      ['SRC_COLOR','SRC_COLOR'] // sfactor, dfactor
-          })
-         ,rgbTri2I = oo3d.addItem({
-            positionI:  rgbTriPositions
-           ,colorI:     rgbTriColors
-          })
-         ,rgbTri3I = oo3d.addItem({
-            positionI:  rgbTriPositions
-           ,colorI:     rgbTriColors
-          })
-         ,cmyTri1I = oo3d.addItem({
-            positionI:  cmyTriPositions
-           ,colorI:     cmyTriColors
-          })
-         ,cmyTri2I = oo3d.addItem({
-            positionI:  cmyTriPositions
-           ,colorI:     cmyTriColors
-          })
-         ,cmyTri3I = oo3d.addItem({
-            positionI:  cmyTriPositions
-           ,colorI:     cmyTriColors
-          })
-         ,pyramidI = oo3d.addItem({
-            positionI:  pyramidPositions
-           ,colorI:     pyramidColors
-           //,blend:      ['ONE','DST_COLOR'] // sfactor, dfactor
-          })
 
 
           //// Create Cameras. 
@@ -550,7 +518,14 @@
           //// Xx. @todo describe
          ,clickHandlerReset = function (event) {
             if (null == focusI) {
-              oo3d.setCameraSnapshot(cameraSnapshot, 0)
+              oo3d.setCameraSnapshot({
+                mat: [
+                  1,  0,  0,  0,
+                  0,  1,  0,  0,
+                  0,  0,  1,  0,
+                  0,  0, -4,  1 // starts at Z = -4
+                ], rX:0,rY:0,rZ:0, sX:1,sY:1,sZ:1, tX:0,tY:0,tZ:-4
+              }, 0)
             } else if (0 === focusI || focusI) {
               oo3d.setItemSnapshot(itemSnapshot, focusI)
             }
@@ -575,9 +550,64 @@
         ;
 
         if (hash) {
-          alert ('@next convert hash to items: \n' + hash);
+
+          //// Step through each snapshot in the URL fragment. 
+          snaps = hash.split(';');
+          for (var i=0, l=snaps.length; i<l; i++) {
+
+            //// Create an Item. 
+            itemI = oo3d.addItem({
+              positionI:  pyramidPositions
+             ,colorI:     pyramidColors
+            })
+
+            //// Set the Item's transform state. 
+            oo3d.items[itemI].setSnapshot(snaps[i], itemI);
+
+            //// Add the Item to the current Renderer's list. 
+            oo3d.renderers[rendererI].items.push(
+              oo3d.items[itemI]
+            );
+
+            console.log(snaps[i]);
+          }
 
         } else {
+
+
+          //// Create Default Items. 
+          var rgbTri1I = oo3d.addItem({
+            positionI:  rgbTriPositions
+           ,colorI:     rgbTriColors
+           //,blend:      ['SRC_COLOR','SRC_COLOR'] // sfactor, dfactor
+          })
+         ,rgbTri2I = oo3d.addItem({
+            positionI:  rgbTriPositions
+           ,colorI:     rgbTriColors
+          })
+         ,rgbTri3I = oo3d.addItem({
+            positionI:  rgbTriPositions
+           ,colorI:     rgbTriColors
+          })
+         ,cmyTri1I = oo3d.addItem({
+            positionI:  cmyTriPositions
+           ,colorI:     cmyTriColors
+          })
+         ,cmyTri2I = oo3d.addItem({
+            positionI:  cmyTriPositions
+           ,colorI:     cmyTriColors
+          })
+         ,cmyTri3I = oo3d.addItem({
+            positionI:  cmyTriPositions
+           ,colorI:     cmyTriColors
+          })
+         ,pyramidI = oo3d.addItem({
+            positionI:  pyramidPositions
+           ,colorI:     pyramidColors
+           //,blend:      ['ONE','DST_COLOR'] // sfactor, dfactor
+          })
+          ;
+
           //// Add default items to the Renderer. 
           var itemIs = [
             rgbTri1I
@@ -615,9 +645,10 @@
           //prompt('Save URI:', 'http://oo3d.richplastow.com/usage/04-scene-builder.html#abc123');
           var saveURI = '', i, l;
           for (i=0, l=oo3d.items.length; i<l; i++) {
-            saveURI += oo3d.items[i].getSnapshot('uri') + ','
+            if (! oo3d.items[i]) { continue; }
+            saveURI += oo3d.items[i].getSnapshot('uri') + ';'
           }
-          prompt('Save URI:', saveURI);
+          prompt('Save URI:', 'http://oo3d.richplastow.com/usage/04-scene-builder.html#' + saveURI.slice(0, -1));
         });
         $btnSceneTxy.addEventListener('mousedown', function (event) {
           onMousedown(event, $guiScene, moveHandlerTxy);
@@ -751,6 +782,13 @@
           onTouchstart(event, $guiItem, moveHandlerScale);
         });
         $btnItemReset.addEventListener('click', clickHandlerReset);
+        $btnItemDelete.addEventListener('click', function (event) {
+          delete oo3d.renderers[rendererI].items[focusI];
+          delete oo3d.items[focusI];
+          onlyShow();
+          onlyWireframe();
+          oo3d.render();
+        });
 
 
         //// 'Flip' GUI. 
@@ -1032,13 +1070,14 @@
 
   <!-- The Item GUI appears when an Item in the 3D scene is clicked -->
   <ul id="gui-item" class="gui">
-    <li id="btn-item-flip"   class="btn-right  btn-top   "><b>Flip</b ><i></i></li>
-    <li id="btn-item-txy"    class="btn-left   btn-middle"><b>Txy</b  ><i></i></li>
-    <li id="btn-item-txz"    class="btn-right  btn-middle"><b>Txz</b  ><i></i></li>
-    <li id="btn-item-scale"  class="btn-center btn-middle"><b>Scale</b><i></i></li>
-    <li id="btn-item-ryx"    class="btn-left   btn-bottom"><b>Ryx</b  ><i></i></li>
-    <li id="btn-item-reset"  class="btn-center btn-bottom"><b>Reset</b><i>/</i></li>
-    <li id="btn-item-ryz"    class="btn-right  btn-bottom"><b>Ryz</b  ><i></i></li>
+    <li id="btn-item-delete" class="btn-left   btn-top   "><b>Delete</b><i>&times;</i></li>
+    <li id="btn-item-flip"   class="btn-right  btn-top   "><b>Flip</b  ><i></i></li>
+    <li id="btn-item-txy"    class="btn-left   btn-middle"><b>Txy</b   ><i></i></li>
+    <li id="btn-item-txz"    class="btn-right  btn-middle"><b>Txz</b   ><i></i></li>
+    <li id="btn-item-scale"  class="btn-center btn-middle"><b>Scale</b ><i></i></li>
+    <li id="btn-item-ryx"    class="btn-left   btn-bottom"><b>Ryx</b   ><i></i></li>
+    <li id="btn-item-reset"  class="btn-center btn-bottom"><b>Reset</b ><i>/</i></li>
+    <li id="btn-item-ryz"    class="btn-right  btn-bottom"><b>Ryz</b   ><i></i></li>
   </ul>
 
   <!-- The Flip GUI appears when the 'Flip' button is clicked -->

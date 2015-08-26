@@ -646,6 +646,7 @@ Change the `mode` passed to `gl.drawArrays()` for an individual Shape, or the
 entire Scene. @todo scene
 
       setRenderMode: (renderMode, targetIndex) ->
+        if ! @items[targetIndex] then return #@todo prevent gaps
         @items[targetIndex].renderMode = renderMode
 
 Return this Oo3d instance (allows chaining). 

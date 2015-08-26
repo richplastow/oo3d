@@ -270,7 +270,19 @@ AzXBoEfEi1loEfEi1l
               @[captureKey] = captureFn snapshot.substr chI, captureLength
               chI += captureLength
             captureI++
-          #@todo NEXT apply new values to matTransform
+
+Reset `matTransform` and apply new values to it. 
+
+        @matTransform = new Float32Array([
+          1,  0,  0,  0
+          0,  1,  0,  0
+          0,  0,  1,  0
+          0,  0,  0,  1
+        ])
+        @main.rotate     @rX, @rY, @rZ, @index
+        @main.scale      @sX, @sY, @sZ, @index
+        @main.translate  @tX, @tY, @tZ, @index
+
 
         #@todo accept object
 

@@ -113,6 +113,7 @@ Step through each of this Renderer’s Items, in reverse order.
         index = @items.length
         while index--
           item = @items[index]
+          if ! item then continue #@todo prevent gaps
 
 Set the transform for this Item. 
 

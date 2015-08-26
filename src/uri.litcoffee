@@ -136,6 +136,7 @@ for the multiplier.
 Trim decimal places.  
 @todo maybe `Math.round()` the value up or down instead?
 
+      n = n / 4 #@todo remove this thinning
       n = Math.floor n
 
 Return a single uppercase letter for certain commonly encountered scales. 
@@ -144,13 +145,15 @@ Return a single uppercase letter for certain commonly encountered scales.
       if c1 then return c1
 
 Otherwise, convert `n` and `m` to a sequence of three ascii characters, where 
-`c1` is a-z, and `c2` and `c3` are 0-9a-zA-Z_- making 36 * 64 * 64 combinations.
+`c1` is 0-9a-z, and `c2/c3` are 0-9a-zA-Z_- making 36 * 64 * 64 combinations.
 
       nM64 = n % 64 # the remainder (modulo), when `n` is divided by 64
       c1 = m
       c2 = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_-"[nM64]
       c3 = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_-"[(n - nM64) / 64]
       #ª 's2uri(' + s + ')', n, nM64, (n - nM64) / 64, '' + c1 + c2 + c3
+      if ªU == typeof c1 or ªU == typeof c2 or ªU == typeof c3
+        ª 'UNDEFINED RESULT s2uri(' + s + ')', n, nM64, (n - nM64) / 64, '' + c1 + c2 + c3
       c1 + c2 + c3
 
 
@@ -207,6 +210,7 @@ for the multiplier.
 Trim decimal places.  
 @todo maybe `Math.round()` the value up or down instead?
 
+      n = n / 4 #@todo remove this thinning
       n = Math.floor n
 
 Return a single uppercase letter for certain commonly encountered translations. 
@@ -215,13 +219,15 @@ Return a single uppercase letter for certain commonly encountered translations.
       if c1 then return c1
 
 Otherwise, convert `n` and `m` to a sequence of three ascii characters, where 
-`c1` is a-z, and `c2` and `c3` are 0-9a-zA-Z_- making 36 * 64 * 64 combinations.
+`c1` is 0-9a-z, and `c2/c3` are 0-9a-zA-Z_- making 36 * 64 * 64 combinations.
 
       nM64 = n % 64 # the remainder (modulo), when `n` is divided by 64
       c1 = m
       c2 = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_-"[nM64]
       c3 = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_-"[(n - nM64) / 64]
       #ª 't2uri(' + t + ')', n, nM64, (n - nM64) / 64, '' + c1 + c2 + c3
+      if ªU == typeof c1 or ªU == typeof c2 or ªU == typeof c3
+        ª 'UNDEFINED RESULT t2uri(' + t + ')', n, nM64, (n - nM64) / 64, '' + c1 + c2 + c3
       c1 + c2 + c3
 
 
@@ -273,7 +279,7 @@ Otherwise, `str` should be a sequence of three ascii characters, where
       c3 = uri.B64DECODE[  str[2] ]
 
       #ª 'uri2s(' + str + ')', c1, c2, c3, c1 * (c2 + c3 * 64)
-      c1 * (c2 + c3 * 64)
+      c1 * (c2 + c3 * 64 * 4) #@todo remove the `* 4` thinning
 
 
 
@@ -299,7 +305,7 @@ Otherwise, `str` should be a sequence of three ascii characters, where
       c3 = uri.B64DECODE[  str[2] ]
 
       #ª 'uri2t(' + str + ')', c1, c2, c3, c1 * (c2 + c3 * 64)
-      c1 * (c2 + c3 * 64)
+      c1 * (c2 + c3 * 64 * 4) #@todo remove the `* 4` thinning
 
 
 
