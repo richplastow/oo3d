@@ -8,7 +8,15 @@ Oo3d
 - [Documentation](http://oo3d.richplastow.com/#/doc/documentation)
 - [Fork Oo3d on GitHub](https://github.com/richplastow/oo3d)
 - [NPM Package](https://www.npmjs.com/package/oo3d)
+
+
+#### Test
+
 - [Test](http://oo3d.richplastow.com/test/run-test.html)
+
+
+#### Usage
+
 - [Usage](http://oo3d.richplastow.com/#/doc/usage)
 
 

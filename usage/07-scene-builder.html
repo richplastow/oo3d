@@ -1,10 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <title>04 Oo3d Scene Builder</title>
+  <title>07 Oo3d Scene Builder</title>
   <meta http-equiv="Content-Type" content="text/html;charset=utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
+  <script src="../node_modules/nwang/build/nwang.js"></script>
   <script src="../build/oo3d.js"></script>
   <script>
     addEventListener('load', function () {
@@ -642,13 +643,13 @@
         //// Scene GUI. 
         $btnSceneSave.addEventListener('mousedown', function (event) {
           if ( 'gui active' !== $guiScene.getAttribute('class') ) { return; }
-          //prompt('Save URI:', 'http://oo3d.richplastow.com/usage/04-scene-builder.html#abc123');
+          //prompt('Save URI:', 'http://oo3d.richplastow.com/usage/07-scene-builder.html#abc123');
           var saveURI = '', i, l;
           for (i=0, l=oo3d.items.length; i<l; i++) {
             if (! oo3d.items[i]) { continue; }
             saveURI += oo3d.items[i].getSnapshot('uri') + ';'
           }
-          prompt('Save URI:', 'http://oo3d.richplastow.com/usage/04-scene-builder.html#' + saveURI.slice(0, -1));
+          prompt('Save URI:', 'http://oo3d.richplastow.com/usage/07-scene-builder.html#' + saveURI.slice(0, -1));
         });
         $btnSceneTxy.addEventListener('mousedown', function (event) {
           onMousedown(event, $guiScene, moveHandlerTxy);
@@ -1039,7 +1040,7 @@
   <h1>
     <a href="../index.html" title="Oo3d Homepage">Oo3d</a> /
     <a href="../index.html#/doc/usage" title="Oo3d Usage">Usage</a> /
-    <a href="04-scene-builder.html" title="Refresh this page">04 Scene Builder</a>
+    <a href="07-scene-builder.html" title="Refresh this page">07 Scene Builder</a>
   </h1>
 
 

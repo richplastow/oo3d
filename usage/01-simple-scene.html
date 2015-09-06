@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>01 Oo3d Simple Scene</title>
+  <meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <script src="../node_modules/nwang/build/nwang.js"></script>
+  <script src="../build/oo3d.js"></script>
+  <script>
+    addEventListener('load', function () {
+      try {
+        var
+
+          //// Micro jQuery. 
+          $ = document.querySelector.bind(document)
+
+
+          //// DOM Elements. 
+         ,$main  = $('#main')
+         ,$error = $('#error')
+
+
+          //// Oo3d Instance. 
+         ,oo3d = new Oo3d({
+            $main: $main
+           ,background: [1.0, 1.0, 1.0, 1.0]
+          })
+
+
+          //// Create Position Buffer. 
+         ,pyramidPositionI = oo3d.addPositionBuffer([
+            // Front face
+             0.0,  1.0,  0.0,
+            -1.0, -1.0,  1.0,
+             1.0, -1.0,  1.0,
+            // Right face
+             0.0,  1.0,  0.0,
+             1.0, -1.0,  1.0,
+             1.0, -1.0, -1.0,
+            // Back face
+             0.0,  1.0,  0.0,
+             1.0, -1.0, -1.0,
+            -1.0, -1.0, -1.0,
+            // Left face
+             0.0,  1.0,  0.0,
+            -1.0, -1.0, -1.0,
+            -1.0, -1.0,  1.0
+          ])
+
+
+          //// Create Color Buffer. 
+         ,pyramidColorI = oo3d.addColorBuffer([
+            // Front face
+             0.3,   0.0,  0.0,  0.95, // near-opaque dark red
+             0.3,   0.0,  0.0,  0.95, // near-opaque dark red
+             0.3,   0.0,  0.0,  0.95, // near-opaque dark red
+            // Right face
+             0.0,  0.25,  0.0,  0.75, // translucent lime
+             0.0,  0.25,  0.0,  0.75, // translucent lime
+             0.0,  0.25,  0.0,  0.75, // translucent lime
+            // Back face
+             1.0,  0.25,  0.0,  0.10, // translucent orange
+             1.0,  0.25,  0.0,  0.10, // translucent orange
+             1.0,  0.25,  0.0,  0.10, // translucent orange
+            // Left face
+             0.25,  0.5,  1.0,  0.05, // translucent light cyan
+             0.25,  0.5,  1.0,  0.05, // translucent light cyan
+             0.25,  0.5,  1.0,  0.05  // translucent light cyan
+          ])
+
+
+          //// Create Mesh. 
+         ,pyramidI = oo3d.addItem({
+            positionI:  pyramidPositionI
+           ,colorI:     pyramidColorI
+          })
+
+
+          //// Create Camera. 
+         ,cameraI = oo3d.addCamera({
+            fovy:   0.785398163 // 45º
+           ,aspect: $main.width / $main.height
+          })
+
+
+          //// Create Program. 
+         ,flatItemProgramI = oo3d.addProgram({
+            subclass: 'Flat'
+          })
+
+
+          //// Create Renderer. 
+         ,rendererI = oo3d.addRenderer({
+            cameraI:  cameraI
+           ,programI: flatItemProgramI
+           ,itemIs:   new Uint16Array([pyramidI])
+          })
+
+
+          //// Create Layer. 
+         ,layerI = oo3d.addLayer({
+            rendererIs: new Uint16Array([rendererI])
+           ,scissor:    new Float32Array([0,0,1,1])
+          })
+
+        ;
+
+
+        //// Make the view of the pyramid more interesting. 
+        oo3d.rotate(0,1,0,pyramidI);
+
+
+        //// Draw the scene. 
+        oo3d.render();
+
+
+      //// Handle exceptions. 
+      } catch (error) {
+        console.log(error);
+        $error.innerHTML = error;
+        $error.className = ''; // remove '.hidden'
+      }
+    });
+  </script>
+  <style>
+
+    /* PAGE LAYOUT */
+    html {
+      padding-bottom: 80px; /* space to scroll up for fullscreen on iOS 8 */
+    }
+    html, body {
+      margin: 0;
+      font: bold 18px/24px "Arial", sans-serif;
+    }
+    #main {
+      position: absolute;
+      top:     0;
+      left:    0;
+      width:   100%;
+      height:  100%;
+      z-index: -5;
+    }
+
+
+    /* HEADER */
+    h1 {
+      position: absolute;
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0 15px 0 10px;
+      width: 100%;
+      overflow: hidden;
+      white-space: nowrap;
+      background: rgba(16,16,16,0.9);
+      color: #ccc;
+      font-size: 26px;
+      transition: background 0.3s, font-size 0.6s;
+      -webkit-touch-callout: none; /* Android and iOS callouts*/
+        -webkit-user-select: none; /* Chrome, Safari, Opera */
+         -khtml-user-select: none; /* Konqueror */
+           -moz-user-select: none; /* Firefox */
+            -ms-user-select: none; /* IE */
+                user-select: none;
+    }
+    h1:hover {
+      background: rgba(0,0,0,0.95);
+    }
+    h1 a {
+      display: inline-block;
+      padding: 12px 5px 15px 5px;
+      color: #ccc;
+      text-decoration: none;
+      transition: color 0.3s;
+    }
+    h1 a:hover {
+      color: #fff;
+    }
+
+    @media screen and (max-width: 736px) { /* iPhone 6 Plus Landscape */
+      h1 { font-size: 22px; }
+    }
+    @media screen and (max-width: 600px) {
+      h1 { font-size: 16px; }
+    }
+
+
+    /* ERROR */
+    #error {
+      position: absolute;
+      box-sizing: border-box;
+      bottom:  0;
+      left:    5%;
+      width:  90%;
+      padding: 1rem;
+      font-family: monaco, monospace;
+      background-color: #933;
+      color: #fff;
+      transition: all 0.5s;
+      opacity: 1;
+      z-index: 15;
+    }
+    #error.hidden {
+      padding-bottom: 0;
+      opacity: 0;
+    }
+
+  </style>
+</head>
+<body style="background:#999;">
+  <h1>
+    <a href="../index.html"            title="Oo3d Homepage"    >Oo3d</a> /
+    <a href="../index.html#/doc/usage" title="Oo3d Usage"       >Usage</a> /
+    <a href="01-simple-scene.html"     title="Refresh this page">01 Simple Scene</a>
+  </h1>
+
+  <canvas id="main"></canvas>
+  <div id="error" class="hidden"></div>
+
+</body>
+</html>

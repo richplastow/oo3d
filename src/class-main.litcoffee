@@ -46,10 +46,11 @@ Main Class
 #### The main class for Oo3d
 
     class Main
-      C: ªC
-      toString: -> "[object #{@C}]"
+      C: "/src/class-main.litcoffee:#{ªC}"
+      toString: -> "[object #{ªC}]"
 
       constructor: (config={}) ->
+        M = "#{@C}:constructor()\n  "
 
 Record all config as instance properties. 
 
@@ -60,6 +61,14 @@ Record all config as instance properties.
 
 Properties
 ----------
+
+
+#### `nwang <Nwang>`
+Xx. @todo describe
+
+        if ! Nwang then throw Error "
+          #{M}Dependency 'Nwang' could not be found"
+        @nwang = new Nwang
 
 
 #### `$main <HTMLCanvasElement|null>`

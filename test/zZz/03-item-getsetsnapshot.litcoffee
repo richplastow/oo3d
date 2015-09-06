@@ -61,9 +61,9 @@
       (oo3d, item) -> item.getSnapshot 'log'
 
 
-      "Snapshot URI from a default Item as expected"
-      "AAAUUUAAA"
-      (oo3d, item) -> item.getSnapshot 'uri'
+      "Snapshot nwang from a default Item as expected"
+      "셼셼셼죨죨죨셼셼셼"
+      (oo3d, item) -> item.getSnapshot 'nwang'
 
 
       (oo3d, item) ->
@@ -85,21 +85,21 @@
       (oo3d, item) -> item.getSnapshot('log').slice -127
 
 
-      "Snapshot URI from a transformed Item as expected"
-      "AzXBoEfEi1loEfEi1l"
-      (oo3d, item) -> item.getSnapshot 'uri'
+      "Snapshot nwang from a transformed Item as expected"
+      "솆셢쵇솆밄펗솆밄펗"
+      (oo3d, item) -> item.getSnapshot 'nwang'
 
 
       "Use a snapshot log to reset a transformed Item"
       "1000 0100 0010 0001 - 0 0 0  1 1 1  0 0 0"
       (oo3d, item) ->
-        item.setSnapshot 'm:[1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,0,1], rX:0, rY:0, rZ:0, sX:1, sY:1, sZ:1, tX:0, tY:0, tZ:0'
+        item.setSnapshot 'm:[1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,0,1], rX:4, rY:0, rZ:0, sX:1, sY:1, sZ:1, tX:0, tY:0, tZ:0'
         m = item.matTransform
         "#{m[0] }#{m[1] }#{m[2] }#{m[3] }
          #{m[4] }#{m[5] }#{m[6] }#{m[7] }
          #{m[8] }#{m[9] }#{m[10]}#{m[11]}
          #{m[12]}#{m[13]}#{m[14]}#{m[15]}
-         - #{item.rX} #{item.rY} #{item.rZ}  #{item.sX} #{item.sY} #{item.sZ}  #{item.tX} #{item.tY} #{item.tZ}"
+         - X#{item.rX}X #{item.rY} #{item.rZ}  #{item.sX} #{item.sY} #{item.sZ}  #{item.tX} #{item.tY} #{item.tZ}"
 
 
       "Use a snapshot log with whitespace removed, to reset a transformed Item"
@@ -114,16 +114,12 @@
          - #{item.rX} #{item.rY} #{item.rZ}  #{item.sX} #{item.sY} #{item.sZ}  #{item.tX} #{item.tY} #{item.tZ}"
 
 
-      "Use a snapshot URI to transform an Item"
-      "1000 0100 0010 0001 - 0 6.280276425092929 0.5235987755982988  0.001 -0.5 1345  0.001 -0.5 1345"
+      "Use a snapshot nwang to transform an Item"
+      "0 6.280276425092929 0.5235987755982988  0.001 -0.5 1345  0.001 -0.5 1345"
       (oo3d, item) ->
-        item.setSnapshot 'AzXBoEfEi1loEfEi1l'
+        item.setSnapshot '솆셢쵇솆밄펗솆밄펗'
         m = item.matTransform
-        "#{m[0] }#{m[1] }#{m[2] }#{m[3] }
-         #{m[4] }#{m[5] }#{m[6] }#{m[7] }
-         #{m[8] }#{m[9] }#{m[10]}#{m[11]}
-         #{m[12]}#{m[13]}#{m[14]}#{m[15]}
-         - #{item.rX} #{item.rY} #{item.rZ}  #{item.sX} #{item.sY} #{item.sZ}  #{item.tX} #{item.tY} #{item.tZ}"
+        "#{item.rX} #{item.rY} #{item.rZ}  #{item.sX} #{item.sY} #{item.sZ}  #{item.tX} #{item.tY} #{item.tZ}"
 
 
 
