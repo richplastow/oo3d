@@ -76,7 +76,7 @@ Draws the transformed vertices, and sends vertex-colors to the fragment shader.
         //// Increase the size of gl.POINT from 1px to 4px. 
         gl_PointSize = 4.0;
 
-        //// Apply the Camera and Item transforms to each vertex position. 
+        //// Apply the Camera and Mesh transforms to each vertex position. 
         //// Note that the order of these three is important. 
         gl_Position = uMatCamera * uMatTransform * vec4(aVtxPosition, 1);
 

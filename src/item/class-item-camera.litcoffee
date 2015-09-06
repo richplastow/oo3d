@@ -1,95 +1,69 @@
-Camera
-======
+Item.Camera
+===========
 
 
 @todo describe
 
-    class Camera
-      C: 'Camera'
-      toString: -> "[object #{@C}]"
+    class Item.Camera extends Item
+      C: "/src/item/class-item-camera.litcoffee:Item.Camera"
+      toString: -> "[object Item.Camera]"
 
-      constructor: (@main, config={}) ->
-        if ªO != ªtype config then throw TypeError "
-          `config` must be object not #{ªtype config}"
-
+      constructor: (main, index, config={}) ->
+        M = "#{@C}:constructor()\n  "
 
 
 
-Properties
-----------
+
+Inherit Properties
+------------------
 
 
-#### `main <Oo3d>`
-A reference to the main Oo3d instance which created this Camera. 
+        super main, index, config
 
-        if ªO != ªtype @main then throw TypeError "
-          `main` must be object not #{ªtype @main}"
-        if '[object Oo3d]' != ''+@main then throw TypeError "
-          `main` must be [object Oo3d] not #{@main}"
+#### `main <Oo3d>` (inherited)
+#### `index <integer>` (inherited)
+#### `matTransform <Float32Array>` (inherited)
+#### `rX, rY, rZ <number>` (inherited)
+#### `sX, sY, sZ <number>` (inherited)
+#### `tX, tY, tZ <number>` (inherited)
+
+
+
+
+Instantiation Arguments
+-----------------------
+
+
 
 
 #### `fovy <number>`
 @todo describe
 
         @fovy = config.fovy
-        if ! @fovy then @fovy = 0.785398163 # 45º
-        else if 'number' != ªtype @fovy then throw TypeError "
-          If set, config.fovy must be number not #{ªtype @fovy}"
+        if ªU == ªtype @fovy
+          @fovy = 0.785398163 # 45º
+        else if ªN != ªtype @fovy then throw TypeError "
+          #{M}Optional `config.fovy` is #{ªtype @fovy} not number"
         else if 0 >= @fovy then throw RangeError "
-          If set, config.fovy must be greater than 0 not #{@fovy}"
+          #{M}Optional `config.fovy` is #{@fovy} not greater than zero"
 
 
 #### `aspect <number>`
 @todo describe
 
         @aspect = config.aspect
-        if ! @aspect then @aspect = @main.$main.width / @main.$main.height
-        else if 'number' != ªtype @aspect then throw TypeError "
-          If set, config.aspect must be number not #{ªtype @aspect}"
+        if ªU == ªtype @aspect
+          @aspect = @main.$main.width / @main.$main.height
+        else if ªN != ªtype @aspect then throw TypeError "
+          #{M}Optional `config.aspect` is #{ªtype @aspect} not number"
         else if 0 >= @aspect then throw RangeError "
-          If set, config.aspect must be greater than 0 not #{@aspect}"
+          #{M}Optional `config.aspect` is #{@aspect} not greater than zero"
 
 
-#### `uMatCameraLoc <WebGLUniformLocation|null>`
-Get the location of the 'uMatCamera' uniform in the Vertex Shader. 
-@todo remove, as moved elsewhere
-
-        #@uMatCameraLoc = @main.gl.getUniformLocation @main.program, 'uMatCamera'
 
 
-#### `rX, rY, rZ <number>`
-Keep track of rotation currently applied to this camera. All start at 0. 
-
-        @rX = 0
-        @rY = 0
-        @rZ = 0
-
-
-#### `sX, sY, sZ <number>`
-Keep track of scale currently applied to this camera. All start at 1. 
-
-        @sX = 1
-        @sY = 1
-        @sZ = 1
-
-
-#### `tX, tY, translateZ <number>`
-Keep track of translation currently applied to this camera. Starts at (0,0,-4). 
-
-        @tX = 0
-        @tY = 0
-        @tZ = -4 # starts at Z = -4
-
-
-#### `matTransform <array>`
-The transformation-matrix currently applied to this camera. Starts at (0,0,-4).
-
-        @matTransform = new Float32Array([
-          1,  0,  0,  0
-          0,  1,  0,  0
-          0,  0,  1,  0
-          0,  0, -4,  1 # starts at Z = -4
-        ])
+Self-Assigned Properties
+------------------------
 
 
 #### `matProjection <array|null>`
@@ -101,7 +75,6 @@ The projection-matrix currently applied to this camera.
           1,   # near
           100  # far
         )
-        ª @fovy, @aspect
 
 
 #### `matCamera <array|null>`
@@ -109,6 +82,21 @@ Result of the camera-projection multiplied by the camera-transformation.
 Its initial value is calculated by calling `updateCamera()`. 
 
         @matCamera = null
+
+
+#### `matTransform <array> and tZ <number>`
+Modify the inherited position so that the camera starts at (0,0,-4). 
+
+        @matTransform[14] = -4
+        @tZ = -4
+
+
+
+
+Init
+----
+
+
         @updateCamera()
 
 

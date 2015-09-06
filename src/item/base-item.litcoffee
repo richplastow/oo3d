@@ -2,96 +2,46 @@ Item
 ====
 
 
-#### An individual object which can be rendered
+#### An individual 3D object which has coordinates
 
-    class                           Item
-      C: "/src/class-item.litcoffee:Item"
-      toString: ->         "[object Item]"
+    class Item
+      C: "/src/item/base-item.litcoffee:Item"
+      toString: -> "[object Item]"
 
       constructor: (@main, @index, config={}) ->
-        M = "#{@C}:constructor()\n  "
+        M = "/src/item/base-item.litcoffee:Item:constructor()\n  "
         if ªO != ªtype config then throw TypeError "
-          #{M}`config` must be object not #{ªtype config}"
+          #{M}Optional `config` is #{ªtype config} not object"
 
 
 
 
-Properties
-----------
+Instantiation Arguments
+-----------------------
 
 
 #### `main <Oo3d>`
 A reference to the main Oo3d instance which created this Item. 
 
         if ªO != ªtype @main then throw TypeError "
-          #{M}`main` must be object not #{ªtype @main}"
+          #{M}`main` is #{ªtype @main} not object"
         if '[object Oo3d]' != ''+@main then throw TypeError "
-          #{M}`main` must be [object Oo3d] not #{@main}"
+          #{M}`main` is '#{@main}' not '[object Oo3d]'"
 
 
 #### `index <integer>`
-This Item’s index in the `main.items` array. 
+This Item’s index in, eg `main.cameras` or `main.meshes`. 
 
         if ªN != ªtype @index then throw TypeError "
-          #{M}`index` must be number not #{ªtype @index}"
+          #{M}`index` is #{ªtype @index} not number"
+        if ªMAX < @index or @index % 1 or 0 > @index then throw RangeError "
+          #{M}`index` is #{@index} not 0 or a positive integer below 2^53"
 
 
-#### `color <Float32Array>`
-A color which can act as an ID. Useful for picking. 
-
-        @color = pick.indexToColor @index # defined in /src/pick.coffee
 
 
-#### `positionBuffer <WebGLBuffer>`
-Xx. @todo describe
-
-        @positionBuffer = @main.positionBuffers[config.positionI or 0]
-        if ! @positionBuffer then throw Error "
-          #{M}`config.positionI` #{config.positionI} does not exist"
-
-
-#### `colorBuffer <WebGLBuffer>`
-Xx. @todo describe
-
-        @colorBuffer = @main.colorBuffers[config.colorI or 0]
-        if ! @colorBuffer then throw Error "
-          #{M}`config.colorI` #{config.colorI} does not exist"
-
-
-#### `count <integer>`
-Xx. @todo describe
-
-        if @positionBuffer.count != @colorBuffer.count then throw Error "
-          #{M}`config.positionI` mismatches config.colorI"
-        @count = @positionBuffer.count
-
-
-#### `renderMode <string>`
-'POINTS', 'LINE_STRIP', 'TRIANGLES', etc. Equates to an integer in the `gl` 
-object, eg `gl.TRIANGLES` is `4`. This integer becomes the `mode` argument 
-passed to `gl.drawArrays()` when this Item is rendered.  
-@todo override at the level of a Layer, and maybe at other levels too
-
-        @renderMode = config.renderMode or 'TRIANGLES' # default if falsey
-        if ! Item.validRenderMode[@renderMode] then throw Error "
-          #{M}`config.renderMode` #{@renderMode} is not recognised by WebGL"
-
-
-#### `sBlend and dBlend <integer|null>`
-Xx. @todo describe
-
-        if ! config.blend # any falsey value, or leave undefined
-          @sBlend = null
-          @dBlend = null
-        else if ªA != ªtype config.blend then throw Error "
-          #{M}If set, `config.blend` must be array not #{ªtype config.blend}"
-        else
-          if ! Item.validBlend[ config.blend[0] ] then throw Error "
-            #{M}`config.blend[0]` is not recognised by WebGL"
-          if ! Item.validBlend[ config.blend[1] ] then throw Error "
-            #{M}`config.blend[1]` is not recognised by WebGL"
-          @sBlend = @main.gl[ config.blend[0] ]
-          @dBlend = @main.gl[ config.blend[1] ]
+Self-Assigned Properties
+------------------------
 
 
 #### `matTransform <Float32Array>`
@@ -143,6 +93,7 @@ Create an object or string which describes the Item’s current state.
 @todo also `item.dBlend` etc, not just the transform state
 
       getSnapshot: (format) ->
+        M = "/src/item/base-item.litcoffee:Item:getSnapshot()\n  "
 
         if 'log' == format
 
@@ -172,15 +123,6 @@ Return the [nwang](http://goo.gl/gaumPj) snapshot.
             sf3 @tX
             sf3 @tY
             sf3 @tZ
-            #uri.r2uri @rX
-            #uri.r2uri @rY
-            #uri.r2uri @rZ
-            #uri.s2uri @sX
-            #uri.s2uri @sY
-            #uri.s2uri @sZ
-            #uri.t2uri @tX
-            #uri.t2uri @tY
-            #uri.t2uri @tZ
           ].join ''
 
         else # any other `format` is treated as 'object'
@@ -212,7 +154,7 @@ Return the object snapshot.
 Xx. 
 
       setSnapshot: (snapshot) ->
-        M = "#{@C}:setSnapshot()\n  "
+        M = "/src/item/base-item.litcoffee:Item:setSnapshot()\n  "
 
 Infer the format, 'object', 'log' or 'nwang'. 
 
@@ -298,67 +240,5 @@ Reset `matTransform` and apply new values to it.
 
 
         #@todo accept object
-
-
-
-
-Static Properties
------------------
-
-
-#### `Item.validRenderMode <object>`
-Defines valid WebGL render-mode constants.  
-Used by [/src/class-item.litcoffee:Item:constructor()](https://goo.gl/wIUN6Y)  
-
-    Item.validRenderMode =
-      'POINTS'        :1 # a single dot per vertex, so 10 vertices draws 10 dots
-      'LINES'         :1 # lines between vertex pairs, 10 vertices draws 5 lines
-      'LINE_STRIP'    :1 # lines between all vertices, 10 vertices draws 9 lines
-      'LINE_LOOP'     :1 # as LINE_STRIP but connects last vertex back to first
-      'TRIANGLES'     :1 # a triangle for each set of three consecutive vertices
-      'TRIANGLE_STRIP':1 # vertex 4 adds a new triangle after the 1st is drawn
-      'TRIANGLE_FAN'  :1 # like TRIANGLE_STRIP, but creates a fan shaped output
-
-
-#### `validBlend <object>`
-Defines valid WebGL blend constants.  
-Used by [/src/class-item.litcoffee:Item:constructor()](https://goo.gl/uEqa8U)
-
-    Item.validBlend =
-      'ZERO'               :1
-      # 0          0          0          0
-      # Multiply all colors by 0
-      'ONE'                :1
-      # 1          1          1          1
-      # Multiply all colors by 1
-      'SRC_COLOR'          :1
-      # Rs         Gs         Bs         As
-      # Multiply by source color value
-      'ONE_MINUS_SRC_COLOR':1
-      # (1-Rs)     (1-Gs)     (1-Bs)     (1-As)
-      # Multiply by 1 minus each color value
-      'DST_COLOR'          :1
-      # Rd         Gd         Bd         Ad
-      # Multiply by destination color value
-      'ONE_MINUS_DST_COLOR':1
-      # (1-Rd)     (1-Gd)     (1-Bd)     (1-Ad)
-      # Multiply by 1 minus each color value
-      'SRC_ALPHA'          :1
-      # As         As         As         As
-      # Multiply all colors by source alpha value
-      'ONE_MINUS_SRC_ALPHA':1
-      # (1-As)     (1-As)     (1-As)     (1-As)
-      # Multiply all colors by 1 minus source alpha value
-      'DST_ALPHA'          :1
-      # Ad         Ad         Ad         Ad
-      # Multiply all colors by destination alpha value
-      'ONE_MINUS_DST_ALPHA':1
-      # (1-Ad)     (1-Ad)     (1-Ad)     (1-Ad)
-      # Multiply all colors by 1 minus each alpha value
-      'SRC_ALPHA_SATURATE' :1
-      # min(As,Ad) min(As,Ad) min(As,Ad) 1
-      # Multiply by the smaller of source or dest alpha value
-
-
 
 

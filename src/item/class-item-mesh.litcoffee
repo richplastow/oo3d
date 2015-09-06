@@ -1,39 +1,38 @@
-Item
-====
+Item.Mesh
+=========
 
 
-#### An individual object which can be rendered
+@todo describe
 
-    class                           Item
-      C: "/src/class-item.litcoffee:Item"
-      toString: ->         "[object Item]"
+    class Item.Mesh extends Item
+      C: "/src/item/class-item-mesh.litcoffee:Item.Mesh"
+      toString: -> "[object Item.Mesh]"
 
-      constructor: (@main, @index, config={}) ->
+      constructor: (main, index, config={}) ->
         M = "#{@C}:constructor()\n  "
-        if ªO != ªtype config then throw TypeError "
-          #{M}`config` must be object not #{ªtype config}"
+        super main, index, config
 
 
 
 
-Properties
-----------
+Inherit Properties
+------------------
 
 
-#### `main <Oo3d>`
-A reference to the main Oo3d instance which created this Item. 
+        super main, index, config
 
-        if ªO != ªtype @main then throw TypeError "
-          #{M}`main` must be object not #{ªtype @main}"
-        if '[object Oo3d]' != ''+@main then throw TypeError "
-          #{M}`main` must be [object Oo3d] not #{@main}"
+#### `main <Oo3d>` (inherited)
+#### `index <integer>` (inherited)
+#### `matTransform <Float32Array>` (inherited)
+#### `rX, rY, rZ <number>` (inherited)
+#### `sX, sY, sZ <number>` (inherited)
+#### `tX, tY, tZ <number>` (inherited)
 
 
-#### `index <integer>`
-This Item’s index in the `main.items` array. 
 
-        if ªN != ªtype @index then throw TypeError "
-          #{M}`index` must be number not #{ªtype @index}"
+
+Instantiation Arguments
+-----------------------
 
 
 #### `color <Float32Array>`
@@ -73,7 +72,7 @@ passed to `gl.drawArrays()` when this Item is rendered.
 @todo override at the level of a Layer, and maybe at other levels too
 
         @renderMode = config.renderMode or 'TRIANGLES' # default if falsey
-        if ! Item.validRenderMode[@renderMode] then throw Error "
+        if ! Item.Mesh.validRenderMode[@renderMode] then throw Error "
           #{M}`config.renderMode` #{@renderMode} is not recognised by WebGL"
 
 
@@ -86,47 +85,18 @@ Xx. @todo describe
         else if ªA != ªtype config.blend then throw Error "
           #{M}If set, `config.blend` must be array not #{ªtype config.blend}"
         else
-          if ! Item.validBlend[ config.blend[0] ] then throw Error "
+          if ! Item.Mesh.validBlend[ config.blend[0] ] then throw Error "
             #{M}`config.blend[0]` is not recognised by WebGL"
-          if ! Item.validBlend[ config.blend[1] ] then throw Error "
+          if ! Item.Mesh.validBlend[ config.blend[1] ] then throw Error "
             #{M}`config.blend[1]` is not recognised by WebGL"
           @sBlend = @main.gl[ config.blend[0] ]
           @dBlend = @main.gl[ config.blend[1] ]
 
 
-#### `matTransform <Float32Array>`
-The transformation-matrix currently applied to this Item. Starts at identity. 
-
-        @matTransform = new Float32Array([
-          1,  0,  0,  0
-          0,  1,  0,  0
-          0,  0,  1,  0
-          0,  0,  0,  1
-        ])
 
 
-#### `rX, rY, rZ <number>`
-Keep track of rotation currently applied to this Item. All start at 0. 
-
-        @rX = 0
-        @rY = 0
-        @rZ = 0
-
-
-#### `sX, sY, sZ <number>`
-Keep track of scale currently applied to this Item. All start at 1. 
-
-        @sX = 1
-        @sY = 1
-        @sZ = 1
-
-
-#### `tX, tY, tZ <number>`
-Keep track of translation currently applied to this Item. All start at 0. 
-
-        @tX = 0
-        @tY = 0
-        @tZ = 0
+Self-Assigned Properties
+------------------------
 
 
 
@@ -135,169 +105,12 @@ Methods
 -------
 
 
-#### `getSnapshot()`
-- format `<string>`  (optional) one of 'object' (default), 'log', 'nwang'
-- `<object|string>`  xx @todo describe
+#### `xx()`
+- xx `<xx>`  (optional) xx
 
-Create an object or string which describes the Item’s current state.  
-@todo also `item.dBlend` etc, not just the transform state
+@todo describe
 
-      getSnapshot: (format) ->
-
-        if 'log' == format
-
-Return the log snapshot. 
-
-          m = @matTransform
-          "m:[#{m[0] },#{m[1] },#{m[2] },#{m[3] },
-              #{m[4] },#{m[5] },#{m[6] },#{m[7] },
-              #{m[8] },#{m[9] },#{m[10]},#{m[11]},
-              #{m[12]},#{m[13]},#{m[14]},#{m[15]}],
-           rX:#{@rX}, rY:#{@rY}, rZ:#{@rZ},
-           sX:#{@sX}, sY:#{@sY}, sZ:#{@sZ},
-           tX:#{@tX}, tY:#{@tY}, tZ:#{@tZ}"
-
-        else if 'nwang' == format
-
-Return the [nwang](http://goo.gl/gaumPj) snapshot. 
-
-          sf3 = @main.nwang.sf3
-          [
-            sf3 @rX
-            sf3 @rY
-            sf3 @rZ
-            sf3 @sX
-            sf3 @sY
-            sf3 @sZ
-            sf3 @tX
-            sf3 @tY
-            sf3 @tZ
-            #uri.r2uri @rX
-            #uri.r2uri @rY
-            #uri.r2uri @rZ
-            #uri.s2uri @sX
-            #uri.s2uri @sY
-            #uri.s2uri @sZ
-            #uri.t2uri @tX
-            #uri.t2uri @tY
-            #uri.t2uri @tZ
-          ].join ''
-
-        else # any other `format` is treated as 'object'
-
-Clone, don’t reference, `matTransform`. 
-
-          mat = new Float32Array 16
-          mat.set @matTransform
-
-Return the object snapshot. 
-
-          mat: mat
-          rX: @rX
-          rY: @rY
-          rZ: @rZ
-          sX: @sX
-          sY: @sY
-          sZ: @sZ
-          tX: @tX
-          tY: @tY
-          tZ: @tZ
-
-
-
-
-#### `setSnapshot()`
-- snapshot `<string|object>`  eg returned by `getSnapshot('object|log|nwang')`
-
-Xx. 
-
-      setSnapshot: (snapshot) ->
-        M = "#{@C}:setSnapshot()\n  "
-
-Infer the format, 'object', 'log' or 'nwang'. 
-
-        format = ªtype snapshot
-        if ªS == format
-          format = if 'm:[' == snapshot.slice 0, 3 then 'log' else 'nwang'
-
-Record a log snapshot into the Item, eg:  
-m:[1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1],rX:0,rY:0,rZ:0,sX:1,sY:1,sZ:1,tX:0,tY:0,tZ:0
-
-        if 'log' == format
-          matches = snapshot.match(
-            ///^              # start of string
-            m:\[(.*)\]        # capture the sixteen matTransform values
-            ,\s*rX:(-?[.\d]*) # capture rotation-x
-            ,\s*rY:(-?[.\d]*) # capture rotation-y
-            ,\s*rZ:(-?[.\d]*) # capture rotation-z
-            ,\s*sX:(-?[.\d]*) # capture scale-x
-            ,\s*sY:(-?[.\d]*) # capture scale-y
-            ,\s*sZ:(-?[.\d]*) # capture scale-z
-            ,\s*tX:(-?[.\d]*) # capture translate-x
-            ,\s*tY:(-?[.\d]*) # capture translate-y
-            ,\s*tZ:(-?[.\d]*) # capture translate-z
-            $///              # end of string
-          )
-
-          if null == matches then throw Error "
-          #{M}log-format snapshot is invalid"
-
-          [snapshot, m, @rX, @rY, @rZ, @sX, @sY, @sZ, @tX, @tY, @tZ] = matches
-          @matTransform = new Float32Array(m.split ',')
-
-Record a nwang snapshot into the Item, eg:  
-솆셢쵇솆밄펗솆밄펗
-
-        else if 'nwang' == format
-
-          nwang = @main.nwang
-          #isUC = A:1,B:1,C:1,D:1,E:1,F:1,G:1,H:1,I:1,J:1,K:1,L:1,M:1
-          #      ,N:1,O:1,P:1,Q:1,R:1,S:1,T:1,U:1,V:1,W:1,X:1,Y:1,Z:1
-          captureKeys = [
-            'rX', 'rY', 'rZ',
-            'sX', 'sY', 'sZ',
-            'tX', 'tY', 'tZ'
-          ]
-          captureLengths = [
-            1, 1, 1
-            1, 1, 1
-            1, 1, 1
-          ]
-          captureFns  = [
-            nwang.sf3, nwang.sf3, nwang.sf3, 
-            nwang.sf3, nwang.sf3, nwang.sf3, 
-            nwang.sf3, nwang.sf3, nwang.sf3, 
-          ]
-          chI = 0; l = snapshot.length; captureI = 0
-          while chI < l
-            captureKey    = captureKeys[captureI]
-            captureLength = captureLengths[captureI]
-            captureFn     = captureFns[captureI]
-            ch = snapshot[chI]
-            chI++
-            @[captureKey] = captureFn ch
-            #if isUC[ch]
-            #  chI++
-            #  @[captureKey] = captureFn ch
-            #else
-            #  @[captureKey] = captureFn snapshot.substr chI, captureLength
-            #  chI += captureLength
-            captureI++
-
-Reset `matTransform` and apply new values to it. 
-
-        @matTransform = new Float32Array([
-          1,  0,  0,  0
-          0,  1,  0,  0
-          0,  0,  1,  0
-          0,  0,  0,  1
-        ])
-        @main.rotate     @rX, @rY, @rZ, @index
-        @main.scale      @sX, @sY, @sZ, @index
-        @main.translate  @tX, @tY, @tZ, @index
-
-
-        #@todo accept object
+      xx: (xx) ->
 
 
 
@@ -306,11 +119,10 @@ Static Properties
 -----------------
 
 
-#### `Item.validRenderMode <object>`
+#### `validRenderMode <object>`
 Defines valid WebGL render-mode constants.  
-Used by [/src/class-item.litcoffee:Item:constructor()](https://goo.gl/wIUN6Y)  
 
-    Item.validRenderMode =
+    Item.Mesh.validRenderMode =
       'POINTS'        :1 # a single dot per vertex, so 10 vertices draws 10 dots
       'LINES'         :1 # lines between vertex pairs, 10 vertices draws 5 lines
       'LINE_STRIP'    :1 # lines between all vertices, 10 vertices draws 9 lines
@@ -322,9 +134,8 @@ Used by [/src/class-item.litcoffee:Item:constructor()](https://goo.gl/wIUN6Y)
 
 #### `validBlend <object>`
 Defines valid WebGL blend constants.  
-Used by [/src/class-item.litcoffee:Item:constructor()](https://goo.gl/uEqa8U)
 
-    Item.validBlend =
+    Item.Mesh.validBlend =
       'ZERO'               :1
       # 0          0          0          0
       # Multiply all colors by 0

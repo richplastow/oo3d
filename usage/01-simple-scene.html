@@ -24,7 +24,7 @@
           //// Oo3d Instance. 
          ,oo3d = new Oo3d({
             $main: $main
-           ,background: [1.0, 1.0, 1.0, 1.0]
+           ,bkgnd: new Float32Array([0.03, 0.1, 0.05, 1.0]) // dark green
           })
 
 
@@ -71,7 +71,7 @@
 
 
           //// Create Mesh. 
-         ,pyramidI = oo3d.addItem({
+         ,pyramidI = oo3d.addMesh({
             positionI:  pyramidPositionI
            ,colorI:     pyramidColorI
           })
@@ -94,7 +94,7 @@
          ,rendererI = oo3d.addRenderer({
             cameraI:  cameraI
            ,programI: flatItemProgramI
-           ,itemIs:   new Uint16Array([pyramidI])
+           ,meshIs:   new Uint16Array([pyramidI])
           })
 
 

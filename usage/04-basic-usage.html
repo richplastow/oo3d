@@ -53,7 +53,7 @@
          ,$renderModeLabel     = $('#renderModeLabel')
 
          ,updateMeasurements = function () {
-            target = $target.value ? oo3d.items[+$target.value] : oo3d.cameras[0];
+            target = $target.value ? oo3d.meshes[+$target.value] : oo3d.cameras[0];
             $rotateXLabel.innerHTML    = target.rX;
             $rotateYLabel.innerHTML    = target.rY;
             $rotateZLabel.innerHTML    = target.rZ;
@@ -69,7 +69,7 @@
          ,$main = document.getElementById('main')
          ,oo3d = new Oo3d({
             $main: $main
-           ,background: [0.1, 0.2, 0.4, 0.9]
+           ,bkgnd: new Float32Array([0.1, 0.2, 0.4, 0.9])
           })
          ,rgbTriPositions = oo3d.addPositionBuffer([
              0.0,  0.3,  1.0,
@@ -154,18 +154,18 @@
          //  })
 
 
-          //// Create Items
-         ,rgbTriI = oo3d.addItem({
+          //// Create Meshes
+         ,rgbTriI = oo3d.addMesh({
             positionI:  rgbTriPositions
            ,colorI:     rgbTriColors
            ,blend:      ['SRC_COLOR','SRC_COLOR'] // sfactor, dfactor
           })
-         ,cmyTriI = oo3d.addItem({
+         ,cmyTriI = oo3d.addMesh({
             positionI:  cmyTriPositions
            ,colorI:     cmyTriColors
            ,renderMode: 'LINE_LOOP'
           })
-         ,pyramidI = oo3d.addItem({
+         ,pyramidI = oo3d.addMesh({
             positionI:  pyramidPositions
            ,colorI:     pyramidColors
            ,blend:      ['ONE','DST_COLOR'] // sfactor, dfactor
@@ -196,12 +196,12 @@
          ,usualRendererI = oo3d.addRenderer({
             cameraI:  usualCameraI
            ,programI: flatwhiteProgramI
-           ,itemIs:   new Uint16Array([rgbTriI,pyramidI])
+           ,meshIs:   new Uint16Array([rgbTriI,pyramidI])
           })
          ,pickerRendererI = oo3d.addRenderer({
             cameraI:  usualCameraI
            ,programI: flatProgramI
-           ,itemIs:   new Uint16Array([cmyTriI,pyramidI])
+           ,meshIs:   new Uint16Array([cmyTriI,pyramidI])
           })
 
 

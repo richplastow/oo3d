@@ -4,7 +4,7 @@ Renderer
 
 #### The base class for all Renderers
 
-- Contains a Program, a Camera and an array of Items
+- Contains a program, a camera and an array of meshes
 - Each Layer has an array of Renderers
 - A Renderer can be used by any number of Layers
 - All Renderers are stored in the main.renderers array
@@ -58,14 +58,14 @@ Get the location of the 'uMatCamera' uniform in the Program’s vertex shader.
         @uMatCameraLoc = @main.gl.getUniformLocation @program.program, 'uMatCamera'
 
 
-#### `items <array of Items>`
-This Renderer’s Items, referenced from the main instance’s `items` array. 
+#### `meshes <array of Item.Meshes>`
+This Renderer’s mesh instances, referenced from the main instance’s `meshes` array. 
 
-        if ! config.itemIs then @items = []
-        else if 'uint16array' != ªtype config.itemIs then throw TypeError "
-          If set, config.itemIs must be Uint16Array not #{ªtype config.itemIs}"
-        else @items = (@main.items[i] or throw RangeError "
-          No such index #{i} in main.items" for i in config.itemIs)
+        if ! config.meshIs then @meshes = []
+        else if 'uint16array' != ªtype config.meshIs then throw TypeError "
+          If set, config.meshIs must be Uint16Array not #{ªtype config.meshIs}"
+        else @meshes = (@main.meshes[i] or throw RangeError "
+          No such index #{i} in main.meshes" for i in config.meshIs)
 
 
 
@@ -87,7 +87,7 @@ For better performance, use local variables.
         aVtxPositionLoc  = @program.aVtxPositionLoc
         aVtxColorLoc     = @program.aVtxColorLoc or false # some Programs, only
         uMatTransformLoc = @program.uMatTransformLoc
-        uItemColorLoc    = @program.uItemColorLoc
+        uMeshColorLoc    = @program.uMeshColorLoc
 
         if ! gl then throw Error "The WebGL rendering context is #{ªtype gl}"
 
@@ -108,30 +108,30 @@ Xx. @todo move this to a less-repeated place
         if aVtxColorLoc
           gl.enableVertexAttribArray aVtxColorLoc
 
-Step through each of this Renderer’s Items, in reverse order. 
+Step through each of this Renderer’s meshes, in reverse order. 
 
-        index = @items.length
+        index = @meshes.length
         while index--
-          item = @items[index]
-          if ! item then continue #@todo prevent gaps
+          mesh = @meshes[index]
+          if ! mesh then continue #@todo prevent gaps
 
-Set the transform for this Item. 
+Set the transform for this mesh. 
 
           gl.uniformMatrix4fv(
             uMatTransformLoc, # `location <WebGLUniformLocation>`
             gl.FALSE,         # `transpose` must be set to gl.FALSE @todo why?
-            item.matTransform # `value <Float32Array>` 
+            mesh.matTransform # `value <Float32Array>` 
           )
 
-Set the Item color. 
+Set the mesh color. 
 
-          if uItemColorLoc
+          if uMeshColorLoc
             gl.uniform4fv(
-              uItemColorLoc,
-              item.color
+              uMeshColorLoc,
+              mesh.color
             )
 
-Set each Item’s `positionBuffer` as the WebGLBuffer to be worked on. The 
+Set each mesh’s `positionBuffer` as the WebGLBuffer to be worked on. The 
 previous binding is automatically broken. 
 
 - `target <integer>`        specify what `positionBuffer` contains: 
@@ -139,12 +139,12 @@ previous binding is automatically broken.
   - `ELEMENT_ARRAY_BUFFER`  contains only indices — use `drawElements()`
 - `buffer <WebGLBuffer>`    a WebGLBuffer object to bind to the target
 
-          gl.bindBuffer gl.ARRAY_BUFFER, item.positionBuffer
+          gl.bindBuffer gl.ARRAY_BUFFER, mesh.positionBuffer
 
 
-Specify the attribute-location and data-format for the newly bound item. 
+Specify the attribute-location and data-format for the newly bound mesh. 
 
-- `index <WebGLUniformLocation>`  location of target attribute in the item
+- `index <WebGLUniformLocation>`  location of target attribute in the mesh
 - `size <integer>`        components per attribute: 1, 2, 3 or (default) 4
 - `type <integer>`        the data type of each component in the array: 
   * `BYTE`                  signed 8-bit two’s complement value, -128 to +127
@@ -167,21 +167,21 @@ Specify the attribute-location and data-format for the newly bound item.
 Repeat the two steps above for the vertex-colors, if the Program supports it. 
 
           if aVtxColorLoc
-            gl.bindBuffer gl.ARRAY_BUFFER, item.colorBuffer
+            gl.bindBuffer gl.ARRAY_BUFFER, mesh.colorBuffer
             gl.vertexAttribPointer aVtxColorLoc, 4, gl.FLOAT, false, 0, 0
 
 Apply the blend-mode, if any.  
-@todo gather Items with identical blend-modes, and draw them one after another
+@todo gather meshes with identical blend-modes, and draw them one after another
 
-          if null != item.sBlend
+          if null != mesh.sBlend
             gl.enable gl.BLEND
-            gl.blendFunc item.sBlend, item.dBlend
+            gl.blendFunc mesh.sBlend, mesh.dBlend
           else
             gl.disable gl.BLEND
 
 Get the render mode. @todo scene override
 
-          mode = gl[item.renderMode]
+          mode = gl[mesh.renderMode]
 
 Render geometric primitives, using the currently bound vertex data. 
 
@@ -197,7 +197,7 @@ Render geometric primitives, using the currently bound vertex data.
 - `count <integer>`  the number of vector points to render, eg 3 for a triangle
 - `<undefined>`      does not return anything
 
-          gl.drawArrays mode, 0, item.count
+          gl.drawArrays mode, 0, mesh.count
 
 @todo is this needed?
 

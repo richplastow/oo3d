@@ -45,10 +45,10 @@ Get the location of the `uMatTransform` and `uMatCamera` uniforms.
         @uMatCameraLoc    = gl.getUniformLocation @program, 'uMatCamera'
 
 
-#### `uItemColorLoc <WebGLUniformLocation>`
-Get the location of the `uItemColor` uniforms. 
+#### `uMeshColorLoc <WebGLUniformLocation>`
+Get the location of the `uMeshColor` uniforms. 
 
-        @uItemColorLoc = gl.getUniformLocation @program, 'uItemColor'
+        @uMeshColorLoc = gl.getUniformLocation @program, 'uMeshColor'
 
 
 
@@ -66,7 +66,7 @@ Simply draws the transformed vertices.
       uniform mat4 uMatTransform;
       uniform mat4 uMatCamera;
 
-      uniform vec4 uItemColor; // the Item renders as a single flat color
+      uniform vec4 uMeshColor; // the mesh renders as a single flat color
 
 
       varying vec4 vColor; // declare `vColor`
@@ -78,7 +78,7 @@ Simply draws the transformed vertices.
         gl_Position = uMatCamera * uMatTransform * vec4(aVtxPosition, 1);
 
         //// Pass the vertex-color attribute unchanged to the fragment-shader. 
-        vColor = uItemColor;
+        vColor = uMeshColor;
 
       }
       """

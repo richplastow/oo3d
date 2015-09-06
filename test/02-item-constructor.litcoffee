@@ -1,9 +1,9 @@
-02 Item Usage
-=============
+02 Item Constructor
+===================
 
 
     tudor.add [
-      "02 Item Usage"
+      "02 Item Constructor"
       tudor.is
 
 
@@ -11,13 +11,22 @@
 
       "(Mock an `Oo3d` instance)"
       ->
+        class CanvasMock
+          width:  2
+          height: 1
+          toString: -> '[object HTMLCanvasElement]'
+          getContext: ->
+            createBuffer: -> {}
+            bindBuffer:   ->
+            bufferData:   ->
+            clearColor:   ->
+            enable:       ->
+            depthFunc:    ->
+            scissor:      ->
+            clear:        ->
+            TRIANGLES:    4
         oo3d = new Main
-        oo3d.gl =
-          createBuffer: -> {}
-          bindBuffer:   ->
-          bufferData:   ->
-          TRIANGLES:    4
-        oo3d.initBuffers()
+          $main: new CanvasMock
         [oo3d]
 
 
@@ -33,7 +42,7 @@
 
       "`new` returns an object"
       ªO
-      (oo3d) -> new Item oo3d, 0
+      (oo3d) -> new Item oo3d, 0 # `main`, `index`
 
 
 
@@ -42,85 +51,53 @@
       tudor.throw
 
 
-      "`config` must not be a number"
-      "/src/class-item.litcoffee:Item:constructor()\n
-      \ `config` must be object not number"
-      (oo3d) -> new Item oo3d, 0, 123
-
-
       "`config.main` must be an object"
-      "/src/class-item.litcoffee:Item:constructor()\n
-      \ `main` must be object not number"
+      """
+      /src/item/base-item.litcoffee:Item:constructor()
+        `main` is number not object"""
       (oo3d) -> new Item 123
 
 
       "`config.main` must be an Oo3d instance"
-      "/src/class-item.litcoffee:Item:constructor()\n
-      \ `main` must be [object Oo3d] not [object Object]"
+      """
+      /src/item/base-item.litcoffee:Item:constructor()
+        `main` is '[object Object]' not '[object Oo3d]'"""
       (oo3d) -> new Item {}
 
 
       "`index` must be a number"
-      "/src/class-item.litcoffee:Item:constructor()\n
-      \ `index` must be number not boolean"
+      """
+      /src/item/base-item.litcoffee:Item:constructor()
+        `index` is boolean not number"""
       (oo3d) -> new Item oo3d, true
 
 
-      "If set, config.positionI must refer to an actual positionBuffer"
-      "/src/class-item.litcoffee:Item:constructor()\n
-      \ `config.positionI` foo does not exist" # note, will not repeat 'foo'
-      (oo3d) -> new Item oo3d, 0, 
-        positionI: 'foo'
+      "`index` must be an integer"
+      """
+      /src/item/base-item.litcoffee:Item:constructor()
+        `index` is 3.5 not 0 or a positive integer below 2^53"""
+      (oo3d) -> new Item oo3d, 3.5
 
 
-      "If set, config.colorI must refer to an actual colorBuffer"
-      "/src/class-item.litcoffee:Item:constructor()\n
-      \ `config.colorI` 123 does not exist"
-      (oo3d) -> new Item oo3d, 0, 
-        colorI: 123
-
-Add a positionBuffer. 
-
-      (oo3d) ->
-        oo3d.addPositionBuffer [1,2,3]
-        oo3d.addColorBuffer    [1,0,0,1, 0,1,0,1]
-        [oo3d]
+      "`index` must be positive"
+      """
+      /src/item/base-item.litcoffee:Item:constructor()
+        `index` is -44 not 0 or a positive integer below 2^53"""
+      (oo3d) -> new Item oo3d, -44
 
 
-      "A positionBuffer with one coordinate does not match a colorBuffer with two"
-      "/src/class-item.litcoffee:Item:constructor()\n
-      \ `config.positionI` mismatches config.colorI"
-      (oo3d) -> new Item oo3d, 0, 
-        positionI: 1
-        colorI:    1
+      "`index` must be below 2^53"
+      """
+      /src/item/base-item.litcoffee:Item:constructor()
+        `index` is 9007199254740992 not 0 or a positive integer below 2^53"""
+      (oo3d) -> new Item oo3d, 9007199254740992
 
 
-      "If set, config.renderMode must be a recognised value"
-      "/src/class-item.litcoffee:Item:constructor()\n
-      \ `config.renderMode` ZERO is not recognised by WebGL"
-      (oo3d) -> new Item oo3d, 0, 
-        renderMode: 'ZERO'
-
-
-      "If set, config.blend must be an array"
-      "/src/class-item.litcoffee:Item:constructor()\n
-      \ If set, `config.blend` must be array not number"
-      (oo3d) -> new Item oo3d, 0, 
-        blend: 1
-
-
-      "config.blend[0] (for item.sBlend) must be a recognised value"
-      "/src/class-item.litcoffee:Item:constructor()\n
-      \ `config.blend[0]` is not recognised by WebGL"
-      (oo3d) -> new Item oo3d, 0, 
-        blend: ['TRIANGLES']
-
-
-      "config.blend[1] (for item.dBlend) must be a recognised value"
-      "/src/class-item.litcoffee:Item:constructor()\n
-      \ `config.blend[1]` is not recognised by WebGL"
-      (oo3d) -> new Item oo3d, 0, 
-        blend: ['ZERO'] # config.blend[1] is undefined in this case
+      "`config` must be an object"
+      """
+      /src/item/base-item.litcoffee:Item:constructor()
+        Optional `config` is date not object"""
+      (oo3d) -> new Item oo3d, 0, new Date
 
 
 
@@ -129,15 +106,39 @@ Add a positionBuffer.
       tudor.equal
 
 
-      "Complete set of `config` defaults"
-      'TRIANGLESnullnull'
+      "`config` can be an empty object"
+      '[object Item]'
       (oo3d) ->
-        item = new Item oo3d, 0,
-          positionI:  0
-          colorI:     0
-          renderMode: null # falsey, so defaults to 'TRIANGLES'
-          blend:      null # falsey, so blending will be switched off
-        item.renderMode + (ªtype item.sBlend) + (ªtype item.dBlend)
+        item = new Item oo3d, 0, {}
+        ''+item
+
+
+      "`item.matTransform` as expected"
+      '1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1'
+      (oo3d) ->
+        item = new Item oo3d, 0, {}
+        ('' + n for n in item.matTransform).join ' '
+
+
+      "`item.rX` `item.rY` `item.rZ` as expected"
+      '0 0 0'
+      (oo3d) ->
+        item = new Item oo3d, 0, {}
+        [item.rX, item.rY, item.rZ].join ' '
+
+
+      "`item.sX` `item.sY` `item.sZ` as expected"
+      '1 1 1'
+      (oo3d) ->
+        item = new Item oo3d, 0, {}
+        [item.sX, item.sY, item.sZ].join ' '
+
+
+      "`item.tX` `item.tY` `item.tZ` as expected"
+      '0 0 0'
+      (oo3d) ->
+        item = new Item oo3d, 0, {}
+        [item.tX, item.tY, item.tZ].join ' '
 
 
 

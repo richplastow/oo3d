@@ -18,12 +18,12 @@
           bufferData:   ->
           TRIANGLES:    4
         oo3d.initBuffers()
-        itemI = oo3d.addItem
+        itemI = oo3d.addMesh
           positionI:  0
           colorI:     0
           renderMode: null # falsey, so defaults to 'TRIANGLES'
           blend:      null # falsey, so blending will be switched off
-        item = oo3d.items[itemI] # not a recommended use of API!
+        item = oo3d.meshes[itemI] # not a recommended use of API!
         [oo3d, item]
 
 

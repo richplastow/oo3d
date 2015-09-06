@@ -29,6 +29,17 @@ make the source code less verbose: `ªO == typeof x` vs `'object' == typeof x`.
 
 
 
+Numeric Constants
+-----------------
+
+@todo describe
+
+    ªMAX =  9007199254740991 # `Number.MAX_SAFE_INTEGER` in ES6
+    ªMIN = -9007199254740991 # `Number.MIN_SAFE_INTEGER` in ES6
+
+
+
+
 Constants for scope and environment
 -----------------------------------
 

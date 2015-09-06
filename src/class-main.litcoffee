@@ -51,6 +51,8 @@ Main Class
 
       constructor: (config={}) ->
         M = "#{@C}:constructor()\n  "
+        if ªO != ªtype config then throw TypeError "
+          #{M}Optional `config` is #{ªtype config} not object"
 
 Record all config as instance properties. 
 
@@ -59,8 +61,8 @@ Record all config as instance properties.
 
 
 
-Properties
-----------
+Imported Libraries
+------------------
 
 
 #### `nwang <Nwang>`
@@ -71,12 +73,50 @@ Xx. @todo describe
         @nwang = new Nwang
 
 
+
+
+Instantiation Arguments
+-----------------------
+
+
 #### `$main <HTMLCanvasElement|null>`
 The `<CANVAS>` element which will display the 3D scene. 
 
         @$main = config.$main or null
-        if @$main and ('htmlcanvaselement' != ªtype @$main) then throw Error """
-          If set, config.$main must be HTMLCanvasElement not #{ªtype @$main}"""
+        if @$main and '[object HTMLCanvasElement]' != ''+@$main then throw TypeError "
+          #{M}Optional `config.$main` is #{ªtype @$main} not HTMLCanvasElement"
+
+
+#### `bkgndR, bkgndG, bkgndB and bkgndA <number 0-1>`
+The canvas’s background clear-color. 
+
+        if ! config.bkgnd
+          @bkgndR = @bkgndG = @bkgndB = 0.25
+          @bkgndA = 1
+        else if 'float32array' == ªtype config.bkgnd
+          if 4 != config.bkgnd.length then throw Error "
+            #{M}If set `config.bkgnd` must contain four elements"
+          @bkgndR = config.bkgnd[0] or 0 # `or 0` allows `NaN`
+          @bkgndG = config.bkgnd[1] or 0
+          @bkgndB = config.bkgnd[2] or 0
+          @bkgndA = config.bkgnd[3] or 0
+          if 0 > @bkgndR or @bkgndR > 1 then throw RangeError "
+            #{M}`config.bkgnd[0]` (red) is not within range 0-1"
+          if 0 > @bkgndG or @bkgndG > 1 then throw RangeError "
+            #{M}`config.bkgnd[1]` (green) is not within range 0-1"
+          if 0 > @bkgndB or @bkgndB > 1 then throw RangeError "
+            #{M}`config.bkgnd[2]` (blue) is not within range 0-1"
+          if 0 > @bkgndA or @bkgndA > 1 then throw RangeError "
+            #{M}`config.bkgnd[3]` (alpha) is not within range 0-1"
+        else
+          throw TypeError "
+          #{M}Optional `config.bkgnd` is #{ªtype config.bkgnd} not float32array"
+
+
+
+
+Self-Assigned Properties
+------------------------
 
 
 #### `gl <WebGLRenderingContext|null>`
@@ -84,19 +124,6 @@ WebGL context, provided by the main `<CANVAS>` element’s `getContext()` method
 after `initGL()` has been run. 
 
         @gl = null
-
-
-#### `bkgndR, bkgndG, bkgndB and bkgndA <number 0-1>`
-The canvas’s background clear-color. 
-
-        if ªA == ªtype config.background
-          @bkgndR = config.background[0]
-          @bkgndG = config.background[1]
-          @bkgndB = config.background[2]
-          @bkgndA = config.background[3]
-        else
-          @bkgndR = @bkgndG = @bkgndB = 0.25
-          @bkgndA = 1
 
 
 #### `cameras <array of Cameras>`
@@ -123,17 +150,17 @@ An list of Layer instances in the order they will be rendered by main.render().
         @layers = []
 
 
-#### `items <array of Items>`
-Contains all current Item instances, whether or not any Renderers are using 
-them. An Item can be present in any number of Renderers, or in none at all. In 
-theory an Item could appear in a Renderer more than once, so that it renders on 
+#### `meshes <array of Item.Meshes>`
+Contains all current Item.Mesh instances, whether or not any Renderers are using
+them. A mesh can be present in any number of Renderers, or in none at all. In 
+theory a mesh could appear in a Renderer more than once, so that it renders on 
 top of itself, which might make sense for some kinds of translucent effects. 
 
-        @items = []
+        @meshes = []
 
 
 #### `positionBuffers and colorBuffers <array of WebGLBuffers>`
-Contains all position and color buffers, whether or not any Items use them.
+Contains all position and color buffers, whether or not anything uses them. 
 
         @positionBuffers = []
         @colorBuffers    = []
@@ -168,14 +195,14 @@ Note that despite a possible performance penalty, `preserveDrawingBuffer` is
 required for `readPixels()` in `getColorAt()` to work. 
 
       initGL: ->
+        M = "#{@C}:initGL()\n  "
         try
           for ctx in ['webgl','experimental-webgl']
-            ª ctx
             @gl = @$main.getContext ctx, { preserveDrawingBuffer:true }
             if @gl then break
         catch
         if ! @gl then throw Error """
-          Unable to initialize WebGL. Your browser may not support it."""
+          #{M}Unable to initialize WebGL. Your browser may not support it."""
         #ª @gl.getSupportedExtensions()
 
 
@@ -183,11 +210,12 @@ required for `readPixels()` in `getColorAt()` to work.
 
 #### `initCanvas()`
 Set the canvas context background, and set various WebGL parameters.  
-[From MDN’s first WebGL article, again.](https://goo.gl/DYPEVk)  
-1. Set clear-color to `config.color.background`, or else opaque black  
-2. [Enable depth testing](https://goo.gl/Eirl49)  
-3. [Near things obscure far things](https://goo.gl/4v3dAl)  
-4. Clear the color as well as the depth buffer  
+[From MDN’s first WebGL article, again.](https://goo.gl/DYPEVk)
+
+1. Set clear-color to `config.bkgnd`, or else a dark opaque color
+2. [Enable depth testing](https://goo.gl/Eirl49)
+3. [Near things obscure far things](https://goo.gl/4v3dAl)
+4. Clear the color as well as the depth buffer
 5. Set the viewport to the canvas width and height
 
       initCanvas: ->
@@ -215,7 +243,7 @@ Set the canvas context background, and set various WebGL parameters.
 
 #### `initBuffers()`
 Guarantees that position and color buffers exist at index 0. These are used by 
-newly created Items, if `config.positionI` and `config.colorI` are not set. 
+newly created items, if `config.positionI` and `config.colorI` are not set. 
 
       initBuffers: ->
         @addPositionBuffer []
@@ -237,35 +265,34 @@ API Methods
 -----------
 
 
-#### `addItem()`
+#### `addMesh()`
 - `config.renderMode <string>`  (optional) 'POINTS', 'TRIANGLES', etc
 - `config.blend <array>`        (optional) eg `['ONE','DST_COLOR']`
 - `config.positionI <integer>`  index in `positionBuffers`
 - `config.colorI <integer>`     (optional) index in `colorBuffers`
-- `<integer>`                   index of the newly added item in `items`
+- `<integer>`                   index of the newly added item in `meshes`
 
-Records a new `Item` instance in `items` and returns its index. 
+Records a new `Item.Mesh` instance in `meshes` and returns its index. 
 If `config.colors` is not set, all vertices are set to 100% opacity white.  
 [From MDN’s second WebGL article.](https://goo.gl/q6YFNe)  
 
-      addItem: (config) ->
-        index = @items.length
-        @items[index] = new Item @, index, config
+      addMesh: (config) -> #@todo rename Mesh
+        index = @meshes.length
+        @meshes[index] = new Item.Mesh @, index, config
         return index
 
 
 
 
 #### `addCamera()`
-- `config <object>`  passed to the `Camera` contructor
-- `<integer>`        index of the newly added Camera in `@cameras`
+- `config <object>`  passed to the `Item.Camera` contructor
+- `<integer>`        index of the newly added Item.Camera in `@cameras`
 
-Records a new `Camera` instance in `cameras` and returns its index. 
+Records a new `Item.Camera` instance in `cameras` and returns its index. 
 
       addCamera: (config) ->
         index = @cameras.length
-        @cameras[index] = new Camera @, config
-        ª index
+        @cameras[index] = new Item.Camera @, index, config
         return index
 
 
@@ -382,7 +409,7 @@ Records a new `WebGLBuffer` instance in `colorBuffers` and returns its index.
 Get a handy reference to the target, and its current transformation-matrix.  
 @todo deal with not-found
 
-        target = @items[targetIndex] or @cameras[0]
+        target = @meshes[targetIndex] or @cameras[0]
         mat = target.matTransform
 
 Determine which axes are zero, if any. 
@@ -481,7 +508,7 @@ Return this Oo3d instance (allows chaining).
 Get a handy reference to the target, and its current transformation-matrix.  
 @todo deal with not-found
 
-        target = @items[targetIndex] or @cameras[0]
+        target = @meshes[targetIndex] or @cameras[0]
         mat = target.matTransform
 
 Determine which axes are set to `1`, if any. 
@@ -541,7 +568,7 @@ Return this Oo3d instance (allows chaining).
 Get a handy reference to the target, and its current transformation-matrix.  
 @todo deal with not-found
 
-        target = @items[targetIndex] or @cameras[0]
+        target = @meshes[targetIndex] or @cameras[0]
         mat = target.matTransform
 
 Determine which axes are zero, if any. 
@@ -614,7 +641,7 @@ Return this Oo3d instance (allows chaining).
 Get a handy reference to the target, and its current transformation-matrix.  
 @todo deal with not-found
 
-        target = @items[targetIndex] or @cameras[0]
+        target = @meshes[targetIndex] or @cameras[0]
         mat = target.matTransform
 
 Reset the individual transform properties. 
@@ -655,8 +682,8 @@ Change the `mode` passed to `gl.drawArrays()` for an individual Shape, or the
 entire Scene. @todo scene
 
       setRenderMode: (renderMode, targetIndex) ->
-        if ! @items[targetIndex] then return #@todo prevent gaps
-        @items[targetIndex].renderMode = renderMode
+        if ! @meshes[targetIndex] then return #@todo prevent gaps
+        @meshes[targetIndex].renderMode = renderMode
 
 Return this Oo3d instance (allows chaining). 
 
@@ -689,13 +716,13 @@ Get the color value at the given coordinates.
 
 
 
-#### `getItemIByColor()`
+#### `getMeshIByColor()`
 - `color <Float32Array>`  xx @todo describe
-- `<integer>`             index of the Item in `main.items`
+- `<integer>`             index of the Item.Mesh instance in `main.meshes`
 
-Get the index of the Item in `items` which corresponds to `color`. 
+Get the index of the mesh in `meshes` which corresponds to `color`. 
 
-      getItemIByColor: (color) -> pick.colorToIndex color
+      getMeshIByColor: (color) -> pick.colorToIndex color
 
 
 
@@ -731,15 +758,15 @@ Return the snapshot.
 
 
 
-#### `getItemSnapshot()`
-- `itemI <integer>`  xx @todo describe
+#### `getMeshSnapshot()`
+- `meshI <integer>`  xx @todo describe
 - `<object>`         xx @todo describe
 
-Create an object which describes the given Item’s current state.  
+Create an object which describes the given mesh’s current state.  
 @todo also `item.dBlend` etc, not just the transform state
 
-      getItemSnapshot: (itemI) ->
-        item = @items[itemI]
+      getMeshSnapshot: (meshI) ->
+        item = @meshes[meshI]
 
 Clone, don’t reference, `matTransform`. 
 
@@ -798,24 +825,24 @@ Return this Oo3d instance (allows chaining).
 
 
 
-#### `setItemSnapshot()`
-- `snapshot <object>`  a snapshot of an Item, eg returned by `getItemSnapshot()`
-- `itemI <integer>`    the index, in `items`, of the target Item
+#### `setMeshSnapshot()`
+- `snapshot <object>`  a snapshot of an Mesh, eg returned by `getMeshSnapshot()`
+- `meshI <integer>`    the index, in `meshes`, of the target mesh
 
-Replaces the given Item’s state with the properties in a snapshot object `s`. 
+Replaces the given Mesh’s state with the properties in a snapshot object `s`. 
 @todo also `item.dBlend` etc, not just the transform state  
 @todo check that `snapshot.mat` is the outcome of the individual transforms?  
 @todo check that all of the properties are valid?  
 
-      setItemSnapshot: (snapshot, itemI) ->
-        item = @items[itemI]
+      setMeshSnapshot: (snapshot, meshI) ->
+        item = @meshes[meshI]
 
 Clone, don’t reference, `snapshot.mat`. 
 
         item.matTransform = new Float32Array 16
         item.matTransform.set snapshot.mat
 
-Copy the remaining snapshot into the Item’s state. 
+Copy the remaining snapshot into the mesh’s state. 
 
         item.rX = snapshot.rX
         item.rY = snapshot.rY

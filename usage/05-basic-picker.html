@@ -21,7 +21,7 @@
           //// Oo3d Instance. 
          ,oo3d = new Oo3d({
             $main: $main
-           ,background: [0.1, 0.2, 0.4, 0.9]
+           ,bkgnd: new Float32Array([0.1, 0.2, 0.4, 0.9])
           })
 
 
@@ -84,33 +84,33 @@
           ])
 
 
-          //// Create Items. 
-         ,rgbTri1I = oo3d.addItem({
+          //// Create Meshes. 
+         ,rgbTri1I = oo3d.addMesh({
             positionI:  rgbTriPositions
            ,colorI:     rgbTriColors
            //,blend:      ['SRC_COLOR','SRC_COLOR'] // sfactor, dfactor
           })
-         ,rgbTri2I = oo3d.addItem({
+         ,rgbTri2I = oo3d.addMesh({
             positionI:  rgbTriPositions
            ,colorI:     rgbTriColors
           })
-         ,rgbTri3I = oo3d.addItem({
+         ,rgbTri3I = oo3d.addMesh({
             positionI:  rgbTriPositions
            ,colorI:     rgbTriColors
           })
-         ,cmyTri1I = oo3d.addItem({
+         ,cmyTri1I = oo3d.addMesh({
             positionI:  cmyTriPositions
            ,colorI:     cmyTriColors
           })
-         ,cmyTri2I = oo3d.addItem({
+         ,cmyTri2I = oo3d.addMesh({
             positionI:  cmyTriPositions
            ,colorI:     cmyTriColors
           })
-         ,cmyTri3I = oo3d.addItem({
+         ,cmyTri3I = oo3d.addMesh({
             positionI:  cmyTriPositions
            ,colorI:     cmyTriColors
           })
-         ,pyramidI = oo3d.addItem({
+         ,pyramidI = oo3d.addMesh({
             positionI:  pyramidPositions
            ,colorI:     pyramidColors
            //,blend:      ['ONE','DST_COLOR'] // sfactor, dfactor
@@ -134,7 +134,7 @@
          ,rendererI = oo3d.addRenderer({
             cameraI:  cameraI
            ,programI: flatItemProgramI
-           ,itemIs:   new Uint16Array([
+           ,meshIs:   new Uint16Array([
               rgbTri1I
              ,rgbTri2I
              ,rgbTri3I
@@ -170,7 +170,7 @@
         ;
 
 
-        //// Move Items so that they’re all visible. 
+        //// Move meshes so that they’re all visible. 
         oo3d.translate(-0.5,0,0,rgbTri1I);
         oo3d.translate(-1,0,-.5,rgbTri2I);
         oo3d.translate(1.5,0,-2,rgbTri3I);
@@ -194,17 +194,17 @@
           ;
           //console.log(w, h, $main.width, $main.height, wRatio, hRatio, x, y);
           var color = oo3d.getColorAt(x, $main.height - y);
-          var itemI = oo3d.getItemIByColor(color);
-          if (8001440 == itemI) { // `8001440` is background r0.1 g0.2 b0.4
+          var meshI = oo3d.getMeshIByColor(color);
+          if (8001440 == meshI) { // `8001440` is background r0.1 g0.2 b0.4
             oo3d.bkgndA = 0.5;
             setTimeout(function () {
               oo3d.bkgndA = 0.9;
               oo3d.render();
             }, 500);
           } else {
-            oo3d.setRenderMode('LINE_LOOP', itemI);
+            oo3d.setRenderMode('LINE_LOOP', meshI);
             setTimeout(function () {
-              oo3d.setRenderMode('TRIANGLES', itemI);
+              oo3d.setRenderMode('TRIANGLES', meshI);
               oo3d.render();
             }, 500);
           }

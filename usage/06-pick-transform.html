@@ -56,13 +56,13 @@
          ,focusI       = null
          ,downPos      = null // mousedown position
          ,moveHandler  = function (x, y) {}
-         ,itemSnapshot = null
+         ,meshSnapshot = null
 
 
           //// Oo3d Instance. 
          ,oo3d = new Oo3d({
             $main: $main
-           ,background: [1.0, 1.0, 1.0, 1.0]
+           ,bkgnd: new Float32Array([1.0, 1.0, 1.0, 1.0])
           })
 
 
@@ -125,33 +125,33 @@
           ])
 
 
-          //// Create Items. 
-         ,rgbTri1I = oo3d.addItem({
+          //// Create Meshes. 
+         ,rgbTri1I = oo3d.addMesh({
             positionI:  rgbTriPositions
            ,colorI:     rgbTriColors
            //,blend:      ['SRC_COLOR','SRC_COLOR'] // sfactor, dfactor
           })
-         ,rgbTri2I = oo3d.addItem({
+         ,rgbTri2I = oo3d.addMesh({
             positionI:  rgbTriPositions
            ,colorI:     rgbTriColors
           })
-         ,rgbTri3I = oo3d.addItem({
+         ,rgbTri3I = oo3d.addMesh({
             positionI:  rgbTriPositions
            ,colorI:     rgbTriColors
           })
-         ,cmyTri1I = oo3d.addItem({
+         ,cmyTri1I = oo3d.addMesh({
             positionI:  cmyTriPositions
            ,colorI:     cmyTriColors
           })
-         ,cmyTri2I = oo3d.addItem({
+         ,cmyTri2I = oo3d.addMesh({
             positionI:  cmyTriPositions
            ,colorI:     cmyTriColors
           })
-         ,cmyTri3I = oo3d.addItem({
+         ,cmyTri3I = oo3d.addMesh({
             positionI:  cmyTriPositions
            ,colorI:     cmyTriColors
           })
-         ,pyramidI = oo3d.addItem({
+         ,pyramidI = oo3d.addMesh({
             positionI:  pyramidPositions
            ,colorI:     pyramidColors
            //,blend:      ['ONE','DST_COLOR'] // sfactor, dfactor
@@ -175,7 +175,7 @@
          ,rendererI = oo3d.addRenderer({
             cameraI:  cameraI
            ,programI: flatItemProgramI
-           ,itemIs:   new Uint16Array([
+           ,meshIs:   new Uint16Array([
               rgbTri1I
              ,rgbTri2I
              ,rgbTri3I
@@ -218,13 +218,13 @@
 
 
           //// `onlyWireframe()`
-          //// Removes 'LINE_LOOP' from all Items, except `itemI`. 
-          //// `itemI` is optional. 
-         ,onlyWireframe = function (itemI) {
-            for (var i=0, l=oo3d.items.length; i<l; i++) {
+          //// Removes 'LINE_LOOP' from all meshes, except `meshI`. 
+          //// `meshI` is optional. 
+         ,onlyWireframe = function (meshI) {
+            for (var i=0, l=oo3d.meshes.length; i<l; i++) {
               oo3d.setRenderMode('TRIANGLES', i);
             }
-            if (0 === itemI || itemI) { oo3d.setRenderMode('LINE_LOOP', itemI); }
+            if (0 === meshI || meshI) { oo3d.setRenderMode('LINE_LOOP', meshI); }
           }
 
 
@@ -315,13 +315,13 @@
 
 
           //// `verboseSnapshot()`
-          //// - `s <object>`  Item info returned by `oo3d.getItemSnapshot()`
+          //// - `s <object>`  Mesh info returned by `oo3d.getMeshSnapshot()`
           //// - `<object>`    the snapshot with extra properties
           ////
-          //// Create an object which `updateItemInfo()` can use. 
+          //// Create an object which `updateMeshInfo()` can use. 
           verboseSnapshot = function (s) {
 
-            //// Flips are taken from the Item’s scale properties. 
+            //// Flips are taken from the Mesh’s scale properties. 
             s.fX = 0 == s.sX ? 0 : 0 > s.sX ? '-' : '+';
             s.fY = 0 == s.sY ? 0 : 0 > s.sY ? '-' : '+';
             s.fZ = 0 == s.sZ ? 0 : 0 > s.sZ ? '-' : '+';
@@ -346,12 +346,12 @@
 
 
 
-          //// `updateItemInfo()`
-          //// Displays various values from a given Item’s state. 
-          //// `itemI` is optional. If not set, the displays are reset. 
-         ,updateItemInfo = function (itemI) {
-            if (0 === itemI || itemI) {
-              info = verboseSnapshot( oo3d.getItemSnapshot(itemI) );
+          //// `updateMeshInfo()`
+          //// Displays various values from a given Item.Mesh’s state. 
+          //// `meshI` is optional. If not set, the displays are reset. 
+         ,updateMeshInfo = function (meshI) {
+            if (0 === meshI || meshI) {
+              info = verboseSnapshot( oo3d.getMeshSnapshot(meshI) );
               $btnFlipInfo.innerHTML  = '' + info.fX + info.fY + info.fZ;
               $btnTxyInfo.innerHTML   = info.tXround + '<br>' + info.tYround;
               $btnTxzInfo.innerHTML   = info.tXround + '<br>' + info.tZround;
@@ -387,7 +387,7 @@
             if ( (0 === focusI || focusI) && isActive($guiHome) ) {
               moveHandler = customMoveHandler;
               downPos = [event.clientX, event.clientY];
-              itemSnapshot = oo3d.getItemSnapshot(focusI);
+              meshSnapshot = oo3d.getMeshSnapshot(focusI);
               window.addEventListener('mousemove', onMousemove);
               window.addEventListener('mouseup'  , onMouseup  );
             }
@@ -401,7 +401,7 @@
               moveHandler = customMoveHandler;
               var touches = event.changedTouches;
               downPos = [touches[0].pageX, touches[0].pageY];
-              itemSnapshot = oo3d.getItemSnapshot(focusI);
+              meshSnapshot = oo3d.getMeshSnapshot(focusI);
               window.addEventListener('touchmove', onTouchmove);
               window.addEventListener('touchend' , onTouchend );
             }
@@ -446,54 +446,54 @@
           //// `moveHandlerTxy()`
           //// Xx. @todo describe
          ,moveHandlerTxy = function (x, y) {
-            oo3d.setItemSnapshot(itemSnapshot, focusI)
+            oo3d.setMeshSnapshot(meshSnapshot, focusI)
              .translate(x/500, y/-500, 0, focusI)
              .render();
-            updateItemInfo(focusI);
+            updateMeshInfo(focusI);
          }
 
           //// `moveHandlerTxz()`
           //// Xx. @todo describe
          ,moveHandlerTxz = function (x, y) {
-            oo3d.setItemSnapshot(itemSnapshot, focusI)
+            oo3d.setMeshSnapshot(meshSnapshot, focusI)
              .translate(x/500, 0, y/500, focusI)
              .render();
-            updateItemInfo(focusI);
+            updateMeshInfo(focusI);
          }
 
 
           //// `moveHandlerRyx()`
           //// Xx. @todo describe
          ,moveHandlerRyx = function (x, y) {
-            oo3d.setItemSnapshot(itemSnapshot, focusI)
+            oo3d.setMeshSnapshot(meshSnapshot, focusI)
              .rotate(y/500, x/500, 0, focusI)
              .render();
-            updateItemInfo(focusI);
+            updateMeshInfo(focusI);
          }
 
           //// `moveHandlerRyz()`
           //// Xx. @todo describe
          ,moveHandlerRyz = function (x, y) {
-            oo3d.setItemSnapshot(itemSnapshot, focusI)
+            oo3d.setMeshSnapshot(meshSnapshot, focusI)
              .rotate(0, x/500, y/-500, focusI)
              .render();
-            updateItemInfo(focusI);
+            updateMeshInfo(focusI);
          }
 
           //// `moveHandlerScale()`
           //// Xx. @todo describe
          ,moveHandlerScale = function (x, y) {
             scale = Math.abs( 1 + (x - y)/500 );
-            oo3d.setItemSnapshot(itemSnapshot, focusI)
+            oo3d.setMeshSnapshot(meshSnapshot, focusI)
              .scale(scale, scale, scale, focusI)
              .render();
-            updateItemInfo(focusI);
+            updateMeshInfo(focusI);
          }
 
         ;
 
 
-        //// Move Items so that they’re all visible. 
+        //// Move meshes so that they’re all visible. 
         oo3d.translate(-0.5,0,0,rgbTri1I);
         oo3d.translate(-1,0,-.5,rgbTri2I);
         oo3d.translate(1.5,0,-2,rgbTri3I);
@@ -516,32 +516,32 @@
         $btnFlipX.addEventListener('mousedown', function (event) {
           if ( 'gui active' !== $guiFlip.getAttribute('class') ) { return; }
           oo3d.scale(-1, 1, 1, focusI);
-          updateItemInfo(focusI);
+          updateMeshInfo(focusI);
           oo3d.render();
         });
         $btnFlipY.addEventListener('mousedown', function (event) {
           if ( 'gui active' !== $guiFlip.getAttribute('class') ) { return; }
           oo3d.scale(1, -1, 1, focusI);
-          updateItemInfo(focusI);
+          updateMeshInfo(focusI);
           oo3d.render();
         });
         $btnFlipZ.addEventListener('mousedown', function (event) {
           if ( 'gui active' !== $guiFlip.getAttribute('class') ) { return; }
           oo3d.scale(1, 1, -1, focusI);
-          updateItemInfo(focusI);
+          updateMeshInfo(focusI);
           oo3d.render();
         });
         $btnFlipR.addEventListener('mousedown', function (event) {
           if ( 'gui active' !== $guiFlip.getAttribute('class') ) { return; }
-          itemSnapshot = oo3d.getItemSnapshot(focusI);
-          itemInfo = oo3d.getItemSnapshot(focusI);
+          meshSnapshot = oo3d.getMeshSnapshot(focusI);
+          meshInfo = oo3d.getMeshSnapshot(focusI);
           oo3d.scale(
-            '+' == itemSnapshot.fX ? 1 : -1,
-            '+' == itemSnapshot.fY ? 1 : -1,
-            '+' == itemSnapshot.fZ ? 1 : -1,
+            '+' == meshSnapshot.fX ? 1 : -1,
+            '+' == meshSnapshot.fY ? 1 : -1,
+            '+' == meshSnapshot.fZ ? 1 : -1,
             focusI
           );
-          updateItemInfo(focusI);
+          updateMeshInfo(focusI);
           oo3d.render();
         });
 
@@ -604,25 +604,25 @@
           ;
 
           var color = oo3d.getColorAt(x, $main.height - y);
-          var itemI = oo3d.getItemIByColor(color);
+          var meshI = oo3d.getMeshIByColor(color);
 
-          if (16777215 == itemI) { // `16777215` is the white background
+          if (16777215 == meshI) { // `16777215` is the white background
             focusI = null; 
             onlyShow();
             onlyWireframe();
-            updateItemInfo();
+            updateMeshInfo();
             // oo3d.bkgndA = 0.5;
             // setTimeout(function () {
             //   oo3d.bkgndA = 0.9;
             //   oo3d.render();
             // }, 500);
           } else {
-            focusI = itemI; 
+            focusI = meshI; 
             onlyShow($guiHome);
-            onlyWireframe(itemI);
-            updateItemInfo(itemI);
+            onlyWireframe(meshI);
+            updateMeshInfo(meshI);
             // setTimeout(function () {
-            //   oo3d.setRenderMode('TRIANGLES', itemI);
+            //   oo3d.setRenderMode('TRIANGLES', meshI);
             //   oo3d.render();
             // }, 500);
           }

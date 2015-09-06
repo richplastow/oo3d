@@ -37,15 +37,15 @@
          ,$btnAddShape6  = $('#btn-add-shape-6')
          ,$btnAddShape7  = $('#btn-add-shape-7')
 
-         ,$guiItem       = $('#gui-item')
-         ,$btnItemDelete = $('#btn-item-delete')
-         ,$btnItemFlip   = $('#btn-item-flip')
-         ,$btnItemTxy    = $('#btn-item-txy')
-         ,$btnItemScale  = $('#btn-item-scale')
-         ,$btnItemTxz    = $('#btn-item-txz')
-         ,$btnItemRyx    = $('#btn-item-ryx')
-         ,$btnItemReset  = $('#btn-item-reset')
-         ,$btnItemRyz    = $('#btn-item-ryz')
+         ,$guiMesh       = $('#gui-mesh')
+         ,$btnMeshDelete = $('#btn-mesh-delete')
+         ,$btnMeshFlip   = $('#btn-mesh-flip')
+         ,$btnMeshTxy    = $('#btn-mesh-txy')
+         ,$btnMeshScale  = $('#btn-mesh-scale')
+         ,$btnMeshTxz    = $('#btn-mesh-txz')
+         ,$btnMeshRyx    = $('#btn-mesh-ryx')
+         ,$btnMeshReset  = $('#btn-mesh-reset')
+         ,$btnMeshRyz    = $('#btn-mesh-ryz')
 
          ,$guiFlip       = $('#gui-flip')
          ,$btnFlipBack   = $('#btn-flip-back')
@@ -61,13 +61,13 @@
          ,$btnSceneRyzInfo   = $('#btn-scene-ryz i')
          ,$btnSceneScaleInfo = $('#btn-scene-scale i')
 
-         ,$guiItemInfo       = $('#gui-item i')
-         ,$btnItemFlipInfo   = $('#btn-item-flip i')
-         ,$btnItemTxyInfo    = $('#btn-item-txy i')
-         ,$btnItemTxzInfo    = $('#btn-item-txz i')
-         ,$btnItemRyxInfo    = $('#btn-item-ryx i')
-         ,$btnItemRyzInfo    = $('#btn-item-ryz i')
-         ,$btnItemScaleInfo  = $('#btn-item-scale i')
+         ,$guiMeshInfo       = $('#gui-mesh i')
+         ,$btnMeshFlipInfo   = $('#btn-mesh-flip i')
+         ,$btnMeshTxyInfo    = $('#btn-mesh-txy i')
+         ,$btnMeshTxzInfo    = $('#btn-mesh-txz i')
+         ,$btnMeshRyxInfo    = $('#btn-mesh-ryx i')
+         ,$btnMeshRyzInfo    = $('#btn-mesh-ryz i')
+         ,$btnMeshScaleInfo  = $('#btn-mesh-scale i')
 
          ,$guiFlipInfo       = $('#gui-flip i')
          ,$btnFlipBackInfo   = $('#btn-flip-back i')
@@ -87,14 +87,14 @@
          ,toggleSceneGui = false
          ,downPos        = null // mousedown position
          ,moveHandler    = function (x, y) {}
-         ,itemSnapshot   = null
+         ,meshSnapshot   = null
          ,cameraSnapshot = null
 
 
           //// Oo3d Instance. 
          ,oo3d = new Oo3d({
             $main: $main
-           ,background: [1.0, 1.0, 1.0, 1.0]
+           ,bkgnd: new Float32Array([1.0, 1.0, 1.0, 1.0])
           })
 
 
@@ -170,11 +170,11 @@
           })
 
 
-          //// Create Renderers (will be filled with items, below). 
+          //// Create Renderers (will be filled with meshes, below). 
          ,rendererI = oo3d.addRenderer({
             cameraI:  cameraI
            ,programI: flatItemProgramI
-           ,itemIs:   new Uint16Array(0)
+           ,meshIs:   new Uint16Array(0)
           })
 
 
@@ -204,20 +204,20 @@
          ,onlyShow = function ($el) {
             $guiScene.setAttribute('class', 'gui');
             $guiAdd.setAttribute(  'class', 'gui');
-            $guiItem.setAttribute( 'class', 'gui');
+            $guiMesh.setAttribute( 'class', 'gui');
             $guiFlip.setAttribute( 'class', 'gui');
             if ($el) { $el.setAttribute('class', 'gui active'); }
           }
 
 
           //// `onlyWireframe()`
-          //// Removes 'LINE_LOOP' from all Items, except `itemI`. 
-          //// `itemI` is optional. 
-         ,onlyWireframe = function (itemI) {
-            for (var i=0, l=oo3d.items.length; i<l; i++) {
+          //// Removes 'LINE_LOOP' from all meshes, except `meshI`. 
+          //// `meshI` is optional. 
+         ,onlyWireframe = function (meshI) {
+            for (var i=0, l=oo3d.meshes.length; i<l; i++) {
               oo3d.setRenderMode('TRIANGLES', i);
             }
-            if (0 === itemI || itemI) { oo3d.setRenderMode('LINE_LOOP', itemI); }
+            if (0 === meshI || meshI) { oo3d.setRenderMode('LINE_LOOP', meshI); }
           }
 
 
@@ -308,13 +308,13 @@
 
 
           //// `verboseSnapshot()`
-          //// - `s <object>`  Item info returned by `oo3d.getItemSnapshot()`
+          //// - `s <object>`  Mesh info returned by `oo3d.getMeshSnapshot()`
           //// - `<object>`    the snapshot with extra properties
           ////
-          //// Create an object which `updateItemInfo()` can use. 
+          //// Create an object which `updateMeshInfo()` can use. 
           verboseSnapshot = function (s) {
 
-            //// Flips are taken from the Item’s scale properties. 
+            //// Flips are taken from the mesh’s scale properties. 
             s.fX = 0 == s.sX ? 0 : 0 > s.sX ? '-' : '+';
             s.fY = 0 == s.sY ? 0 : 0 > s.sY ? '-' : '+';
             s.fZ = 0 == s.sZ ? 0 : 0 > s.sZ ? '-' : '+';
@@ -339,18 +339,18 @@
 
 
 
-          //// `updateItemInfo()`
-          //// Displays various values from a given Item’s state. 
-          //// `itemI` is optional. If not set, the displays are reset. 
-         ,updateItemInfo = function (itemI) {
-            if (0 === itemI || itemI) {
-              info = verboseSnapshot( oo3d.getItemSnapshot(itemI) );
-              $btnItemFlipInfo.innerHTML  = '' + info.fX + info.fY + info.fZ;
-              $btnItemTxyInfo.innerHTML   = info.tXround + '<br>' + info.tYround;
-              $btnItemTxzInfo.innerHTML   = info.tXround + '<br>' + info.tZround;
-              $btnItemRyxInfo.innerHTML   = info.rYround + '<br>' + info.rXround;
-              $btnItemRyzInfo.innerHTML   = info.rYround + '<br>' + info.rZround;
-              $btnItemScaleInfo.innerHTML = info.sXround;
+          //// `updateMeshInfo()`
+          //// Displays various values from a given mesh’s state. 
+          //// `meshI` is optional. If not set, the displays are reset. 
+         ,updateMeshInfo = function (meshI) {
+            if (0 === meshI || meshI) {
+              info = verboseSnapshot( oo3d.getMeshSnapshot(meshI) );
+              $btnMeshFlipInfo.innerHTML  = '' + info.fX + info.fY + info.fZ;
+              $btnMeshTxyInfo.innerHTML   = info.tXround + '<br>' + info.tYround;
+              $btnMeshTxzInfo.innerHTML   = info.tXround + '<br>' + info.tZround;
+              $btnMeshRyxInfo.innerHTML   = info.rYround + '<br>' + info.rXround;
+              $btnMeshRyzInfo.innerHTML   = info.rYround + '<br>' + info.rZround;
+              $btnMeshScaleInfo.innerHTML = info.sXround;
               $btnFlipXInfo.innerHTML = info.fX;
               $btnFlipYInfo.innerHTML = info.fY;
               $btnFlipZInfo.innerHTML = info.fZ;
@@ -373,10 +373,10 @@
           //// @todo describe
           onMousedown = function (event, $el, customMoveHandler) {
             event.preventDefault();
-            if ( (0 === focusI || focusI) && isActive($guiItem) ) {
+            if ( (0 === focusI || focusI) && isActive($guiMesh) ) {
               moveHandler = customMoveHandler;
               downPos = [event.clientX, event.clientY];
-              itemSnapshot = oo3d.getItemSnapshot(focusI);
+              meshSnapshot = oo3d.getMeshSnapshot(focusI);
               window.addEventListener('mousemove', onMousemove);
               window.addEventListener('mouseup'  , onMouseup  );
             } else if ( null == focusI && isActive($guiScene) ) {
@@ -392,11 +392,11 @@
           //// @todo describe
           onTouchstart = function (event, $el, customMoveHandler) {
             event.preventDefault();
-            if ( (0 === focusI || focusI) && isActive($guiItem) ) {
+            if ( (0 === focusI || focusI) && isActive($guiMesh) ) {
               moveHandler = customMoveHandler;
               var touches = event.changedTouches;
               downPos = [touches[0].pageX, touches[0].pageY];
-              itemSnapshot = oo3d.getItemSnapshot(focusI);
+              meshSnapshot = oo3d.getMeshSnapshot(focusI);
               window.addEventListener('touchmove', onTouchmove);
               window.addEventListener('touchend' , onTouchend );
             }
@@ -446,11 +446,11 @@
                .translate(x/500, y/-500, 0)
                .render();
             } else if (0 === focusI || focusI) {
-              oo3d.setItemSnapshot(itemSnapshot, focusI)
+              oo3d.setMeshSnapshot(meshSnapshot, focusI)
                .translate(x/500, y/-500, 0, focusI)
                .render();
             }
-            updateItemInfo(focusI);
+            updateMeshInfo(focusI);
          }
 
           //// `moveHandlerTxz()`
@@ -461,11 +461,11 @@
                .translate(x/500, 0, y/500, focusI)
                .render();
             } else if (0 === focusI || focusI) {
-              oo3d.setItemSnapshot(itemSnapshot, focusI)
+              oo3d.setMeshSnapshot(meshSnapshot, focusI)
                .translate(x/500, 0, y/500, focusI)
                .render();
             }
-            updateItemInfo(focusI);
+            updateMeshInfo(focusI);
          }
 
 
@@ -477,11 +477,11 @@
                .rotate(y/500, x/500, 0, focusI)
                .render();
             } else if (0 === focusI || focusI) {
-              oo3d.setItemSnapshot(itemSnapshot, focusI)
+              oo3d.setMeshSnapshot(meshSnapshot, focusI)
                .rotate(y/500, x/500, 0, focusI)
                .render();
             }
-            updateItemInfo(focusI);
+            updateMeshInfo(focusI);
          }
 
           //// `moveHandlerRyz()`
@@ -492,11 +492,11 @@
                .rotate(0, x/500, y/-500, focusI)
                .render();
             } else if (0 === focusI || focusI) {
-              oo3d.setItemSnapshot(itemSnapshot, focusI)
+              oo3d.setMeshSnapshot(meshSnapshot, focusI)
                .rotate(0, x/500, y/-500, focusI)
                .render();
             }
-            updateItemInfo(focusI);
+            updateMeshInfo(focusI);
          }
 
           //// `moveHandlerScale()`
@@ -508,11 +508,11 @@
                .scale(scale, scale, scale, focusI)
                .render();
             } else if (0 === focusI || focusI) {
-              oo3d.setItemSnapshot(itemSnapshot, focusI)
+              oo3d.setMeshSnapshot(meshSnapshot, focusI)
                .scale(scale, scale, scale, focusI)
                .render();
             }
-            updateItemInfo(focusI);
+            updateMeshInfo(focusI);
          }
 
           //// `clickHandlerReset()`
@@ -528,21 +528,21 @@
                 ], rX:0,rY:0,rZ:0, sX:1,sY:1,sZ:1, tX:0,tY:0,tZ:-4
               }, 0)
             } else if (0 === focusI || focusI) {
-              oo3d.setItemSnapshot(itemSnapshot, focusI)
+              oo3d.setMeshSnapshot(meshSnapshot, focusI)
             }
             oo3d.resetTransform(focusI).render();
-            updateItemInfo(focusI);
+            updateMeshInfo(focusI);
          }
 
           //// `addHandlerShape()`
           ////@todo describe
-         ,addHandlerShape = function (itemConfig) {
-            focusI = oo3d.addItem(itemConfig);
-            oo3d.renderers[rendererI].items.push(
-              oo3d.items[focusI]
+         ,addHandlerShape = function (meshConfig) {
+            focusI = oo3d.addMesh(meshConfig);
+            oo3d.renderers[rendererI].meshes.push(
+              oo3d.meshes[focusI]
             );
-            updateItemInfo(focusI);
-            onlyShow($guiItem);
+            updateMeshInfo(focusI);
+            onlyShow($guiMesh);
             onlyWireframe(focusI);
             oo3d.render();
           }
@@ -556,18 +556,18 @@
           snaps = hash.split(';');
           for (var i=0, l=snaps.length; i<l; i++) {
 
-            //// Create an Item. 
-            itemI = oo3d.addItem({
+            //// Create a mesh. 
+            meshI = oo3d.addMesh({
               positionI:  pyramidPositions
              ,colorI:     pyramidColors
             })
 
-            //// Set the Item's transform state. 
-            oo3d.items[itemI].setSnapshot(snaps[i], itemI);
+            //// Set the mesh's transform state. 
+            oo3d.meshes[meshI].setSnapshot(snaps[i], meshI);
 
-            //// Add the Item to the current Renderer's list. 
-            oo3d.renderers[rendererI].items.push(
-              oo3d.items[itemI]
+            //// Add the mesh to the current Renderer's list. 
+            oo3d.renderers[rendererI].meshes.push(
+              oo3d.meshes[meshI]
             );
 
             console.log(snaps[i]);
@@ -576,41 +576,41 @@
         } else {
 
 
-          //// Create Default Items. 
-          var rgbTri1I = oo3d.addItem({
+          //// Create Default Meshes. 
+          var rgbTri1I = oo3d.addMesh({
             positionI:  rgbTriPositions
            ,colorI:     rgbTriColors
            //,blend:      ['SRC_COLOR','SRC_COLOR'] // sfactor, dfactor
           })
-         ,rgbTri2I = oo3d.addItem({
+         ,rgbTri2I = oo3d.addMesh({
             positionI:  rgbTriPositions
            ,colorI:     rgbTriColors
           })
-         ,rgbTri3I = oo3d.addItem({
+         ,rgbTri3I = oo3d.addMesh({
             positionI:  rgbTriPositions
            ,colorI:     rgbTriColors
           })
-         ,cmyTri1I = oo3d.addItem({
+         ,cmyTri1I = oo3d.addMesh({
             positionI:  cmyTriPositions
            ,colorI:     cmyTriColors
           })
-         ,cmyTri2I = oo3d.addItem({
+         ,cmyTri2I = oo3d.addMesh({
             positionI:  cmyTriPositions
            ,colorI:     cmyTriColors
           })
-         ,cmyTri3I = oo3d.addItem({
+         ,cmyTri3I = oo3d.addMesh({
             positionI:  cmyTriPositions
            ,colorI:     cmyTriColors
           })
-         ,pyramidI = oo3d.addItem({
+         ,pyramidI = oo3d.addMesh({
             positionI:  pyramidPositions
            ,colorI:     pyramidColors
            //,blend:      ['ONE','DST_COLOR'] // sfactor, dfactor
           })
           ;
 
-          //// Add default items to the Renderer. 
-          var itemIs = [
+          //// Add default meshes to the Renderer. 
+          var meshIs = [
             rgbTri1I
            ,rgbTri2I
            ,rgbTri3I
@@ -619,13 +619,13 @@
            ,cmyTri3I
            ,pyramidI
           ];
-          for (var i=0, l=itemIs.length; i<l; i++) {
-            oo3d.renderers[rendererI].items.push(
-              oo3d.items[ itemIs[i] ]
+          for (var i=0, l=meshIs.length; i<l; i++) {
+            oo3d.renderers[rendererI].meshes.push(
+              oo3d.meshes[ meshIs[i] ]
             );
           }
 
-          //// Move Items so that they’re all visible. 
+          //// Move meshes so that they’re all visible. 
           oo3d.translate(-0.5,0,0,rgbTri1I);
           oo3d.translate(-1,0,-.5,rgbTri2I);
           oo3d.translate(1.5,0,-2,rgbTri3I);
@@ -645,9 +645,9 @@
           if ( 'gui active' !== $guiScene.getAttribute('class') ) { return; }
           //prompt('Save URI:', 'http://oo3d.richplastow.com/usage/07-scene-builder.html#abc123');
           var saveURI = '', i, l;
-          for (i=0, l=oo3d.items.length; i<l; i++) {
-            if (! oo3d.items[i]) { continue; }
-            saveURI += oo3d.items[i].getSnapshot('uri') + ';'
+          for (i=0, l=oo3d.meshes.length; i<l; i++) {
+            if (! oo3d.meshes[i]) { continue; }
+            saveURI += oo3d.meshes[i].getSnapshot('uri') + ';'
           }
           prompt('Save URI:', 'http://oo3d.richplastow.com/usage/07-scene-builder.html#' + saveURI.slice(0, -1));
         });
@@ -751,41 +751,41 @@
         });
 
 
-        //// Item GUI. 
-        $btnItemTxy.addEventListener('mousedown', function (event) {
-          onMousedown(event, $guiItem, moveHandlerTxy);
+        //// Mesh GUI. 
+        $btnMeshTxy.addEventListener('mousedown', function (event) {
+          onMousedown(event, $guiMesh, moveHandlerTxy);
         });
-        $btnItemTxy.addEventListener('touchstart', function (event) {
-          onTouchstart(event, $guiItem, moveHandlerTxy);
+        $btnMeshTxy.addEventListener('touchstart', function (event) {
+          onTouchstart(event, $guiMesh, moveHandlerTxy);
         });
-        $btnItemTxz.addEventListener('mousedown', function (event) {
-          onMousedown(event, $guiItem, moveHandlerTxz);
+        $btnMeshTxz.addEventListener('mousedown', function (event) {
+          onMousedown(event, $guiMesh, moveHandlerTxz);
         });
-        $btnItemTxz.addEventListener('touchstart', function (event) {
-          onTouchstart(event, $guiItem, moveHandlerTxz);
+        $btnMeshTxz.addEventListener('touchstart', function (event) {
+          onTouchstart(event, $guiMesh, moveHandlerTxz);
         });
-        $btnItemRyx.addEventListener('mousedown', function (event) {
-          onMousedown(event, $guiItem, moveHandlerRyx);
+        $btnMeshRyx.addEventListener('mousedown', function (event) {
+          onMousedown(event, $guiMesh, moveHandlerRyx);
         });
-        $btnItemRyx.addEventListener('touchstart', function (event) {
-          onTouchstart(event, $guiItem, moveHandlerRyx);
+        $btnMeshRyx.addEventListener('touchstart', function (event) {
+          onTouchstart(event, $guiMesh, moveHandlerRyx);
         });
-        $btnItemRyz.addEventListener('mousedown', function (event) {
-          onMousedown(event, $guiItem, moveHandlerRyz);
+        $btnMeshRyz.addEventListener('mousedown', function (event) {
+          onMousedown(event, $guiMesh, moveHandlerRyz);
         });
-        $btnItemRyz.addEventListener('touchstart', function (event) {
-          onTouchstart(event, $guiItem, moveHandlerRyz);
+        $btnMeshRyz.addEventListener('touchstart', function (event) {
+          onTouchstart(event, $guiMesh, moveHandlerRyz);
         });
-        $btnItemScale.addEventListener('mousedown', function (event) {
-          onMousedown(event, $guiItem, moveHandlerScale);
+        $btnMeshScale.addEventListener('mousedown', function (event) {
+          onMousedown(event, $guiMesh, moveHandlerScale);
         });
-        $btnItemScale.addEventListener('touchstart', function (event) {
-          onTouchstart(event, $guiItem, moveHandlerScale);
+        $btnMeshScale.addEventListener('touchstart', function (event) {
+          onTouchstart(event, $guiMesh, moveHandlerScale);
         });
-        $btnItemReset.addEventListener('click', clickHandlerReset);
-        $btnItemDelete.addEventListener('click', function (event) {
-          delete oo3d.renderers[rendererI].items[focusI];
-          delete oo3d.items[focusI];
+        $btnMeshReset.addEventListener('click', clickHandlerReset);
+        $btnMeshDelete.addEventListener('click', function (event) {
+          delete oo3d.renderers[rendererI].meshes[focusI];
+          delete oo3d.meshes[focusI];
           onlyShow();
           onlyWireframe();
           oo3d.render();
@@ -793,43 +793,43 @@
 
 
         //// 'Flip' GUI. 
-        $btnItemFlip.addEventListener('mousedown', function (event) {
-          if ( 'gui active' !== $guiItem.getAttribute('class') ) { return; }
+        $btnMeshFlip.addEventListener('mousedown', function (event) {
+          if ( 'gui active' !== $guiMesh.getAttribute('class') ) { return; }
           onlyShow($guiFlip);
         });
         $btnFlipBack.addEventListener('mousedown', function (event) {
           if ( 'gui active' !== $guiFlip.getAttribute('class') ) { return; }
-          onlyShow($guiItem);
+          onlyShow($guiMesh);
         });
         $btnFlipX.addEventListener('mousedown', function (event) {
           if ( 'gui active' !== $guiFlip.getAttribute('class') ) { return; }
           oo3d.scale(-1, 1, 1, focusI);
-          updateItemInfo(focusI);
+          updateMeshInfo(focusI);
           oo3d.render();
         });
         $btnFlipY.addEventListener('mousedown', function (event) {
           if ( 'gui active' !== $guiFlip.getAttribute('class') ) { return; }
           oo3d.scale(1, -1, 1, focusI);
-          updateItemInfo(focusI);
+          updateMeshInfo(focusI);
           oo3d.render();
         });
         $btnFlipZ.addEventListener('mousedown', function (event) {
           if ( 'gui active' !== $guiFlip.getAttribute('class') ) { return; }
           oo3d.scale(1, 1, -1, focusI);
-          updateItemInfo(focusI);
+          updateMeshInfo(focusI);
           oo3d.render();
         });
         $btnFlipReset.addEventListener('mousedown', function (event) {
           if ( 'gui active' !== $guiFlip.getAttribute('class') ) { return; }
-          itemSnapshot = oo3d.getItemSnapshot(focusI);
-          itemInfo = oo3d.getItemSnapshot(focusI);
+          meshSnapshot = oo3d.getMeshSnapshot(focusI);
+          meshInfo = oo3d.getMeshSnapshot(focusI);
           oo3d.scale(
-            '+' == itemSnapshot.fX ? 1 : -1,
-            '+' == itemSnapshot.fY ? 1 : -1,
-            '+' == itemSnapshot.fZ ? 1 : -1,
+            '+' == meshSnapshot.fX ? 1 : -1,
+            '+' == meshSnapshot.fY ? 1 : -1,
+            '+' == meshSnapshot.fZ ? 1 : -1,
             focusI
           );
-          updateItemInfo(focusI);
+          updateMeshInfo(focusI);
           oo3d.render();
         });
 
@@ -847,10 +847,10 @@
           ;
 
           var color = oo3d.getColorAt(x, $main.height - y);
-          var itemI = oo3d.getItemIByColor(color);
+          var meshI = oo3d.getMeshIByColor(color);
 
-          if (16777215 == itemI) { // `16777215` is the white background
-            itemI  = null; // signifies the camera
+          if (16777215 == meshI) { // `16777215` is the white background
+            meshI  = null; // signifies the camera
             focusI = null; // signifies the camera
             if (toggleSceneGui) {
               toggleSceneGui = false;
@@ -860,14 +860,14 @@
               onlyShow($guiScene);
             }
             onlyWireframe();
-            updateItemInfo();
+            updateMeshInfo();
           } else {
-            focusI = itemI; 
-            onlyShow($guiItem);
-            onlyWireframe(itemI);
-            updateItemInfo(itemI);
+            focusI = meshI; 
+            onlyShow($guiMesh);
+            onlyWireframe(meshI);
+            updateMeshInfo(meshI);
             // setTimeout(function () {
-            //   oo3d.setRenderMode('TRIANGLES', itemI);
+            //   oo3d.setRenderMode('TRIANGLES', meshI);
             //   oo3d.render();
             // }, 500);
           }
@@ -1069,16 +1069,16 @@
     <li id="btn-add-shape-7" class="btn-right  btn-bottom"><b>Add</b><i>7</i></li>
   </ul>
 
-  <!-- The Item GUI appears when an Item in the 3D scene is clicked -->
-  <ul id="gui-item" class="gui">
-    <li id="btn-item-delete" class="btn-left   btn-top   "><b>Delete</b><i>&times;</i></li>
-    <li id="btn-item-flip"   class="btn-right  btn-top   "><b>Flip</b  ><i></i></li>
-    <li id="btn-item-txy"    class="btn-left   btn-middle"><b>Txy</b   ><i></i></li>
-    <li id="btn-item-txz"    class="btn-right  btn-middle"><b>Txz</b   ><i></i></li>
-    <li id="btn-item-scale"  class="btn-center btn-middle"><b>Scale</b ><i></i></li>
-    <li id="btn-item-ryx"    class="btn-left   btn-bottom"><b>Ryx</b   ><i></i></li>
-    <li id="btn-item-reset"  class="btn-center btn-bottom"><b>Reset</b ><i>/</i></li>
-    <li id="btn-item-ryz"    class="btn-right  btn-bottom"><b>Ryz</b   ><i></i></li>
+  <!-- The Mesh GUI appears when a mesh in the 3D scene is clicked -->
+  <ul id="gui-mesh" class="gui">
+    <li id="btn-mesh-delete" class="btn-left   btn-top   "><b>Delete</b><i>&times;</i></li>
+    <li id="btn-mesh-flip"   class="btn-right  btn-top   "><b>Flip</b  ><i></i></li>
+    <li id="btn-mesh-txy"    class="btn-left   btn-middle"><b>Txy</b   ><i></i></li>
+    <li id="btn-mesh-txz"    class="btn-right  btn-middle"><b>Txz</b   ><i></i></li>
+    <li id="btn-mesh-scale"  class="btn-center btn-middle"><b>Scale</b ><i></i></li>
+    <li id="btn-mesh-ryx"    class="btn-left   btn-bottom"><b>Ryx</b   ><i></i></li>
+    <li id="btn-mesh-reset"  class="btn-center btn-bottom"><b>Reset</b ><i>/</i></li>
+    <li id="btn-mesh-ryz"    class="btn-right  btn-bottom"><b>Ryz</b   ><i></i></li>
   </ul>
 
   <!-- The Flip GUI appears when the 'Flip' button is clicked -->
