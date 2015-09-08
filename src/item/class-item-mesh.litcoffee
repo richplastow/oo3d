@@ -23,7 +23,7 @@ Inherit Properties
 
 #### `main <Oo3d>` (inherited)
 #### `index <integer>` (inherited)
-#### `matTransform <Float32Array>` (inherited)
+#### `mT <Float32Array>` (inherited)
 #### `rX, rY, rZ <number>` (inherited)
 #### `sX, sY, sZ <number>` (inherited)
 #### `tX, tY, tZ <number>` (inherited)

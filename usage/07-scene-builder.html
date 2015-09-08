@@ -647,7 +647,7 @@
           var saveURI = '', i, l;
           for (i=0, l=oo3d.meshes.length; i<l; i++) {
             if (! oo3d.meshes[i]) { continue; }
-            saveURI += oo3d.meshes[i].getSnapshot('uri') + ';'
+            saveURI += oo3d.meshes[i].getSnapshot('nwang') + ';'
           }
           prompt('Save URI:', 'http://oo3d.richplastow.com/usage/07-scene-builder.html#' + saveURI.slice(0, -1));
         });

@@ -120,7 +120,7 @@ Set the transform for this mesh.
           gl.uniformMatrix4fv(
             uMatTransformLoc, # `location <WebGLUniformLocation>`
             gl.FALSE,         # `transpose` must be set to gl.FALSE @todo why?
-            mesh.matTransform # `value <Float32Array>` 
+            mesh.mT           # `value <Float32Array>` 
           )
 
 Set the mesh color. 

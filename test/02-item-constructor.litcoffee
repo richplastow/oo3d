@@ -113,11 +113,11 @@
         ''+item
 
 
-      "`item.matTransform` as expected"
+      "`item.mT` as expected"
       '1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1'
       (oo3d) ->
         item = new Item oo3d, 0, {}
-        ('' + n for n in item.matTransform).join ' '
+        ('' + n for n in item.mT).join ' '
 
 
       "`item.rX` `item.rY` `item.rZ` as expected"

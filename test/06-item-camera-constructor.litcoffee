@@ -35,7 +35,6 @@
       "The class and instance are expected types"
 
 
-
       "The class is a function"
       ªF
       -> Item.Camera
@@ -150,11 +149,11 @@
         ''+camera
 
 
-      "`item.matTransform` as expected"
+      "`item.mT` as expected"
       '1 0 0 0 0 1 0 0 0 0 1 0 0 0 -4 1'
       (oo3d) ->
         camera = new Item.Camera oo3d, 0, {}
-        ('' + n for n in camera.matTransform).join ' '
+        ('' + n for n in camera.mT).join ' '
 
 
       "`camera.rX` `camera.rY` `camera.rZ` as expected"

@@ -35,7 +35,6 @@
       "The class and instance are expected types"
 
 
-
       "The class is a function"
       ªF
       -> Item.Mesh
@@ -182,11 +181,11 @@ Add a positionBuffer.
         ''+mesh
 
 
-      "`item.matTransform` as expected"
+      "`item.mT` as expected"
       '1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1'
       (oo3d) ->
         mesh = new Item.Mesh oo3d, 0, {}
-        ('' + n for n in mesh.matTransform).join ' '
+        ('' + n for n in mesh.mT).join ' '
 
 
       "`mesh.rX` `mesh.rY` `mesh.rZ` as expected"

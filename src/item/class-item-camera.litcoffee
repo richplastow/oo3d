@@ -22,7 +22,7 @@ Inherit Properties
 
 #### `main <Oo3d>` (inherited)
 #### `index <integer>` (inherited)
-#### `matTransform <Float32Array>` (inherited)
+#### `mT <Float32Array>` (inherited)
 #### `rX, rY, rZ <number>` (inherited)
 #### `sX, sY, sZ <number>` (inherited)
 #### `tX, tY, tZ <number>` (inherited)
@@ -84,11 +84,11 @@ Its initial value is calculated by calling `updateCamera()`.
         @matCamera = null
 
 
-#### `matTransform <array> and tZ <number>`
+#### `mT <array> and tZ <number>`
 Modify the inherited position so that the camera starts at (0,0,-4). 
 
-        @matTransform[14] = -4
-        @tZ = -4
+        @mT[14] = -4
+        @tZ     = -4
 
 
 
@@ -110,7 +110,7 @@ Methods
 Calculate the camera-matrix, and update the 'uMatCamera' uniform. @todo remove commented block, as moved elsewhere
 
       updateCamera: ->
-        @matCamera = new Float32Array mat4.multiply @matProjection, @matTransform
+        @matCamera = new Float32Array mat4.multiply @matProjection, @mT
         #@main.gl.uniformMatrix4fv(
         #  @uMatCameraLoc,
         #  false,

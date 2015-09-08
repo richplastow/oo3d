@@ -410,7 +410,7 @@ Get a handy reference to the target, and its current transformation-matrix.
 @todo deal with not-found
 
         target = @meshes[targetIndex] or @cameras[0]
-        mat = target.matTransform
+        mat = target.mT
 
 Determine which axes are zero, if any. 
 
@@ -509,7 +509,7 @@ Get a handy reference to the target, and its current transformation-matrix.
 @todo deal with not-found
 
         target = @meshes[targetIndex] or @cameras[0]
-        mat = target.matTransform
+        mat = target.mT
 
 Determine which axes are set to `1`, if any. 
 
@@ -569,7 +569,7 @@ Get a handy reference to the target, and its current transformation-matrix.
 @todo deal with not-found
 
         target = @meshes[targetIndex] or @cameras[0]
-        mat = target.matTransform
+        mat = target.mT
 
 Determine which axes are zero, if any. 
 
@@ -642,7 +642,7 @@ Get a handy reference to the target, and its current transformation-matrix.
 @todo deal with not-found
 
         target = @meshes[targetIndex] or @cameras[0]
-        mat = target.matTransform
+        mat = target.mT
 
 Reset the individual transform properties. 
 
@@ -652,7 +652,7 @@ Reset the individual transform properties.
 
 Reset the transform matrix. 
 
-        target.matTransform = new Float32Array([
+        target.mT = new Float32Array([
           1,  0,  0,  0
           0,  1,  0,  0
           0,  0,  1,  0
@@ -664,7 +664,7 @@ in the vertex-shader.
 
         if target == @cameras[0]
           @cameras[0].tZ = -4
-          @cameras[0].matTransform[14] = -4
+          @cameras[0].mT[14] = -4
           @cameras[0].updateCamera()
 
 Return this Oo3d instance (allows chaining). 
@@ -737,10 +737,10 @@ Create an object which describes the given Camera’s current state.
       getCameraSnapshot: (cameraI) ->
         camera = @cameras[cameraI]
 
-Clone, don’t reference, `matTransform`. 
+Clone, don’t reference, `mT`. 
 
         mat = new Float32Array 16
-        mat.set camera.matTransform
+        mat.set camera.mT
 
 Return the snapshot. 
 
@@ -768,10 +768,10 @@ Create an object which describes the given mesh’s current state.
       getMeshSnapshot: (meshI) ->
         item = @meshes[meshI]
 
-Clone, don’t reference, `matTransform`. 
+Clone, don’t reference, `mT`. 
 
         mat = new Float32Array 16
-        mat.set item.matTransform
+        mat.set item.mT
 
 Return the snapshot. 
 
@@ -803,8 +803,8 @@ Replaces the given Camera’s state with the properties in a snapshot object `s`
 
 Clone, don’t reference, `snapshot.mat`. 
 
-        camera.matTransform = new Float32Array 16
-        camera.matTransform.set snapshot.mat
+        camera.mT = new Float32Array 16
+        camera.mT.set snapshot.mat
 
 Copy the remaining snapshot into the Camera’s state. 
 
@@ -839,8 +839,8 @@ Replaces the given Mesh’s state with the properties in a snapshot object `s`.
 
 Clone, don’t reference, `snapshot.mat`. 
 
-        item.matTransform = new Float32Array 16
-        item.matTransform.set snapshot.mat
+        item.mT = new Float32Array 16
+        item.mT.set snapshot.mat
 
 Copy the remaining snapshot into the mesh’s state. 
 
