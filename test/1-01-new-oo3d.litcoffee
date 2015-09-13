@@ -1,9 +1,9 @@
-01 Oo3d Constructor
-===================
+1-01 `new Oo3d()`
+=================
 
 
     tudor.add [
-      "01 Oo3d Constructor"
+      "1-01 `new Oo3d()`"
       tudor.is
 
 

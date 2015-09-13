@@ -135,31 +135,40 @@ after `initGL()` has been run.
         @gl = null
 
 
-#### `cameras <array of Cameras>`
+#### `_all <array>`
+Contains references to all the instances created by `main.add()`, below. Each 
+element’s index is used as a unique identifier within the main Oo3d instance. 
+When an app starts using Oo3d, `_all` will have a neat sequential set of 
+indices. However, as instances are deleted, `_all` will have gaps. 
+
+        @_all = []
+
+
+#### `cameras <array of Cameras>` @todo remove
 Contains all Camera instances, whether or not any Renderers use them. 
 
         @cameras = []
 
 
-#### `programs <array of Programs>`
+#### `programs <array of Programs>` @todo remove
 Contains all Program instances, whether or not any Renderers use them. 
 
         @programs = []
 
 
-#### `renderers <array of Renderers>`
+#### `renderers <array of Renderers>` @todo remove
 Contains all Renderer instances, whether or not any Layers use them. 
 
         @renderers = []
 
 
-#### `layers <array of Layers>`
+#### `layers <array of Layers>` @todo remove
 An list of Layer instances in the order they will be rendered by main.render(). 
 
         @layers = []
 
 
-#### `meshes <array of Item.Meshes>`
+#### `meshes <array of Item.Meshes>` @todo remove
 Contains all current Item.Mesh instances, whether or not any Renderers are using
 them. A mesh can be present in any number of Renderers, or in none at all. In 
 theory a mesh could appear in a Renderer more than once, so that it renders on 
@@ -168,7 +177,7 @@ top of itself, which might make sense for some kinds of translucent effects.
         @meshes = []
 
 
-#### `positionBuffers and colorBuffers <array of WebGLBuffers>`
+#### `positionBuffers and colorBuffers <array of WebGLBuffers>` @todo remove
 Contains all position and color buffers, whether or not anything uses them. 
 
         @positionBuffers = []
@@ -255,6 +264,8 @@ Guarantees that position and color buffers exist at index 0. These are used by
 newly created items, if `config.positionI` and `config.colorI` are not set. 
 
       initBuffers: ->
+        @add 'Buffer.Wireframe', { data:[] } # an empty position `WebGLBuffer`
+        @add 'Buffer.Wireframe',    { data:[] } # an empty colors `WebGLBuffer`
         @addPositionBuffer []
         @addColorBuffer []
 
@@ -270,19 +281,96 @@ Xx.
 
 
 
-API Methods
------------
+BREAD API Methods
+-----------------
+
+
+#### `browse()`
+- `search <int|array|string>`  (optional) xx @todo describe
+- `<array>`                    search results @todo describe
+
+Xx. 
+
+      browse: (search) ->
+        return []
+
+
+
+
+#### `read()`
+- `target <int|array|string>`  xx @todo describe
+- `format <string>`            (optional) one of 'object' (default), 'log' or 'nwang'
+- `<object|string>`            xx @todo describe
+
+Xx. 
+
+      read: (search) ->
+        return {}
+
+
 
 
 #### `edit()`
 - `target <int|array|null>`  xx @todo describe
-- `set <object|String>`      xx @todo describe
-- `delta <object|String>`    xx @todo describe
+- `set <object|string>`      xx @todo describe
+- `delta <object|string>`    xx @todo describe
+- <this>                     allows chaining
 
 Xx. 
 
       edit: (target, set, delta) ->
         @meshes[target].edit set, delta
+        return @ # allows chaining
+
+
+
+
+#### `add()`
+- `className <string>`  capitalization matters, eg 'Item.Mesh' not 'item.mesh'
+- `config <object>`     (optional) passed to the class contructor
+- `<integer>`           index of the newly added instance in the `_all` array
+
+Records a new instance in `_all`, and returns its index. 
+
+      add: (className, config) ->
+        M = "/oo3d/src/class-main.litcoffee:Main:add()\n  "
+        index = @_all.length
+
+Make sure `className` is a string, and split it into two parts.  
+@todo allow deeper nesting, eg 3 or 4 parts?
+
+        if ªS != typeof className then throw TypeError "
+          #{M}`className` is #{ªtype className} not string"
+        parts = className.split '.'
+        if 2 != parts.length then throw RangeError "
+          #{M}`className` must be in 2 parts, not #{parts.length}"
+
+Check that the class is recognized. 
+
+        lut =
+          'Buffer':   Renderer #@todo Buffer
+          'Item':     Item
+          'Layer':    Layer
+          'Program':  Program
+          'Renderer': Renderer
+        base = lut[parts[0]]
+        if ! base then throw RangeError "
+          #{M}`className` base must be '#{(k for k of lut).join '|'}'"
+        child = base[parts[1]]
+        if ! child then throw RangeError "
+          #{M}For `className` '#{parts[0]}' use '#{(k for k of base).join '|'}'"
+
+        return index
+
+
+
+
+#### `delete()`
+- `target <int|array|null>`  xx @todo describe
+- <this>                     allows chaining
+Xx. 
+
+      delete: (target) ->
         return @ # allows chaining
 
 
@@ -380,16 +468,17 @@ Records a new `WebGLBuffer` instance in `positionBuffers` and returns its index.
 
       addPositionBuffer: (positions) ->
         index = @positionBuffers.length
-        if ªA != ªtype positions then throw Error """
-          `positions` must be an array not #{ªtype positions}"""
-        else if positions.length % 3 then throw Error """
-          `positions.length` must be divisible by 3"""
-        @positionBuffers[index] = @gl.createBuffer()
+        if ªA != ªtype positions then throw Error "
+          #{M}`config.data` must be array not #{ªtype config.data}"
+        else if positions.length % 3 then throw Error "
+          #{M}`config.data.length` must be divisible by 3"
+        @positionBuffers[index]       = @gl.createBuffer()
         @positionBuffers[index].count = positions.length / 3
         @gl.bindBuffer @gl.ARRAY_BUFFER, @positionBuffers[index]
         @gl.bufferData(
-          @gl.ARRAY_BUFFER,
-          new Float32Array(positions), @gl.STATIC_DRAW
+          @gl.ARRAY_BUFFER,              # target
+          new Float32Array(positions), # size or data
+          @gl.STATIC_DRAW                # usage STATIC/DYNAMIC/STREAM_DRAW
         )
         return index
 

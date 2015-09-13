@@ -1,9 +1,9 @@
-03 `item.read()`
-================
+2-03 `item.read()`
+==================
 
 
     tudor.add [
-      "03 `item.read()`"
+      "2-03 `item.read()`"
       tudor.is
 
 
@@ -70,21 +70,21 @@
 
       "`format` must not be boolean"
       """
-      /oo3d/src/item/base-item.litcoffee:Item:read()
+      /oo3d/src/item/base-item.litcoffee:Item[0]:read()
         Optional `format` is boolean not string|object"""
       (oo3d, item) -> item.read(false)
 
 
       "`format` must not be null"
       """
-      /oo3d/src/item/base-item.litcoffee:Item:read()
+      /oo3d/src/item/base-item.litcoffee:Item[0]:read()
         Optional `format` is null not string|object"""
       (oo3d, item) -> item.read(null)
 
 
       "`format` 'NOPE!' is not recognized"
       """
-      /oo3d/src/item/base-item.litcoffee:Item:read()
+      /oo3d/src/item/base-item.litcoffee:Item[0]:read()
         Optional `format` is not 'object|log|nwang'"""
       (oo3d, item) -> item.read('NOPE!')
 

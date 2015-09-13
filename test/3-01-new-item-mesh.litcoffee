@@ -1,9 +1,9 @@
-04 Item.Mesh Constructor
-=======================
+3-01 `new Item.Mesh()`
+======================
 
 
     tudor.add [
-      "04 Item.Mesh Constructor"
+      "3-01 `new Item.Mesh()`"
       tudor.is
 
 
@@ -52,49 +52,49 @@
 
       "`config.main` must be an object"
       """
-      /oo3d/src/item/base-item.litcoffee:Item:constructor()
+      /oo3d/src/item/base-item.litcoffee:Item[NaN]()
         `main` is number not object"""
       (oo3d) -> new Item.Mesh 123
 
 
       "`config.main` must be an Oo3d instance"
       """
-      /oo3d/src/item/base-item.litcoffee:Item:constructor()
+      /oo3d/src/item/base-item.litcoffee:Item[NaN]()
         `main` is '[object Object]' not '[object Oo3d]'"""
       (oo3d) -> new Item.Mesh {}
 
 
       "`index` must be a number"
       """
-      /oo3d/src/item/base-item.litcoffee:Item:constructor()
+      /oo3d/src/item/base-item.litcoffee:Item[1]()
         `index` is boolean not number"""
       (oo3d) -> new Item.Mesh oo3d, true
 
 
       "`index` must be an integer"
       """
-      /oo3d/src/item/base-item.litcoffee:Item:constructor()
+      /oo3d/src/item/base-item.litcoffee:Item[3.5]()
         `index` is 3.5 not 0 or a positive integer below 2^53"""
       (oo3d) -> new Item.Mesh oo3d, 3.5
 
 
       "`index` must be positive"
       """
-      /oo3d/src/item/base-item.litcoffee:Item:constructor()
+      /oo3d/src/item/base-item.litcoffee:Item[-44]()
         `index` is -44 not 0 or a positive integer below 2^53"""
       (oo3d) -> new Item.Mesh oo3d, -44
 
 
       "`index` must be below 2^53"
       """
-      /oo3d/src/item/base-item.litcoffee:Item:constructor()
+      /oo3d/src/item/base-item.litcoffee:Item[9007199254740992]()
         `index` is 9007199254740992 not 0 or a positive integer below 2^53"""
       (oo3d) -> new Item.Mesh oo3d, 9007199254740992
 
 
       "`config` must be an object"
       """
-      /oo3d/src/item/base-item.litcoffee:Item:constructor()
+      /oo3d/src/item/base-item.litcoffee:Item[0]()
         Optional `config` is date not object"""
       (oo3d) -> new Item.Mesh oo3d, 0, new Date
 
