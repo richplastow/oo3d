@@ -87,6 +87,15 @@ The `<CANVAS>` element which will display the 3D scene.
           #{M}Optional `config.$main` is #{ªtype @$main} not HTMLCanvasElement"
 
 
+#### `oT <string>`
+The default order-of-transform for newly created Items.  
+Defaults to 'trs', which transforms in the order translate > rotate > scale. 
+
+        @oT = config.oT or 'trs'
+        if ! {'trs':1,'rts':1,'srt':1}[@oT] then throw RangeError "
+          #{M}Optional `config.oT` is not 'trs|rts|srt'"
+
+
 #### `bkgndR, bkgndG, bkgndB and bkgndA <number 0-1>`
 The canvas’s background clear-color. 
 
@@ -265,6 +274,20 @@ API Methods
 -----------
 
 
+#### `edit()`
+- `target <int|array|null>`  xx @todo describe
+- `set <object|String>`      xx @todo describe
+- `delta <object|String>`    xx @todo describe
+
+Xx. 
+
+      edit: (target, set, delta) ->
+        @meshes[target].edit set, delta
+        return @ # allows chaining
+
+
+
+
 #### `addMesh()`
 - `config.renderMode <string>`  (optional) 'POINTS', 'TRIANGLES', etc
 - `config.blend <array>`        (optional) eg `['ONE','DST_COLOR']`
@@ -278,6 +301,7 @@ If `config.colors` is not set, all vertices are set to 100% opacity white.
 
       addMesh: (config) -> #@todo rename Mesh
         index = @meshes.length
+        if ! config.oT then config.oT = @oT
         @meshes[index] = new Item.Mesh @, index, config
         return index
 

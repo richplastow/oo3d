@@ -37,6 +37,7 @@ Methods
 Xx. @todo describe
 
       sf3: (x) ->
+        M = '/nwang/src/class-main.litcoffee:Main:sf3()\n  '
         tx = typeof x
 
 
@@ -46,7 +47,7 @@ Xx. @todo describe
 
 Throw a `RangeError` if `x` is less than the lowest valid value, -10000. 
 
-          if -10000 > x then throw RangeError "#{@C}:sf3()\n  `x` is < -10000"
+          if -10000 > x then throw RangeError "#{M}`x` is < -10000"
 
 Numbers in the range -10000 to -1000 are rounded to the nearest 10. 
 
@@ -106,11 +107,11 @@ Numbers in the range 1000 to 10000 are rounded to the nearest 10.
 Throw a `RangeError` if `x` is [not a number](https://goo.gl/oIAC8X). 
 
           if x != x # equivalent to `isNaN(x)`
-            throw RangeError "#{@C}:sf3()\n  `x` is not a number"
+            throw RangeError "#{M}`x` is not a number"
 
 Throw a `TypeError` if `x` is greater than the highest valid value, 10000. 
 
-          throw RangeError "#{@C}:sf3()\n  `x` is > 10000"
+          throw RangeError "#{M}`x` is > 10000"
 
 
 ##### If `x` is a string, convert it to a number. 
@@ -121,7 +122,7 @@ Throw a `TypeError` if `x` is greater than the highest valid value, 10000.
 Throw a `RangeError` if `u` is less than the lowest valid value, 0xAC00. 
 
           if 0xAC00 > u
-            throw RangeError "#{@C}:sf3()\n  `x` codepoint #{u} < #{0xAC00}"
+            throw RangeError "#{M}`x` codepoint #{u} < #{0xAC00}"
 
 Numbers in the range -10000 to -1000 are rounded to the nearest 10. 
 
@@ -181,16 +182,16 @@ Numbers in the range 1000 to 10000 are rounded to the nearest 10.
 Throw a `RangeError` if `x` is an empty string. 
 
           if u != u # equivalent to `isNaN(x)`
-            throw RangeError "#{@C}:sf3()\n  `x` is an empty string"
+            throw RangeError "#{M}`x` is an empty string"
 
 Throw a `RangeError` if `u` is greater than the highest valid value, 0xD6F8. 
 
-          throw RangeError "#{@C}:sf3()\n  `x` codepoint #{u} > #{0xD6F8}"
+          throw RangeError "#{M}`x` codepoint #{u} > #{0xD6F8}"
 
 
 ##### Not a number or a string, so throw a `TypeError`. 
 
-        throw TypeError "#{@C}:sf3()\n  `x` is #{tx} not number|string"
+        throw TypeError "#{M}`x` is #{tx} not number|string"
 
 
 

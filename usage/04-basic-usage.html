@@ -220,8 +220,8 @@
         $target.onchange = updateMeasurements;
 
 
-        oo3d.rotate(0,1,0,pyramidI);
-        oo3d.rotate(0,-2.3,0,cmyTriI);
+        oo3d.edit(pyramidI, { rX:0, rY:1,   rZ:0 });
+        oo3d.edit(cmyTriI,  { rX:0, rY:-2.3,rZ:0 });
         oo3d.render();
         // console.log(oo3d.scenes[usualScene]);
         // console.log('indexes: ', rgbTri, cmyTri, pyramid);

@@ -447,7 +447,7 @@
                .render();
             } else if (0 === focusI || focusI) {
               oo3d.setMeshSnapshot(meshSnapshot, focusI)
-               .translate(x/500, y/-500, 0, focusI)
+               .edit(focusI, null, { tX: x/500, tY: y/-500, tZ: 0 })
                .render();
             }
             updateMeshInfo(focusI);
@@ -462,7 +462,7 @@
                .render();
             } else if (0 === focusI || focusI) {
               oo3d.setMeshSnapshot(meshSnapshot, focusI)
-               .translate(x/500, 0, y/500, focusI)
+               .edit(focusI, null, { tX: x/500, tY: 0, tZ: y/500 })
                .render();
             }
             updateMeshInfo(focusI);
@@ -478,7 +478,7 @@
                .render();
             } else if (0 === focusI || focusI) {
               oo3d.setMeshSnapshot(meshSnapshot, focusI)
-               .rotate(y/500, x/500, 0, focusI)
+               .edit(focusI, null, { rX: x/500, rY: y/-500, rZ: 0 })
                .render();
             }
             updateMeshInfo(focusI);
@@ -493,7 +493,7 @@
                .render();
             } else if (0 === focusI || focusI) {
               oo3d.setMeshSnapshot(meshSnapshot, focusI)
-               .rotate(0, x/500, y/-500, focusI)
+               .edit(focusI, null, { rX: 0, rY: x/500, rZ: y/-500 })
                .render();
             }
             updateMeshInfo(focusI);
@@ -509,7 +509,7 @@
                .render();
             } else if (0 === focusI || focusI) {
               oo3d.setMeshSnapshot(meshSnapshot, focusI)
-               .scale(scale, scale, scale, focusI)
+               .edit(focusI, null, { sX: scale, sY: scale, sZ: scale })
                .render();
             }
             updateMeshInfo(focusI);
@@ -625,14 +625,16 @@
             );
           }
 
+
           //// Move meshes so that they’re all visible. 
-          oo3d.translate(-0.5,0,0,rgbTri1I);
-          oo3d.translate(-1,0,-.5,rgbTri2I);
-          oo3d.translate(1.5,0,-2,rgbTri3I);
-          oo3d.translate(-0.5,0,2,cmyTri1I);
-          oo3d.translate(-1,0,2.5,cmyTri2I);
-          oo3d.translate(1.5,0,1 ,cmyTri3I);
-          //oo3d.rotate(0,1,0,pyramidI);
+          oo3d.edit(rgbTri1I, { tX:-0.5 , tY:0, tZ:   0 });
+          oo3d.edit(rgbTri2I, { tX:  -1 , tY:0, tZ:-0.5 });
+          oo3d.edit(rgbTri3I, { tX: 1.5 , tY:0, tZ:  -2 });
+          oo3d.edit(cmyTri1I, { tX:-0.5 , tY:0, tZ:   2 });
+          oo3d.edit(cmyTri2I, { tX:  -1 , tY:0, tZ: 2.5 });
+          oo3d.edit(cmyTri3I, { tX: 1.5 , tY:0, tZ:   1 });
+          oo3d.edit(pyramidI, { rX:0, rY:1, rZ:0 });
+
         }
 
 
@@ -803,19 +805,19 @@
         });
         $btnFlipX.addEventListener('mousedown', function (event) {
           if ( 'gui active' !== $guiFlip.getAttribute('class') ) { return; }
-          oo3d.scale(-1, 1, 1, focusI);
+          oo3d.edit(focusI, null, { sX:-1, sY:1, sZ:1 }, focusI);
           updateMeshInfo(focusI);
           oo3d.render();
         });
         $btnFlipY.addEventListener('mousedown', function (event) {
           if ( 'gui active' !== $guiFlip.getAttribute('class') ) { return; }
-          oo3d.scale(1, -1, 1, focusI);
+          oo3d.edit(focusI, null, { sX:1, sY:-1, sZ:1 }, focusI);
           updateMeshInfo(focusI);
           oo3d.render();
         });
         $btnFlipZ.addEventListener('mousedown', function (event) {
           if ( 'gui active' !== $guiFlip.getAttribute('class') ) { return; }
-          oo3d.scale(1, 1, -1, focusI);
+          oo3d.edit(focusI, null, { sX:1, sY:1, sZ:-1 }, focusI);
           updateMeshInfo(focusI);
           oo3d.render();
         });

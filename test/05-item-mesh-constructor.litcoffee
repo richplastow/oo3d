@@ -52,49 +52,49 @@
 
       "`config.main` must be an object"
       """
-      /src/item/base-item.litcoffee:Item:constructor()
+      /oo3d/src/item/base-item.litcoffee:Item:constructor()
         `main` is number not object"""
       (oo3d) -> new Item.Mesh 123
 
 
       "`config.main` must be an Oo3d instance"
       """
-      /src/item/base-item.litcoffee:Item:constructor()
+      /oo3d/src/item/base-item.litcoffee:Item:constructor()
         `main` is '[object Object]' not '[object Oo3d]'"""
       (oo3d) -> new Item.Mesh {}
 
 
       "`index` must be a number"
       """
-      /src/item/base-item.litcoffee:Item:constructor()
+      /oo3d/src/item/base-item.litcoffee:Item:constructor()
         `index` is boolean not number"""
       (oo3d) -> new Item.Mesh oo3d, true
 
 
       "`index` must be an integer"
       """
-      /src/item/base-item.litcoffee:Item:constructor()
+      /oo3d/src/item/base-item.litcoffee:Item:constructor()
         `index` is 3.5 not 0 or a positive integer below 2^53"""
       (oo3d) -> new Item.Mesh oo3d, 3.5
 
 
       "`index` must be positive"
       """
-      /src/item/base-item.litcoffee:Item:constructor()
+      /oo3d/src/item/base-item.litcoffee:Item:constructor()
         `index` is -44 not 0 or a positive integer below 2^53"""
       (oo3d) -> new Item.Mesh oo3d, -44
 
 
       "`index` must be below 2^53"
       """
-      /src/item/base-item.litcoffee:Item:constructor()
+      /oo3d/src/item/base-item.litcoffee:Item:constructor()
         `index` is 9007199254740992 not 0 or a positive integer below 2^53"""
       (oo3d) -> new Item.Mesh oo3d, 9007199254740992
 
 
       "`config` must be an object"
       """
-      /src/item/base-item.litcoffee:Item:constructor()
+      /oo3d/src/item/base-item.litcoffee:Item:constructor()
         Optional `config` is date not object"""
       (oo3d) -> new Item.Mesh oo3d, 0, new Date
 

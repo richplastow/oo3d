@@ -1,6 +1,6 @@
 {
   "name": "oo3d",
-  "version": "0.0.49",
+  "version": "0.0.50",
   "description": "The Oopish WebGL engine",
   "main": "build/oo3d.js",
   "directories": {
@@ -14,7 +14,7 @@
     "nodemon": "latest"
   },
   "dependencies": {
-    "nwang": "0.0.2"
+    "nwang": "latest"
   },
   "keywords": [
     "CoffeeScript",

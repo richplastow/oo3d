@@ -32,6 +32,16 @@ an accent, use `ªex(c, 'àáäâèéëêìíïîòóöôùúüûñç', 'aaaaeee
 
 
 
+#### `ªis()`
+Useful for reducing CoffeeScript’s verbose conditional syntax, eg:  
+`if condition then 123 else 456` becomes `ªis condition, 123, 456`. 
+
+    ªis = (c, t=true, f=false) ->
+      if c then t else f
+
+
+
+
 #### `ªhas()`
 Determines whether haystack contains a given needle. @todo arrays and objects
 
