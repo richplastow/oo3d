@@ -9,25 +9,8 @@
 
 
 
-      "(Mock an `Oo3d` instance)"
-      ->
-        class CanvasMock
-          width:  2
-          height: 1
-          toString: -> '[object HTMLCanvasElement]'
-          getContext: ->
-            createBuffer: -> {}
-            bindBuffer:   ->
-            bufferData:   ->
-            clearColor:   ->
-            enable:       ->
-            depthFunc:    ->
-            scissor:      ->
-            clear:        ->
-            TRIANGLES:    4
-        oo3d = new Main
-          $main: new CanvasMock
-        [oo3d]
+      "(Mock an Oo3d instance)"
+      mockOo3d
 
 
 

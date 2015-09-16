@@ -53,8 +53,8 @@ Xx. @todo describe
 
 
 #### `colorToIndex()`
-- `color <Uint8Array>`  must contain at least three integers, treated as r, g, b
-- `<integer>`           xx
+- `color <array>`  must contain at least three integers, treated as r, g, b
+- `<integer>`      xx
 
 Xx. 
 
@@ -62,12 +62,13 @@ Xx.
 
 Xx. 
 Bitwise `XOR` returns a one in each bit position for which the corresponding 
-bits of either but not both operands are ones.
+bits of either but not both operands are ones.  
+@todo fix this - currently 9-1-02-pick-colortoindex.litcoffee fails  
 @todo check the performance of this - is it significantly quicker for 0-511?
 
       #ª 'HI!', 0x1f.toString(2), color[2].toString(2), (0x1f & color[2]).toString(2)
-      if 0 == (0x1f & color[0]) + (0x1f & color[1]) + (0x1f & color[2])
-        return pick.qikColorToIndex color
+      #if 0 == (0x1f & color[0]) + (0x1f & color[1]) + (0x1f & color[2])
+      #  return pick.qikColorToIndex color
 
 Convert the red, green and blue components into binary strings exactly eight 
 digits long. Then convert that to an array for quick lookup. 
@@ -102,7 +103,9 @@ Xx. @todo describe
 - `<integer>`           xx
 
 High performance version of `colorToIndex()`, which can only operate on colors 
-whose resultant index is between 0 and 511. 
+whose resultant index is between 0 and 511.  
+@todo fix this - currently 9-1-02-pick-colortoindex.litcoffee fails  
+@todo check the performance of this - is it significantly quicker for 0-511?
 
     pick.qikColorToIndex = (color) ->
 

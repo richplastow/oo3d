@@ -4,12 +4,22 @@ Item.Camera
 
 @todo describe
 
+
+
+
+#### `constructor()`
+- `main <Main>`      a reference to the main Oo3d instance
+- `index <integer>`  this Item.Camera’s index in `main._all`
+- `config <object>`  (optional) configuration and options
+
     class Item.Camera extends Item
-      C: "/src/item/class-item-camera.litcoffee:Item.Camera"
-      toString: -> "[object Item.Camera]"
+      C: 'Item.Camera'
+      toString: -> '[object Item.Camera]'
+
 
       constructor: (main, index, config={}) ->
-        M = "#{@C}:constructor()\n  "
+        M = "/oo3d/src/item/class-item-camera.litcoffee
+          Item.Camera##{+index}()\n  "
 
 
 
@@ -22,6 +32,7 @@ Inherit Properties
 
 #### `main <Oo3d>` (inherited)
 #### `index <integer>` (inherited)
+#### `oT <string>` (inherited)
 #### `mT <Float32Array>` (inherited)
 #### `rX, rY, rZ <number>` (inherited)
 #### `sX, sY, sZ <number>` (inherited)
@@ -120,14 +131,20 @@ Calculate the camera-matrix, and update the 'uMatCamera' uniform. @todo remove c
 
 
 
-Methods
--------
+#### `reset()`
+- `subject <object>`  xx @todo describe
+- `<object>`          the reset object
 
+Resets properties on the given object.  
+Used by `Item:edit('reset')`. 
 
-#### `xx()`
-Xx. 
-
-      xx: ->
+      reset: (subject) ->
+        M = "/oo3d/src/item/class-item-camera.litcoffee
+          Item.Camera##{@index}:reset()\n  "
+        super subject
+        subject.mT[14] = -4
+        subject.tZ     = -4
+        subject
 
 
 

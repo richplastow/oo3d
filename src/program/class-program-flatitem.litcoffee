@@ -4,22 +4,48 @@ Program.FlatItem
 
 #### Xx @todo describe
 
+
+
+
+#### `constructor()`
+- `main <Main>`      a reference to the main Oo3d instance
+- `index <integer>`  this Program.FlatItem’s index in `main._all`
+- `config <object>`  (optional) configuration and options
+
     class Program.FlatItem extends Program
       C: 'Program.FlatItem'
-      toString: -> "[object #{@C}]"
+      toString: -> "[object FlatItem]"
 
-      constructor: (main, config={}) ->
-        super main, config
 
-Get a handy reference to the WebGL context. 
+      constructor: (main, index, config={}) ->
+        M = "/oo3d/src/program/class-program-flatitem.litcoffee
+          Program.FlatItem##{+index}()\n  "
 
-        gl = @main.gl
+
+
+
+Inherit Properties
+------------------
+
+
+        super main, index, config
+
+#### `main <Oo3d>` (inherited)
+#### `index <integer>` (inherited)
+#### `vertexShader <WebGLShader>` (inherited)
+#### `fragmentShader <WebGLShader>` (inherited)
+#### `program <WebGLProgram>` (inherited)
 
 
 
 
 Properties
 ----------
+
+
+Get a handy reference to the WebGL context. 
+
+        gl = @main.gl
 
 
 The WebGL specs say that locations can be got as soon as the program is linked. 

@@ -4,13 +4,22 @@ Item.Mesh
 
 @todo describe
 
+
+
+
+#### `constructor()`
+- `main <Main>`      a reference to the main Oo3d instance
+- `index <integer>`  this Item.Mesh’s index in `main._all`
+- `config <object>`  (optional) configuration and options
+
     class Item.Mesh extends Item
-      C: "/src/item/class-item-mesh.litcoffee:Item.Mesh"
+      C: 'Item.Mesh'
       toString: -> "[object Item.Mesh]"
 
+
       constructor: (main, index, config={}) ->
-        M = "#{@C}:constructor()\n  "
-        super main, index, config
+        M = "/oo3d/src/item/class-item-mesh.litcoffee
+          Item.Mesh##{+index}()\n  "
 
 
 
@@ -23,6 +32,7 @@ Inherit Properties
 
 #### `main <Oo3d>` (inherited)
 #### `index <integer>` (inherited)
+#### `oT <string>` (inherited)
 #### `mT <Float32Array>` (inherited)
 #### `rX, rY, rZ <number>` (inherited)
 #### `sX, sY, sZ <number>` (inherited)
@@ -39,20 +49,22 @@ Instantiation Arguments
 A color which can act as an ID. Useful for picking. 
 
         @color = pick.indexToColor @index # defined in /src/pick.coffee
+        #ª @index, (Math.round(channel*255) for channel in @color)
 
 
-#### `positionBuffer <WebGLBuffer>`
+#### `positionBuffer <Buffer.Position>`
 Xx. @todo describe
 
-        @positionBuffer = @main.positionBuffers[config.positionI or 0]
+        @positionBuffer = @main._all[config.positionI or 0]
         if ! @positionBuffer then throw Error "
           #{M}`config.positionI` #{config.positionI} does not exist"
 
 
-#### `colorBuffer <WebGLBuffer>`
-Xx. @todo describe
+#### `colorBuffer <Buffer.Color>`
+Xx. @todo describe  
+@todo make optional
 
-        @colorBuffer = @main.colorBuffers[config.colorI or 0]
+        @colorBuffer = @main._all[config.colorI or 1]
         if ! @colorBuffer then throw Error "
           #{M}`config.colorI` #{config.colorI} does not exist"
 

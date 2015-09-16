@@ -46,11 +46,13 @@ Main Class
 #### The main class for Oo3d
 
     class Main
-      C: "/src/class-main.litcoffee:#{ªC}"
-      toString: -> "[object #{ªC}]"
+      C: 'Oo3d'
+      toString: -> "[object Oo3d]"
+
 
       constructor: (config={}) ->
-        M = "#{@C}:constructor()\n  "
+        M = "/oo3d/src/class-main.litcoffee
+          Oo3d()\n  "
         if ªO != ªtype config then throw TypeError "
           #{M}Optional `config` is #{ªtype config} not object"
 
@@ -144,44 +146,44 @@ indices. However, as instances are deleted, `_all` will have gaps.
         @_all = []
 
 
-#### `cameras <array of Cameras>` @todo remove
+#### `cameras <array of Cameras>` @next remove
 Contains all Camera instances, whether or not any Renderers use them. 
 
-        @cameras = []
+        #@cameras = []
 
 
-#### `programs <array of Programs>` @todo remove
+#### `programs <array of Programs>` @next remove
 Contains all Program instances, whether or not any Renderers use them. 
 
-        @programs = []
+        #@programs = []
 
 
-#### `renderers <array of Renderers>` @todo remove
+#### `renderers <array of Renderers>` @next remove
 Contains all Renderer instances, whether or not any Layers use them. 
 
-        @renderers = []
+        #@renderers = []
 
 
-#### `layers <array of Layers>` @todo remove
+#### `layers <array of Layers>`
 An list of Layer instances in the order they will be rendered by main.render(). 
 
         @layers = []
 
 
-#### `meshes <array of Item.Meshes>` @todo remove
+#### `meshes <array of Item.Meshes>` @next remove
 Contains all current Item.Mesh instances, whether or not any Renderers are using
 them. A mesh can be present in any number of Renderers, or in none at all. In 
 theory a mesh could appear in a Renderer more than once, so that it renders on 
 top of itself, which might make sense for some kinds of translucent effects. 
 
-        @meshes = []
+        #@meshes = []
 
 
-#### `positionBuffers and colorBuffers <array of WebGLBuffers>` @todo remove
+#### `positionBuffers and colorBuffers <array of WebGLBuffers>` @next remove
 Contains all position and color buffers, whether or not anything uses them. 
 
-        @positionBuffers = []
-        @colorBuffers    = []
+        #@positionBuffers = []
+        #@colorBuffers    = []
 
 
 
@@ -264,10 +266,8 @@ Guarantees that position and color buffers exist at index 0. These are used by
 newly created items, if `config.positionI` and `config.colorI` are not set. 
 
       initBuffers: ->
-        @add 'Buffer.Wireframe', { data:[] } # an empty position `WebGLBuffer`
-        @add 'Buffer.Wireframe',    { data:[] } # an empty colors `WebGLBuffer`
-        @addPositionBuffer []
-        @addColorBuffer []
+        @add 'Buffer.Position', { data:[] } # an empty position `WebGLBuffer`
+        @add 'Buffer.Color',    { data:[] } # an empty color `WebGLBuffer`
 
 
 
@@ -276,7 +276,7 @@ newly created items, if `config.positionI` and `config.colorI` are not set.
 Xx.  
 
       cleanUp: ->
-        #@todo tell every Program (and other objects?) to clearUp()
+        #@todo tell every Program (and other instances?) to `cleanUp()`
 
 
 
@@ -292,6 +292,8 @@ BREAD API Methods
 Xx. 
 
       browse: (search) ->
+        M = "/oo3d/src/class-main.litcoffee
+          Main:browse()\n  "
         return []
 
 
@@ -304,22 +306,26 @@ Xx.
 
 Xx. 
 
-      read: (search) ->
-        return {}
+      read: (target, format) ->
+        M = "/oo3d/src/class-main.litcoffee
+          Main:read()\n  "
+        @_all[target].read format
 
 
 
 
 #### `edit()`
-- `target <int|array|null>`  xx @todo describe
-- `set <object|string>`      xx @todo describe
-- `delta <object|string>`    xx @todo describe
-- <this>                     allows chaining
+- `target <int|array|null>`     xx @todo describe
+- `set <object|string|null>`    edits which replace current properties
+- `delta <object|string|null>`  (optional) edits which modify current properties
+- <this>                        allows chaining
 
 Xx. 
 
       edit: (target, set, delta) ->
-        @meshes[target].edit set, delta
+        M = "/oo3d/src/class-main.litcoffee
+          Main:edit()\n  "
+        @_all[target].edit set, delta
         return @ # allows chaining
 
 
@@ -333,7 +339,8 @@ Xx.
 Records a new instance in `_all`, and returns its index. 
 
       add: (className, config) ->
-        M = "/oo3d/src/class-main.litcoffee:Main:add()\n  "
+        M = "/oo3d/src/class-main.litcoffee
+          Main:add()\n  "
         index = @_all.length
 
 Make sure `className` is a string, and split it into two parts.  
@@ -347,8 +354,8 @@ Make sure `className` is a string, and split it into two parts.
 
 Check that the class is recognized. 
 
-        lut =
-          'Buffer':   Renderer #@todo Buffer
+        lut = #@todo move to a variable?
+          'Buffer':   Buffer
           'Item':     Item
           'Layer':    Layer
           'Program':  Program
@@ -360,6 +367,12 @@ Check that the class is recognized.
         if ! child then throw RangeError "
           #{M}For `className` '#{parts[0]}' use '#{(k for k of base).join '|'}'"
 
+Create the instance, and keep a reference to it in `_all`. For a Layer, also 
+append a reference to the `main.layers` array, to be used by `main.render()`. 
+
+        @_all[index] = new child @, index, config
+        if 'Layer' == parts[0] then @layers.push @_all[index]
+
         return index
 
 
@@ -367,10 +380,14 @@ Check that the class is recognized.
 
 #### `delete()`
 - `target <int|array|null>`  xx @todo describe
-- <this>                     allows chaining
+- `<this>`                   allows chaining
+
 Xx. 
 
       delete: (target) ->
+        M = "/oo3d/src/class-main.litcoffee
+          Main:delete()\n  "
+        ª "#{M}@todo"
         return @ # allows chaining
 
 
@@ -387,11 +404,11 @@ Records a new `Item.Mesh` instance in `meshes` and returns its index.
 If `config.colors` is not set, all vertices are set to 100% opacity white.  
 [From MDN’s second WebGL article.](https://goo.gl/q6YFNe)  
 
-      addMesh: (config) -> #@todo rename Mesh
-        index = @meshes.length
-        if ! config.oT then config.oT = @oT
-        @meshes[index] = new Item.Mesh @, index, config
-        return index
+      #addMesh: (config) -> #@todo rename Mesh
+      #  index = @meshes.length
+      #  if ! config.oT then config.oT = @oT
+      #  @meshes[index] = new Item.Mesh @, index, config
+      #  return index
 
 
 
@@ -402,10 +419,10 @@ If `config.colors` is not set, all vertices are set to 100% opacity white.
 
 Records a new `Item.Camera` instance in `cameras` and returns its index. 
 
-      addCamera: (config) ->
-        index = @cameras.length
-        @cameras[index] = new Item.Camera @, index, config
-        return index
+      #addCamera: (config) ->
+      #  index = @cameras.length
+      #  @cameras[index] = new Item.Camera @, index, config
+      #  return index
 
 
 
@@ -416,18 +433,18 @@ Records a new `Item.Camera` instance in `cameras` and returns its index.
 
 Records a new `Program` instance in `programs` and returns its index. 
 
-      addProgram: (config) ->
+      #addProgram: (config) ->
 
-        if ªO != ªtype config then throw TypeError "
-          `config` must be object not #{ªtype config}"
-        if ªS != ªtype config.subclass then throw TypeError "
-          `config.subclass` must be string not #{ªtype config.subclass}"
-        if ! Program[config.subclass] then throw RangeError "
-          `Program.#{config.subclass}` does not exist"
+      #  if ªO != ªtype config then throw TypeError "
+      #    `config` must be object not #{ªtype config}"
+      #  if ªS != ªtype config.subclass then throw TypeError "
+      #    `config.subclass` must be string not #{ªtype config.subclass}"
+      #  if ! Program[config.subclass] then throw RangeError "
+      #    `Program.#{config.subclass}` does not exist"
 
-        index = @programs.length
-        @programs[index] = new Program[config.subclass] @, config
-        return index
+      #  index = @programs.length
+      #  @programs[index] = new Program[config.subclass] @, config
+      #  return index
 
 
 
@@ -438,10 +455,10 @@ Records a new `Program` instance in `programs` and returns its index.
 
 Records a new `Renderer` instance in `renderers` and returns its index. 
 
-      addRenderer: (config) ->
-        index = @renderers.length
-        @renderers[index] = new Renderer @, config
-        return index
+      #addRenderer: (config) ->
+      #  index = @renderers.length
+      #  @renderers[index] = new Renderer @, config
+      #  return index
 
 
 
@@ -452,10 +469,10 @@ Records a new `Renderer` instance in `renderers` and returns its index.
 
 Records a new `Layer` instance in `layers` and returns its index. 
 
-      addLayer: (config) ->
-        index = @layers.length
-        @layers[index] = new Layer @, config
-        return index
+      #addLayer: (config) ->
+      #  index = @layers.length
+      #  @layers[index] = new Layer @, config
+      #  return index
 
 
 
@@ -466,21 +483,21 @@ Records a new `Layer` instance in `layers` and returns its index.
 
 Records a new `WebGLBuffer` instance in `positionBuffers` and returns its index.
 
-      addPositionBuffer: (positions) ->
-        index = @positionBuffers.length
-        if ªA != ªtype positions then throw Error "
-          #{M}`config.data` must be array not #{ªtype config.data}"
-        else if positions.length % 3 then throw Error "
-          #{M}`config.data.length` must be divisible by 3"
-        @positionBuffers[index]       = @gl.createBuffer()
-        @positionBuffers[index].count = positions.length / 3
-        @gl.bindBuffer @gl.ARRAY_BUFFER, @positionBuffers[index]
-        @gl.bufferData(
-          @gl.ARRAY_BUFFER,              # target
-          new Float32Array(positions), # size or data
-          @gl.STATIC_DRAW                # usage STATIC/DYNAMIC/STREAM_DRAW
-        )
-        return index
+      #addPositionBuffer: (positions) ->
+      #  index = @positionBuffers.length
+      #  if ªA != ªtype positions then throw Error "
+      #    #{M}`positions` must be array not #{ªtype positions}"
+      #  else if positions.length % 3 then throw Error "
+      #    #{M}`positions.length` must be divisible by 3"
+      #  @positionBuffers[index]       = @gl.createBuffer()
+      #  @positionBuffers[index].count = positions.length / 3
+      #  @gl.bindBuffer @gl.ARRAY_BUFFER, @positionBuffers[index]
+      #  @gl.bufferData(
+      #    @gl.ARRAY_BUFFER,              # target
+      #    new Float32Array(positions), # size or data
+      #    @gl.STATIC_DRAW                # usage STATIC/DYNAMIC/STREAM_DRAW
+      #  )
+      #  return index
 
 
 
@@ -491,20 +508,20 @@ Records a new `WebGLBuffer` instance in `positionBuffers` and returns its index.
 
 Records a new `WebGLBuffer` instance in `colorBuffers` and returns its index. 
 
-      addColorBuffer: (colors) ->
-        index = @colorBuffers.length
-        if ªA != ªtype colors then throw Error """
-          `colors` must be an array not #{ªtype colors}"""
-        else if colors.length % 4 then throw Error """
-          `colors.length` must be divisible by 4"""
-        @colorBuffers[index] = @gl.createBuffer()
-        @colorBuffers[index].count = colors.length / 4
-        @gl.bindBuffer @gl.ARRAY_BUFFER, @colorBuffers[index]
-        @gl.bufferData(
-          @gl.ARRAY_BUFFER,
-          new Float32Array(colors), @gl.STATIC_DRAW
-        )
-        return index
+      #addColorBuffer: (colors) ->
+      #  index = @colorBuffers.length
+      #  if ªA != ªtype colors then throw Error """
+      #    `colors` must be an array not #{ªtype colors}"""
+      #  else if colors.length % 4 then throw Error """
+      #    `colors.length` must be divisible by 4"""
+      #  @colorBuffers[index] = @gl.createBuffer()
+      #  @colorBuffers[index].count = colors.length / 4
+      #  @gl.bindBuffer @gl.ARRAY_BUFFER, @colorBuffers[index]
+      #  @gl.bufferData(
+      #    @gl.ARRAY_BUFFER,
+      #    new Float32Array(colors), @gl.STATIC_DRAW
+      #  )
+      #  return index
 
 
 
@@ -795,8 +812,8 @@ Change the `mode` passed to `gl.drawArrays()` for an individual Shape, or the
 entire Scene. @todo scene
 
       setRenderMode: (renderMode, targetIndex) ->
-        if ! @meshes[targetIndex] then return #@todo prevent gaps
-        @meshes[targetIndex].renderMode = renderMode
+        if ! @_all[targetIndex] then return #@todo prevent gaps
+        @_all[targetIndex].renderMode = renderMode
 
 Return this Oo3d instance (allows chaining). 
 
@@ -835,7 +852,9 @@ Get the color value at the given coordinates.
 
 Get the index of the mesh in `meshes` which corresponds to `color`. 
 
-      getMeshIByColor: (color) -> pick.colorToIndex color
+      getMeshIByColor: (color) ->
+        index = pick.colorToIndex color
+        return index
 
 
 

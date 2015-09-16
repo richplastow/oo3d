@@ -10,13 +10,23 @@ Program
 - All Programs are stored in the main.programs array
 
 
+
+
+#### `constructor()`
+- `main <Main>`      a reference to the main Oo3d instance
+- `index <integer>`  this Layer’s index in `main._all`
+- `config <object>`  (optional) configuration and options
+
     class Program
       C: 'Program'
-      toString: -> "[object #{@C}]"
+      toString: -> "[object Program]"
 
-      constructor: (@main, config={}) ->
+
+      constructor: (@main, @index, config={}) ->
+        M = "/oo3d/src/layer/base-layer.litcoffee
+          Program##{+@index}()\n  "
         if ªO != ªtype config then throw TypeError "
-          `config` must be object not #{ªtype config}"
+          #{M}Optional `config` is #{ªtype config} not object"
 
 
 
@@ -25,13 +35,23 @@ Properties
 ----------
 
 
-#### `main <Oo3d>`
+#### `main <Main>`
 A reference to the main Oo3d instance which created this Program. 
 
-        if ªO != ªtype @main then throw TypeError "
-          `main` must be object not #{ªtype @main}"
+        if ªO != typeof @main then throw TypeError "
+          #{M}`main` is #{ªtype @main} not object"
         if '[object Oo3d]' != ''+@main then throw TypeError "
-          `main` must be [object Oo3d] not #{@main}"
+          #{M}`main` is '#{@main}' not '[object Oo3d]'"
+
+
+#### `index <integer>`
+This Program’s index in `main._all`. 
+
+        if ªN != typeof @index then throw TypeError "
+          #{M}`index` is #{ªtype @index} not number"
+        if ªMAX < @index or @index % 1 or 0 > @index then throw RangeError "
+          #{M}`index` is #{@index} not 0 or a positive integer below 2^53"
+
 
 Get a handy reference to the WebGL context. 
 

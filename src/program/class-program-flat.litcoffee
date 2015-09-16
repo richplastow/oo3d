@@ -4,22 +4,48 @@ Program.Flat
 
 #### A simple Program for vertex-colored shapes with no shading
 
+
+
+
+#### `constructor()`
+- `main <Main>`      a reference to the main Oo3d instance
+- `index <integer>`  this Program.Flat’s index in `main._all`
+- `config <object>`  (optional) configuration and options
+
     class Program.Flat extends Program
       C: 'Program.Flat'
-      toString: -> "[object #{@C}]"
+      toString: -> "[object Program.Flat]"
 
-      constructor: (main, config={}) ->
-        super main, config
 
-Get a handy reference to the WebGL context. 
+      constructor: (main, index, config={}) ->
+        M = "/oo3d/src/program/class-program-flat.litcoffee
+          Program.Flat##{+index}()\n  "
 
-        gl = @main.gl
+
+
+
+Inherit Properties
+------------------
+
+
+        super main, index, config
+
+#### `main <Oo3d>` (inherited)
+#### `index <integer>` (inherited)
+#### `vertexShader <WebGLShader>` (inherited)
+#### `fragmentShader <WebGLShader>` (inherited)
+#### `program <WebGLProgram>` (inherited)
 
 
 
 
 Properties
 ----------
+
+
+Get a handy reference to the WebGL context. 
+
+        gl = @main.gl
 
 
 The WebGL specs say that locations can be got as soon as the program is linked. 

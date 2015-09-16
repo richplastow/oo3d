@@ -2,21 +2,31 @@ Renderer
 ========
 
 
-#### The base class for all Renderers
+#### The base class for all Renderer child-classes, like @todo which?
 
 - Contains a program, a camera and an array of meshes
-- Each Layer has an array of Renderers
 - A Renderer can be used by any number of Layers
-- All Renderers are stored in the main.renderers array
+- A Renderer can appear more than once in a layer’s `renderers` array
+- All Renderers are stored in the `main._all` array, whether they’re used or not
 
+
+
+
+#### `constructor()`
+- `main <Main>`      a reference to the main Oo3d instance
+- `index <integer>`  this Renderer’s index in `main._all`
+- `config <object>`  (optional) configuration and options
 
     class Renderer
       C: 'Renderer'
-      toString: -> "[object #{@C}]"
+      toString: -> "[object Renderer]"
 
-      constructor: (@main, config={}) ->
+
+      constructor: (@main, @index, config={}) ->
+        M = "/oo3d/src/renderer/base-renderer.litcoffee
+          Renderer##{+@index}()\n  "
         if ªO != ªtype config then throw TypeError "
-          `config` must be object not #{ªtype config}"
+          #{M}Optional `config` is #{ªtype config} not object"
 
 
 
@@ -28,28 +38,37 @@ Properties
 #### `main <Oo3d>`
 A reference to the main Oo3d instance which created this Renderer. 
 
-        if ªO != ªtype @main then throw TypeError "
-          `main` must be object not #{ªtype @main}"
+        if ªO != typeof @main then throw TypeError "
+          #{M}`main` is #{ªtype @main} not object"
         if '[object Oo3d]' != ''+@main then throw TypeError "
-          `main` must be [object Oo3d] not #{@main}"
+          #{M}`main` is '#{@main}' not '[object Oo3d]'"
+
+
+#### `index <integer>`
+This Renderer’s index in `main._all`. 
+
+        if ªN != typeof @index then throw TypeError "
+          #{M}`index` is #{ªtype @index} not number"
+        if ªMAX < @index or @index % 1 or 0 > @index then throw RangeError "
+          #{M}`index` is #{@index} not 0 or a positive integer below 2^53"
 
 
 #### `program <Program>`
-This Renderer’s Program, referenced from the main instance’s `programs` array. 
+This Renderer’s Program, referenced from the main instance’s `_all` array. 
 
-        if ªN != ªtype config.programI then throw TypeError "
-          config.programI must be number not #{ªtype config.programI}"
-        @program = @main.programs[config.programI] or throw RangeError "
-          No such index #{config.programI} in main.programs"
+        if ªN != typeof config.programI then throw TypeError "
+          #{M}config.programI is #{ªtype config.programI} not number"
+        @program = @main._all[config.programI] or throw RangeError "
+          #{M}No such index #{config.programI} in main._all"
 
 
 #### `camera <Camera>`
 This Renderer’s Camera, referenced from the main instance’s `cameras` array. 
 
-        if ªN != ªtype config.cameraI then throw TypeError "
-          config.cameraI must be number not #{ªtype config.cameraI}"
-        @camera = @main.cameras[config.cameraI] or throw RangeError "
-          No such index #{config.cameraI} in main.cameras"
+        if ªN != typeof config.cameraI then throw TypeError "
+          #{M}config.cameraI is #{ªtype config.cameraI} not number"
+        @camera = @main._all[config.cameraI] or throw RangeError "
+          #{M}No such index #{config.cameraI} in main._all"
 
 
 #### `uMatCameraLoc <WebGLUniformLocation>`
@@ -59,13 +78,20 @@ Get the location of the 'uMatCamera' uniform in the Program’s vertex shader.
 
 
 #### `meshes <array of Item.Meshes>`
-This Renderer’s mesh instances, referenced from the main instance’s `meshes` array. 
+This Layer’s Renderers, referenced from the `main` instance’s `_all` array, in 
+the order they will be rendered. 
 
-        if ! config.meshIs then @meshes = []
-        else if 'uint16array' != ªtype config.meshIs then throw TypeError "
-          If set, config.meshIs must be Uint16Array not #{ªtype config.meshIs}"
-        else @meshes = (@main.meshes[i] or throw RangeError "
-          No such index #{i} in main.meshes" for i in config.meshIs)
+        tMIs = ªtype config.meshIs
+        if ªU == tMIs then @meshes = []
+        else if ªA != tMIs then throw TypeError "
+          #{M}`config.meshIs` is #{tMIs} not array"
+        else @meshes = for index,i in config.meshIs
+          if ªN != typeof index then throw TypeError "
+            #{M}`config.meshIs[#{i}] is #{ªtype index} not number"
+          mesh = @main._all[index]
+          if ! mesh or ! (mesh instanceof Item.Mesh) then throw TypeError "
+            #{M}`config.meshIs[#{i}]` refs #{mesh.C} at `main._all[#{index}]`"
+          mesh
 
 
 
@@ -139,7 +165,7 @@ previous binding is automatically broken.
   - `ELEMENT_ARRAY_BUFFER`  contains only indices — use `drawElements()`
 - `buffer <WebGLBuffer>`    a WebGLBuffer object to bind to the target
 
-          gl.bindBuffer gl.ARRAY_BUFFER, mesh.positionBuffer
+          gl.bindBuffer gl.ARRAY_BUFFER, mesh.positionBuffer.glData
 
 
 Specify the attribute-location and data-format for the newly bound mesh. 
@@ -167,7 +193,7 @@ Specify the attribute-location and data-format for the newly bound mesh.
 Repeat the two steps above for the vertex-colors, if the Program supports it. 
 
           if aVtxColorLoc
-            gl.bindBuffer gl.ARRAY_BUFFER, mesh.colorBuffer
+            gl.bindBuffer gl.ARRAY_BUFFER, mesh.colorBuffer.glData
             gl.vertexAttribPointer aVtxColorLoc, 4, gl.FLOAT, false, 0, 0
 
 Apply the blend-mode, if any.  
@@ -229,3 +255,4 @@ Xx. @todo describe
 
 
 
+    ;

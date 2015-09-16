@@ -188,9 +188,9 @@
 
 
           //// Create Layers. 
-         ,layerI = oo3d.addLayer({
-            rendererIs: new Uint16Array([rendererI])
-           ,scissor:    new Float32Array([0,0,1,1])
+         ,layerI = oo3d.add('Layer.Simple', {
+            rendererIs: [rendererI]
+           ,scissor:    [0,0,1,1]
           })
 
           //// `vpSize()`
@@ -702,6 +702,7 @@
       width:  90%;
       padding: 1rem;
       font-family: monaco, monospace;
+      white-space: pre;
       background-color: #933;
       color: #fff;
       transition: all 0.5s;

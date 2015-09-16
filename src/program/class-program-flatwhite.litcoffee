@@ -4,22 +4,48 @@ Program.Flatwhite
 
 #### A simple Program for plain white shapes with no shading
 
+
+
+
+#### `constructor()`
+- `main <Main>`      a reference to the main Oo3d instance
+- `index <integer>`  this Program.Flatwhite’s index in `main._all`
+- `config <object>`  (optional) configuration and options
+
     class Program.Flatwhite extends Program
       C: 'Program.Flatwhite'
-      toString: -> "[object #{@C}]"
+      toString: -> "[object Flatwhite]"
 
-      constructor: (main, config={}) ->
-        super main, config
 
-Get a handy reference to the WebGL context. 
+      constructor: (main, index, config={}) ->
+        M = "/oo3d/src/program/class-program-flatwhite.litcoffee
+          Program.Flatwhite##{+index}()\n  "
 
-        gl = @main.gl
+
+
+
+Inherit Properties
+------------------
+
+
+        super main, index, config
+
+#### `main <Oo3d>` (inherited)
+#### `index <integer>` (inherited)
+#### `vertexShader <WebGLShader>` (inherited)
+#### `fragmentShader <WebGLShader>` (inherited)
+#### `program <WebGLProgram>` (inherited)
 
 
 
 
 Properties
 ----------
+
+
+Get a handy reference to the WebGL context. 
+
+        gl = @main.gl
 
 
 The WebGL specs say that locations can be got as soon as the program is linked. 

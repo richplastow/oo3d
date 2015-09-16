@@ -2,14 +2,24 @@ Item
 ====
 
 
-#### An individual 3D object which has coordinates
+#### The base class for discrete elements in 3D space, like Meshes and Cameras
+
+
+
+
+#### `constructor()`
+- `main <Main>`      a reference to the main Oo3d instance
+- `index <integer>`  this Item’s index in `main._all`
+- `config <object>`  (optional) configuration and options
 
     class Item
-      C: "/oo3d/src/item/base-item.litcoffee:Item"
-      toString: -> "[object Item]"
+      C: 'Item'
+      toString: -> '[object Item]'
+
 
       constructor: (@main, @index, config={}) ->
-        M = "/oo3d/src/item/base-item.litcoffee:Item[#{+@index}]()\n  "
+        M = "/oo3d/src/item/base-item.litcoffee
+          Item##{+@index}()\n  "
         if ªO != ªtype config then throw TypeError "
           #{M}Optional `config` is #{ªtype config} not object"
 
@@ -20,26 +30,26 @@ Instantiation Arguments
 -----------------------
 
 
-#### `main <Oo3d>`
+#### `main <Main>`
 A reference to the main Oo3d instance which created this Item. 
 
-        if ªO != ªtype @main then throw TypeError "
+        if ªO != typeof @main then throw TypeError "
           #{M}`main` is #{ªtype @main} not object"
         if '[object Oo3d]' != ''+@main then throw TypeError "
           #{M}`main` is '#{@main}' not '[object Oo3d]'"
 
 
 #### `index <integer>`
-This Item’s index in, eg `main.cameras` or `main.meshes`. 
+This Item’s index in `main._all`. 
 
-        if ªN != ªtype @index then throw TypeError "
+        if ªN != typeof @index then throw TypeError "
           #{M}`index` is #{ªtype @index} not number"
         if ªMAX < @index or @index % 1 or 0 > @index then throw RangeError "
           #{M}`index` is #{@index} not 0 or a positive integer below 2^53"
 
 
 #### `oT <string>`
-The default order-of-transform for newly created Items.  
+This Item’s order-of-transform. Changes the way `edit()` calculates `mT`. 
 Defaults to 'trs', which transforms in the order translate > rotate > scale. 
 
         @oT = config.oT or 'trs'
@@ -101,6 +111,8 @@ BREAD API Methods
 Xx. 
 
       browse: (search) ->
+        M = "/oo3d/src/item/base-item.litcoffee
+          Item##{@index}:browse()\n  "
         return []
 
 
@@ -113,7 +125,8 @@ Xx.
 Creates an object or string which describes the Item’s current state. 
 
       read: (format) ->
-        M = "/oo3d/src/item/base-item.litcoffee:Item[#{@index}]:read()\n  "
+        M = "/oo3d/src/item/base-item.litcoffee
+          Item##{@index}:read()\n  "
 
 If `format` is not set (or is the string 'object'), return an object snapshot 
 of the Item’s current state. 
@@ -178,7 +191,8 @@ Modifies the Item’s current state.
 @todo on error, restore state (need tests for this)
 
       edit: (set, delta) ->
-        M = "/oo3d/src/item/base-item.litcoffee:Item[#{@index}]:edit()\n  "
+        M = "/oo3d/src/item/base-item.litcoffee
+          Item##{@index}:edit()\n  "
 
 
 ##### Setup
@@ -228,11 +242,24 @@ If `set` is an object, copy its properties into `tmp`.
             else
               stale = true
 
+Throw an error for any type of `set` other than `object|string|undefined|null`. 
+
+          else if ªS != tSet then throw TypeError "
+            #{M}Optional `set` is #{tSet} not #{ªS}|object"
+
+If `set` is the special 'reset' string, restore the Item to its original state. 
+We reset `tmp` here, so that the `delta` argument can modify it. `tmp` will be 
+copied to the Item’s `rX..tZ` properties in the ‘Finish up’ section below. 
+
+          else if 'reset' == set
+            @reset tmp # note `Item.Camera:reset()` has a special `tZ` value
+
+
 If `set` appears to be an 'nwang' string, parse it into `tmp`.  
 9 chars:  `'셼셼셼죨죨죨셼셼셼'`  
 26 chars: `'셼죨셼셼셼셼죨셼셼셼셼죨셼셼셼셼죨솆셢쵇솆밄첀솆밄첀'`
 
-          else if ªS == tSet and 0xAFE8 < set.charCodeAt 0
+          else if 0xAFE8 < set.charCodeAt 0
             sf3 = @main.nwang.sf3
 
             if 9 == set.length
@@ -258,7 +285,7 @@ If `set` appears to be a 'log' string, parse it into `tmp`.
 9 chars:  `'r 0 0 0 s 1 1 1 t 0 0 0'`  
 26 chars: `'i 0 mT 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 r 0 0 0 s 1 1 1 t 0 0 0'`
 
-          else if ªS == tSet
+          else
             vals = set.split ' '
 
             if 'rst' == vals[0] + vals[4] + vals[8]
@@ -283,12 +310,7 @@ If `set` appears to be a 'log' string, parse it into `tmp`.
                     #{M}`set` appears to be 26-char 'log' with non-numeric values"
 
             else throw RangeError "
-              #{M}Optional `set` is a string, but not 'log|nwang' format"
-
-Throw an exception for any type of `set` other than `undefined` or `null`. 
-
-          else throw TypeError "
-            #{M}Optional `set` is #{tSet} not string|object"
+              #{M}Optional `set` is string but not 'reset' or log|nwang format"
 
 
 ##### `delta`
@@ -530,6 +552,33 @@ Allow chaining.
 
 
 
+#### `reset()`
+- `subject <object>`  xx @todo describe
+- `<object>`          the reset object
+
+Resets properties on the given object.  
+Used by `Item:edit('reset')`. 
+
+      reset: (subject) ->
+        M = "/oo3d/src/item/base-item.litcoffee
+          Item##{@index}:reset()\n  "
+
+        subject.mT = new Float32Array([
+          1,  0,  0,  0
+          0,  1,  0,  0
+          0,  0,  1,  0
+          0,  0,  0,  1
+        ])
+        subject.rX = 0
+        subject.rY = 0
+        subject.rZ = 0
+        subject.sX = 1
+        subject.sY = 1
+        subject.sZ = 1
+        subject.tX = 0
+        subject.tY = 0
+        subject.tZ = 0
+        subject
 
 
 

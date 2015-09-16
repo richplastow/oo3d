@@ -29,7 +29,7 @@
 
 
           //// Create Position Buffer. 
-         ,pyramidPositionI = oo3d.addPositionBuffer([
+         ,pyramidPositionI = oo3d.add('Buffer.Position', { data:[
             // Front face
              0.0,  1.0,  0.0,
             -1.0, -1.0,  1.0,
@@ -46,11 +46,11 @@
              0.0,  1.0,  0.0,
             -1.0, -1.0, -1.0,
             -1.0, -1.0,  1.0
-          ])
+          ]})
 
 
           //// Create Color Buffer. 
-         ,pyramidColorI = oo3d.addColorBuffer([
+         ,pyramidColorI = oo3d.add('Buffer.Color', { data:[
             // Front face
              0.3,   0.0,  0.0,  0.95, // near-opaque dark red
              0.3,   0.0,  0.0,  0.95, // near-opaque dark red
@@ -67,41 +67,41 @@
              0.25,  0.5,  1.0,  0.05, // translucent light cyan
              0.25,  0.5,  1.0,  0.05, // translucent light cyan
              0.25,  0.5,  1.0,  0.05  // translucent light cyan
-          ])
+          ]})
 
 
           //// Create Mesh. 
-         ,pyramidI = oo3d.addMesh({
+         ,pyramidI = oo3d.add('Item.Mesh', {
             positionI:  pyramidPositionI
            ,colorI:     pyramidColorI
           })
 
 
           //// Create Camera. 
-         ,cameraI = oo3d.addCamera({
+         ,cameraI = oo3d.add('Item.Camera', {
             fovy:   0.785398163 // 45º
            ,aspect: $main.width / $main.height
           })
 
 
           //// Create Program. 
-         ,flatItemProgramI = oo3d.addProgram({
+         ,flatItemProgramI = oo3d.add('Program.Flat', {
             subclass: 'Flat'
           })
 
 
           //// Create Renderer. 
-         ,rendererI = oo3d.addRenderer({
+         ,rendererI = oo3d.add('Renderer.Wireframe', {
             cameraI:  cameraI
            ,programI: flatItemProgramI
-           ,meshIs:   new Uint16Array([pyramidI])
+           ,meshIs:   [pyramidI]
           })
 
 
           //// Create Layer. 
-         ,layerI = oo3d.addLayer({
-            rendererIs: new Uint16Array([rendererI])
-           ,scissor:    new Float32Array([0,0,1,1])
+         ,layerI = oo3d.add('Layer.Simple', {
+            rendererIs: [rendererI]
+           ,scissor:    [0,0,1,1]
           })
 
         ;
@@ -126,12 +126,15 @@
   <style>
 
     /* PAGE LAYOUT */
-    html {
-      padding-bottom: 80px; /* space to scroll up for fullscreen on iOS 8 */
-    }
     html, body {
       margin: 0;
       font: bold 18px/24px "Arial", sans-serif;
+    }
+    html {
+      padding-bottom: 80px; /* space to scroll up for fullscreen on iOS 8 */
+    }
+    body {
+      background: #999; 
     }
     #main {
       position: absolute;
@@ -194,6 +197,7 @@
       width:  90%;
       padding: 1rem;
       font-family: monaco, monospace;
+      white-space: pre;
       background-color: #933;
       color: #fff;
       transition: all 0.5s;
@@ -207,7 +211,7 @@
 
   </style>
 </head>
-<body style="background:#999;">
+<body>
   <h1>
     <a href="../index.html"            title="Oo3d Homepage"    >Oo3d</a> /
     <a href="../index.html#/doc/usage" title="Oo3d Usage"       >Usage</a> /

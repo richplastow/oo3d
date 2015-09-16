@@ -1,33 +1,16 @@
-3-01 `new Item.Mesh()`
+3-2-01 `new Item.Mesh`
 ======================
 
 
     tudor.add [
-      "3-01 `new Item.Mesh()`"
+      "3-2-01 `new Item.Mesh`"
       tudor.is
 
 
 
 
-      "(Mock an `Oo3d` instance)"
-      ->
-        class CanvasMock
-          width:  2
-          height: 1
-          toString: -> '[object HTMLCanvasElement]'
-          getContext: ->
-            createBuffer: -> {}
-            bindBuffer:   ->
-            bufferData:   ->
-            clearColor:   ->
-            enable:       ->
-            depthFunc:    ->
-            scissor:      ->
-            clear:        ->
-            TRIANGLES:    4
-        oo3d = new Main
-          $main: new CanvasMock
-        [oo3d]
+      "(Mock an Oo3d instance)"
+      mockOo3d
 
 
 
@@ -52,49 +35,49 @@
 
       "`config.main` must be an object"
       """
-      /oo3d/src/item/base-item.litcoffee:Item[NaN]()
+      /oo3d/src/item/base-item.litcoffee Item#NaN()
         `main` is number not object"""
       (oo3d) -> new Item.Mesh 123
 
 
       "`config.main` must be an Oo3d instance"
       """
-      /oo3d/src/item/base-item.litcoffee:Item[NaN]()
+      /oo3d/src/item/base-item.litcoffee Item#NaN()
         `main` is '[object Object]' not '[object Oo3d]'"""
       (oo3d) -> new Item.Mesh {}
 
 
       "`index` must be a number"
       """
-      /oo3d/src/item/base-item.litcoffee:Item[1]()
+      /oo3d/src/item/base-item.litcoffee Item#1()
         `index` is boolean not number"""
       (oo3d) -> new Item.Mesh oo3d, true
 
 
       "`index` must be an integer"
       """
-      /oo3d/src/item/base-item.litcoffee:Item[3.5]()
+      /oo3d/src/item/base-item.litcoffee Item#3.5()
         `index` is 3.5 not 0 or a positive integer below 2^53"""
       (oo3d) -> new Item.Mesh oo3d, 3.5
 
 
       "`index` must be positive"
       """
-      /oo3d/src/item/base-item.litcoffee:Item[-44]()
+      /oo3d/src/item/base-item.litcoffee Item#-44()
         `index` is -44 not 0 or a positive integer below 2^53"""
       (oo3d) -> new Item.Mesh oo3d, -44
 
 
       "`index` must be below 2^53"
       """
-      /oo3d/src/item/base-item.litcoffee:Item[9007199254740992]()
+      /oo3d/src/item/base-item.litcoffee Item#9007199254740992()
         `index` is 9007199254740992 not 0 or a positive integer below 2^53"""
       (oo3d) -> new Item.Mesh oo3d, 9007199254740992
 
 
       "`config` must be an object"
       """
-      /oo3d/src/item/base-item.litcoffee:Item[0]()
+      /oo3d/src/item/base-item.litcoffee Item#0()
         Optional `config` is date not object"""
       (oo3d) -> new Item.Mesh oo3d, 0, new Date
 
@@ -106,7 +89,7 @@
 
       "If set, config.positionI must refer to an actual positionBuffer"
       """
-      /src/item/class-item-mesh.litcoffee:Item.Mesh:constructor()
+      /oo3d/src/item/class-item-mesh.litcoffee Item.Mesh#0()
         `config.positionI` foo does not exist""" # note, will not repeat 'foo'
       (oo3d) -> new Item.Mesh oo3d, 0, 
         positionI: 'foo'
@@ -114,31 +97,25 @@
 
       "If set, config.colorI must refer to an actual colorBuffer"
       """
-      /src/item/class-item-mesh.litcoffee:Item.Mesh:constructor()
+      /oo3d/src/item/class-item-mesh.litcoffee Item.Mesh#0()
         `config.colorI` 123 does not exist"""
       (oo3d) -> new Item.Mesh oo3d, 0, 
         colorI: 123
 
-Add a positionBuffer. 
-
-      (oo3d) ->
-        oo3d.addPositionBuffer [1,2,3]
-        oo3d.addColorBuffer    [1,0,0,1, 0,1,0,1]
-        [oo3d]
-
 
       "A positionBuffer with one coordinate does not match a colorBuffer with two"
       """
-      /src/item/class-item-mesh.litcoffee:Item.Mesh:constructor()
+      /oo3d/src/item/class-item-mesh.litcoffee Item.Mesh#0()
         `config.positionI` mismatches config.colorI"""
-      (oo3d) -> new Item.Mesh oo3d, 0, 
-        positionI: 1
-        colorI:    1
+      (oo3d) ->
+        positionI = oo3d.add 'Buffer.Position', { data: [1,2,3]            }
+        colorI    = oo3d.add 'Buffer.Color',    { data: [1,0,0,1, 0,1,0,1] }
+        new Item.Mesh oo3d, 0, { positionI:positionI, colorI:colorI }
 
 
       "If set, config.renderMode must be a recognised value"
       """
-      /src/item/class-item-mesh.litcoffee:Item.Mesh:constructor()
+      /oo3d/src/item/class-item-mesh.litcoffee Item.Mesh#0()
         `config.renderMode` ZERO is not recognised by WebGL"""
       (oo3d) -> new Item.Mesh oo3d, 0, 
         renderMode: 'ZERO'
@@ -146,7 +123,7 @@ Add a positionBuffer.
 
       "If set, config.blend must be an array"
       """
-      /src/item/class-item-mesh.litcoffee:Item.Mesh:constructor()
+      /oo3d/src/item/class-item-mesh.litcoffee Item.Mesh#0()
         If set, `config.blend` must be array not number"""
       (oo3d) -> new Item.Mesh oo3d, 0, 
         blend: 1
@@ -154,7 +131,7 @@ Add a positionBuffer.
 
       "config.blend[0] (for item.sBlend) must be a recognised value"
       """
-      /src/item/class-item-mesh.litcoffee:Item.Mesh:constructor()
+      /oo3d/src/item/class-item-mesh.litcoffee Item.Mesh#0()
         `config.blend[0]` is not recognised by WebGL"""
       (oo3d) -> new Item.Mesh oo3d, 0, 
         blend: ['TRIANGLES']
@@ -162,7 +139,7 @@ Add a positionBuffer.
 
       "config.blend[1] (for item.dBlend) must be a recognised value"
       """
-      /src/item/class-item-mesh.litcoffee:Item.Mesh:constructor()
+      /oo3d/src/item/class-item-mesh.litcoffee Item.Mesh#0()
         `config.blend[1]` is not recognised by WebGL"""
       (oo3d) -> new Item.Mesh oo3d, 0, 
         blend: ['ZERO'] # config.blend[1] is undefined in this case

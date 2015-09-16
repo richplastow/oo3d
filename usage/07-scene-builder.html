@@ -99,27 +99,27 @@
 
 
           //// Create Buffers. 
-         ,rgbTriPositions = oo3d.addPositionBuffer([
+         ,rgbTriPositions = oo3d.add('Buffer.Position', { data:[
              0.0,  0.3,  1.0,
             -0.4, -0.5,  1.0,
              0.8, -0.3,  1.0
-          ])
-         ,rgbTriColors = oo3d.addColorBuffer([
+          ]})
+         ,rgbTriColors = oo3d.add('Buffer.Color', { data:[
              1.0,  0.0,  0.0,  0.5, // red
              0.0,  1.0,  0.0,  0.5, // green
              0.0,  0.0,  1.0,  0.5  // blue
-          ])
-         ,cmyTriPositions = oo3d.addPositionBuffer([
+          ]})
+         ,cmyTriPositions = oo3d.add('Buffer.Position', { data:[
              1.0, -0.3,   0.0,
              0.4,  0.5,  -1.0,
              0.2,  0.3,  -1.0
-          ])
-         ,cmyTriColors = oo3d.addColorBuffer([
+          ]})
+         ,cmyTriColors = oo3d.add('Buffer.Color', { data:[
              1.0,  1.0,  0.0,  0.9, // yellow
              0.0,  1.0,  1.0,  0.9, // cyan
              1.0,  0.0,  1.0,  0.9  // magenta
-          ])
-         ,pyramidPositions = oo3d.addPositionBuffer([
+          ]})
+         ,pyramidPositions = oo3d.add('Buffer.Position', { data:[
             // Front face
              0.0,  1.0,  0.0,
             -1.0, -1.0,  1.0,
@@ -136,8 +136,8 @@
              0.0,  1.0,  0.0,
             -1.0, -1.0, -1.0,
             -1.0, -1.0,  1.0
-          ])
-         ,pyramidColors = oo3d.addColorBuffer([
+          ]})
+         ,pyramidColors = oo3d.add('Buffer.Color', { data:[
             // Front face
              0.3,   0.0,  0.0,  0.95, // near-opaque dark red
              0.3,   0.0,  0.0,  0.95, // near-opaque dark red
@@ -154,34 +154,31 @@
              0.25,  0.5,  1.0,  0.05, // translucent light cyan
              0.25,  0.5,  1.0,  0.05, // translucent light cyan
              0.25,  0.5,  1.0,  0.05  // translucent light cyan
-          ])
+          ]})
 
 
           //// Create Cameras. 
-         ,cameraI = oo3d.addCamera({
+         ,cameraI = oo3d.add('Item.Camera', {
             fovy:   0.785398163 // 45º
            ,aspect: $main.width / $main.height
           })
 
 
           //// Create Programs. 
-         ,flatItemProgramI = oo3d.addProgram({
-            subclass: 'FlatItem'
-          })
+         ,flatItemProgramI = oo3d.add('Program.FlatItem')
 
 
           //// Create Renderers (will be filled with meshes, below). 
-         ,rendererI = oo3d.addRenderer({
+         ,rendererI = oo3d.add('Renderer.Wireframe', {
             cameraI:  cameraI
            ,programI: flatItemProgramI
-           ,meshIs:   new Uint16Array(0)
           })
 
 
           //// Create Layers. 
-         ,layerI = oo3d.addLayer({
-            rendererIs: new Uint16Array([rendererI])
-           ,scissor:    new Float32Array([0,0,1,1])
+         ,layerI = oo3d.add('Layer.Simple', {
+            rendererIs: [rendererI]
+           ,scissor:    [0,0,1,1]
           })
 
           //// `vpSize()`
@@ -214,8 +211,10 @@
           //// Removes 'LINE_LOOP' from all meshes, except `meshI`. 
           //// `meshI` is optional. 
          ,onlyWireframe = function (meshI) {
-            for (var i=0, l=oo3d.meshes.length; i<l; i++) {
-              oo3d.setRenderMode('TRIANGLES', i);
+            for (var i=0, l=oo3d._all.length; i<l; i++) { //@todo use API properly
+              if (oo3d._all[i] && 'Item.Mesh' == oo3d._all[i].C) {
+                oo3d.setRenderMode('TRIANGLES', i);
+              }
             }
             if (0 === meshI || meshI) { oo3d.setRenderMode('LINE_LOOP', meshI); }
           }
@@ -226,7 +225,7 @@
           //// - `<string>`    xx
           ////
           //// Xx. 
-          ,neatNumber = function (n) {
+         ,neatNumber = function (n) {
 
             //// Deal with numbers which round to more than four digits. 
             ////  `9999.9994`  =>  '+10000'
@@ -308,11 +307,11 @@
 
 
           //// `verboseSnapshot()`
-          //// - `s <object>`  Mesh info returned by `oo3d.getMeshSnapshot()`
+          //// - `s <object>`  Mesh info returned by `oo3d.read()`
           //// - `<object>`    the snapshot with extra properties
           ////
           //// Create an object which `updateMeshInfo()` can use. 
-          verboseSnapshot = function (s) {
+         ,verboseSnapshot = function (s) {
 
             //// Flips are taken from the mesh’s scale properties. 
             s.fX = 0 == s.sX ? 0 : 0 > s.sX ? '-' : '+';
@@ -344,7 +343,8 @@
           //// `meshI` is optional. If not set, the displays are reset. 
          ,updateMeshInfo = function (meshI) {
             if (0 === meshI || meshI) {
-              info = verboseSnapshot( oo3d.getMeshSnapshot(meshI) );
+              // info = verboseSnapshot( oo3d.getMeshSnapshot(meshI) );
+              info = verboseSnapshot( oo3d.read(meshI) );
               $btnMeshFlipInfo.innerHTML  = '' + info.fX + info.fY + info.fZ;
               $btnMeshTxyInfo.innerHTML   = info.tXround + '<br>' + info.tYround;
               $btnMeshTxzInfo.innerHTML   = info.tXround + '<br>' + info.tZround;
@@ -355,7 +355,8 @@
               $btnFlipYInfo.innerHTML = info.fY;
               $btnFlipZInfo.innerHTML = info.fZ;
             }
-            info = verboseSnapshot( oo3d.getCameraSnapshot(0) );
+            // info = verboseSnapshot( oo3d.getCameraSnapshot(0) );
+            info = verboseSnapshot( oo3d.read(cameraI) );
             $btnSceneTxyInfo.innerHTML   = info.tXround + '<br>' + info.tYround;
             $btnSceneTxzInfo.innerHTML   = info.tXround + '<br>' + info.tZround;
             $btnSceneRyxInfo.innerHTML   = info.rYround + '<br>' + info.rXround;
@@ -371,18 +372,20 @@
 
           //// `onMousedown()`
           //// @todo describe
-          onMousedown = function (event, $el, customMoveHandler) {
+         ,onMousedown = function (event, $el, customMoveHandler) {
             event.preventDefault();
             if ( (0 === focusI || focusI) && isActive($guiMesh) ) {
               moveHandler = customMoveHandler;
               downPos = [event.clientX, event.clientY];
-              meshSnapshot = oo3d.getMeshSnapshot(focusI);
+              // meshSnapshot = oo3d.getMeshSnapshot(focusI);
+              meshSnapshot = oo3d.read(focusI);
               window.addEventListener('mousemove', onMousemove);
               window.addEventListener('mouseup'  , onMouseup  );
             } else if ( null == focusI && isActive($guiScene) ) {
               moveHandler = customMoveHandler;
               downPos = [event.clientX, event.clientY];
-              cameraSnapshot = oo3d.getCameraSnapshot(0);
+              // cameraSnapshot = oo3d.getCameraSnapshot(0);
+              cameraSnapshot = oo3d.read(cameraI);
               window.addEventListener('mousemove', onMousemove);
               window.addEventListener('mouseup'  , onMouseup  );
             }
@@ -390,13 +393,14 @@
 
           //// `onTouchstart()`
           //// @todo describe
-          onTouchstart = function (event, $el, customMoveHandler) {
+         ,onTouchstart = function (event, $el, customMoveHandler) {
             event.preventDefault();
             if ( (0 === focusI || focusI) && isActive($guiMesh) ) {
               moveHandler = customMoveHandler;
               var touches = event.changedTouches;
               downPos = [touches[0].pageX, touches[0].pageY];
-              meshSnapshot = oo3d.getMeshSnapshot(focusI);
+              // meshSnapshot = oo3d.getMeshSnapshot(focusI);
+              meshSnapshot = oo3d.read(focusI);
               window.addEventListener('touchmove', onTouchmove);
               window.addEventListener('touchend' , onTouchend );
             }
@@ -442,104 +446,98 @@
           //// Xx. @todo describe
          ,moveHandlerTxy = function (x, y) {
             if (null == focusI) {
-              oo3d.setCameraSnapshot(cameraSnapshot, 0)
-               .translate(x/500, y/-500, 0)
-               .render();
+              oo3d.edit(cameraI, cameraSnapshot, { tX: x/500, tY: y/-500, tZ: 0});
+              oo3d._all[cameraI].updateCamera();
+              oo3d.render();
             } else if (0 === focusI || focusI) {
-              oo3d.setMeshSnapshot(meshSnapshot, focusI)
-               .edit(focusI, null, { tX: x/500, tY: y/-500, tZ: 0 })
+              oo3d
+               .edit(focusI, meshSnapshot, { tX: x/500, tY: y/-500, tZ: 0 })
                .render();
             }
             updateMeshInfo(focusI);
-         }
+          }
 
           //// `moveHandlerTxz()`
           //// Xx. @todo describe
          ,moveHandlerTxz = function (x, y) {
             if (null == focusI) {
-              oo3d.setCameraSnapshot(cameraSnapshot, 0)
-               .translate(x/500, 0, y/500, focusI)
-               .render();
+              oo3d.edit(cameraI, cameraSnapshot, { tX: x/500, tY: 0, tZ: y/500 });
+              oo3d._all[cameraI].updateCamera();
+              oo3d.render();
             } else if (0 === focusI || focusI) {
-              oo3d.setMeshSnapshot(meshSnapshot, focusI)
-               .edit(focusI, null, { tX: x/500, tY: 0, tZ: y/500 })
+              oo3d
+               .edit(focusI, meshSnapshot, { tX: x/500, tY: 0, tZ: y/500 })
                .render();
             }
             updateMeshInfo(focusI);
-         }
+          }
 
 
           //// `moveHandlerRyx()`
           //// Xx. @todo describe
          ,moveHandlerRyx = function (x, y) {
             if (null == focusI) {
-              oo3d.setCameraSnapshot(cameraSnapshot, 0)
-               .rotate(y/500, x/500, 0, focusI)
-               .render();
+              oo3d.edit(cameraI, cameraSnapshot, { rX: y/500, rY: x/500, rZ: 0 });
+              oo3d._all[cameraI].updateCamera();
+              oo3d.render();
             } else if (0 === focusI || focusI) {
-              oo3d.setMeshSnapshot(meshSnapshot, focusI)
-               .edit(focusI, null, { rX: x/500, rY: y/-500, rZ: 0 })
+              oo3d
+               .edit(focusI, meshSnapshot, { rX: y/500, rY: x/500, rZ: 0 })
                .render();
             }
             updateMeshInfo(focusI);
-         }
+          }
 
           //// `moveHandlerRyz()`
           //// Xx. @todo describe
          ,moveHandlerRyz = function (x, y) {
             if (null == focusI) {
-              oo3d.setCameraSnapshot(cameraSnapshot, 0)
-               .rotate(0, x/500, y/-500, focusI)
-               .render();
+              oo3d.edit(cameraI, cameraSnapshot, { rX: 0, rY: x/500, rZ: y/-500 });
+              oo3d._all[cameraI].updateCamera();
+              oo3d.render();
             } else if (0 === focusI || focusI) {
-              oo3d.setMeshSnapshot(meshSnapshot, focusI)
-               .edit(focusI, null, { rX: 0, rY: x/500, rZ: y/-500 })
+              oo3d
+               .edit(focusI, meshSnapshot, { rX: 0, rY: x/500, rZ: y/-500 })
                .render();
             }
             updateMeshInfo(focusI);
-         }
+          }
 
           //// `moveHandlerScale()`
           //// Xx. @todo describe
          ,moveHandlerScale = function (x, y) {
             scale = Math.abs( 1 + (x - y)/500 );
             if (null == focusI) {
-              oo3d.setCameraSnapshot(cameraSnapshot, 0)
-               .scale(scale, scale, scale, focusI)
-               .render();
+              oo3d.edit(cameraI, cameraSnapshot, { sX: scale, sY: scale, sZ: scale });
+              oo3d._all[cameraI].updateCamera();
+              oo3d.render();
             } else if (0 === focusI || focusI) {
-              oo3d.setMeshSnapshot(meshSnapshot, focusI)
-               .edit(focusI, null, { sX: scale, sY: scale, sZ: scale })
+              oo3d
+               .edit(focusI, meshSnapshot, { sX: scale, sY: scale, sZ: scale })
                .render();
             }
             updateMeshInfo(focusI);
-         }
+          }
 
           //// `clickHandlerReset()`
           //// Xx. @todo describe
          ,clickHandlerReset = function (event) {
             if (null == focusI) {
-              oo3d.setCameraSnapshot({
-                mat: [
-                  1,  0,  0,  0,
-                  0,  1,  0,  0,
-                  0,  0,  1,  0,
-                  0,  0, -4,  1 // starts at Z = -4
-                ], rX:0,rY:0,rZ:0, sX:1,sY:1,sZ:1, tX:0,tY:0,tZ:-4
-              }, 0)
+              oo3d.edit(cameraI, 'reset')
+              oo3d._all[cameraI].updateCamera();
             } else if (0 === focusI || focusI) {
-              oo3d.setMeshSnapshot(meshSnapshot, focusI)
+              oo3d.edit(focusI, 'reset')
             }
-            oo3d.resetTransform(focusI).render();
+            oo3d.render();
             updateMeshInfo(focusI);
-         }
+          }
 
           //// `addHandlerShape()`
           ////@todo describe
          ,addHandlerShape = function (meshConfig) {
-            focusI = oo3d.addMesh(meshConfig);
-            oo3d.renderers[rendererI].meshes.push(
-              oo3d.meshes[focusI]
+            focusI = oo3d.add('Item.Mesh', meshConfig);
+            oo3d._all[rendererI].meshes.push(
+              oo3d._all[focusI]
             );
             updateMeshInfo(focusI);
             onlyShow($guiMesh);
@@ -557,17 +555,17 @@
           for (var i=0, l=snaps.length; i<l; i++) {
 
             //// Create a mesh. 
-            meshI = oo3d.addMesh({
+            meshI = oo3d.add('Item.Mesh', {
               positionI:  pyramidPositions
              ,colorI:     pyramidColors
             })
 
             //// Set the mesh's transform state. 
-            oo3d.meshes[meshI].setSnapshot(snaps[i], meshI);
+            oo3d.edit(meshI, snaps[i]);
 
             //// Add the mesh to the current Renderer's list. 
-            oo3d.renderers[rendererI].meshes.push(
-              oo3d.meshes[meshI]
+            oo3d._all[rendererI].meshes.push(
+              oo3d._all[meshI]
             );
 
             console.log(snaps[i]);
@@ -577,32 +575,32 @@
 
 
           //// Create Default Meshes. 
-          var rgbTri1I = oo3d.addMesh({
+          var rgbTri1I = oo3d.add('Item.Mesh', {
             positionI:  rgbTriPositions
            ,colorI:     rgbTriColors
            //,blend:      ['SRC_COLOR','SRC_COLOR'] // sfactor, dfactor
           })
-         ,rgbTri2I = oo3d.addMesh({
+         ,rgbTri2I = oo3d.add('Item.Mesh', {
             positionI:  rgbTriPositions
            ,colorI:     rgbTriColors
           })
-         ,rgbTri3I = oo3d.addMesh({
+         ,rgbTri3I = oo3d.add('Item.Mesh', {
             positionI:  rgbTriPositions
            ,colorI:     rgbTriColors
           })
-         ,cmyTri1I = oo3d.addMesh({
+         ,cmyTri1I = oo3d.add('Item.Mesh', {
             positionI:  cmyTriPositions
            ,colorI:     cmyTriColors
           })
-         ,cmyTri2I = oo3d.addMesh({
+         ,cmyTri2I = oo3d.add('Item.Mesh', {
             positionI:  cmyTriPositions
            ,colorI:     cmyTriColors
           })
-         ,cmyTri3I = oo3d.addMesh({
+         ,cmyTri3I = oo3d.add('Item.Mesh', {
             positionI:  cmyTriPositions
            ,colorI:     cmyTriColors
           })
-         ,pyramidI = oo3d.addMesh({
+         ,pyramidI = oo3d.add('Item.Mesh', {
             positionI:  pyramidPositions
            ,colorI:     pyramidColors
            //,blend:      ['ONE','DST_COLOR'] // sfactor, dfactor
@@ -620,8 +618,8 @@
            ,pyramidI
           ];
           for (var i=0, l=meshIs.length; i<l; i++) {
-            oo3d.renderers[rendererI].meshes.push(
-              oo3d.meshes[ meshIs[i] ]
+            oo3d._all[rendererI].meshes.push( //@todo use API properly
+              oo3d._all[ meshIs[i] ] //@todo use API properly
             );
           }
 
@@ -633,7 +631,7 @@
           oo3d.edit(cmyTri1I, { tX:-0.5 , tY:0, tZ:   2 });
           oo3d.edit(cmyTri2I, { tX:  -1 , tY:0, tZ: 2.5 });
           oo3d.edit(cmyTri3I, { tX: 1.5 , tY:0, tZ:   1 });
-          oo3d.edit(pyramidI, { rX:0, rY:1, rZ:0 });
+          oo3d.edit(pyramidI, { rX:0, rY:0, rZ:0 });
 
         }
 
@@ -645,11 +643,11 @@
         //// Scene GUI. 
         $btnSceneSave.addEventListener('mousedown', function (event) {
           if ( 'gui active' !== $guiScene.getAttribute('class') ) { return; }
-          //prompt('Save URI:', 'http://oo3d.richplastow.com/usage/07-scene-builder.html#abc123');
           var saveURI = '', i, l;
-          for (i=0, l=oo3d.meshes.length; i<l; i++) {
-            if (! oo3d.meshes[i]) { continue; }
-            saveURI += oo3d.meshes[i].getSnapshot('nwang') + ';'
+          for (i=0, l=oo3d._all.length; i<l; i++) {
+            if (oo3d._all[i] && 'Item.Mesh' == oo3d._all[i].C) {
+              saveURI += oo3d.read(i, 'nwang') + ';'
+            }
           }
           prompt('Save URI:', 'http://oo3d.richplastow.com/usage/07-scene-builder.html#' + saveURI.slice(0, -1));
         });
@@ -786,8 +784,9 @@
         });
         $btnMeshReset.addEventListener('click', clickHandlerReset);
         $btnMeshDelete.addEventListener('click', function (event) {
-          delete oo3d.renderers[rendererI].meshes[focusI];
-          delete oo3d.meshes[focusI];
+          oo3d.delete(focusI);
+          // delete oo3d.renderers[rendererI].meshes[focusI];
+          // delete oo3d.meshes[focusI];
           onlyShow();
           onlyWireframe();
           oo3d.render();
@@ -823,8 +822,8 @@
         });
         $btnFlipReset.addEventListener('mousedown', function (event) {
           if ( 'gui active' !== $guiFlip.getAttribute('class') ) { return; }
-          meshSnapshot = oo3d.getMeshSnapshot(focusI);
-          meshInfo = oo3d.getMeshSnapshot(focusI);
+          // meshSnapshot = oo3d.getMeshSnapshot(focusI);
+          meshSnapshot = oo3d.read(focusI);
           oo3d.scale(
             '+' == meshSnapshot.fX ? 1 : -1,
             '+' == meshSnapshot.fY ? 1 : -1,
@@ -948,6 +947,7 @@
       width:  90%;
       padding: 1rem;
       font-family: monaco, monospace;
+      white-space: pre;
       background-color: #933;
       color: #fff;
       transition: all 0.5s;

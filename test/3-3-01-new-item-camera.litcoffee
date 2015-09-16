@@ -1,33 +1,16 @@
-4-01 `new Item.Camera()`
+3-3-01 `new Item.Camera`
 ========================
 
 
     tudor.add [
-      "4-01 `new Item.Camera()`"
+      "3-3-01 `new Item.Camera`"
       tudor.is
 
 
 
 
-      "(Mock an `Oo3d` instance)"
-      ->
-        class CanvasMock
-          width:  2
-          height: 1
-          toString: -> '[object HTMLCanvasElement]'
-          getContext: ->
-            createBuffer: -> {}
-            bindBuffer:   ->
-            bufferData:   ->
-            clearColor:   ->
-            enable:       ->
-            depthFunc:    ->
-            scissor:      ->
-            clear:        ->
-            TRIANGLES:    4
-        oo3d = new Main
-          $main: new CanvasMock
-        [oo3d]
+      "(Mock an Oo3d instance)"
+      mockOo3d
 
 
 
@@ -52,49 +35,49 @@
 
       "`config.main` must be an object"
       """
-      /oo3d/src/item/base-item.litcoffee:Item[NaN]()
+      /oo3d/src/item/base-item.litcoffee Item#NaN()
         `main` is number not object"""
       (oo3d) -> new Item.Camera 123
 
 
       "`config.main` must be an Oo3d instance"
       """
-      /oo3d/src/item/base-item.litcoffee:Item[NaN]()
+      /oo3d/src/item/base-item.litcoffee Item#NaN()
         `main` is '[object Object]' not '[object Oo3d]'"""
       (oo3d) -> new Item.Camera {}
 
 
       "`index` must be a number"
       """
-      /oo3d/src/item/base-item.litcoffee:Item[1]()
+      /oo3d/src/item/base-item.litcoffee Item#1()
         `index` is boolean not number"""
       (oo3d) -> new Item.Camera oo3d, true
 
 
       "`index` must be an integer"
       """
-      /oo3d/src/item/base-item.litcoffee:Item[3.5]()
+      /oo3d/src/item/base-item.litcoffee Item#3.5()
         `index` is 3.5 not 0 or a positive integer below 2^53"""
       (oo3d) -> new Item.Camera oo3d, 3.5
 
 
       "`index` must be positive"
       """
-      /oo3d/src/item/base-item.litcoffee:Item[-44]()
+      /oo3d/src/item/base-item.litcoffee Item#-44()
         `index` is -44 not 0 or a positive integer below 2^53"""
       (oo3d) -> new Item.Camera oo3d, -44
 
 
       "`index` must be below 2^53"
       """
-      /oo3d/src/item/base-item.litcoffee:Item[9007199254740992]()
+      /oo3d/src/item/base-item.litcoffee Item#9007199254740992()
         `index` is 9007199254740992 not 0 or a positive integer below 2^53"""
       (oo3d) -> new Item.Camera oo3d, 9007199254740992
 
 
       "`config` must be an object"
       """
-      /oo3d/src/item/base-item.litcoffee:Item[0]()
+      /oo3d/src/item/base-item.litcoffee Item#0()
         Optional `config` is date not object"""
       (oo3d) -> new Item.Camera oo3d, 0, new Date
 
@@ -106,7 +89,7 @@
 
       "If set, config.fovy must be a number"
       """
-      /src/item/class-item-camera.litcoffee:Item.Camera:constructor()
+      /oo3d/src/item/class-item-camera.litcoffee Item.Camera#0()
         Optional `config.fovy` is string not number"""
       (oo3d) -> new Item.Camera oo3d, 0, 
         fovy: 'abc'
@@ -114,7 +97,7 @@
 
       "If set, config.fovy must be greater than zero"
       """
-      /src/item/class-item-camera.litcoffee:Item.Camera:constructor()
+      /oo3d/src/item/class-item-camera.litcoffee Item.Camera#0()
         Optional `config.fovy` is 0 not greater than zero"""
       (oo3d) -> new Item.Camera oo3d, 0, 
         fovy: 0
@@ -122,7 +105,7 @@
 
       "If set, config.aspect must be a number"
       """
-      /src/item/class-item-camera.litcoffee:Item.Camera:constructor()
+      /oo3d/src/item/class-item-camera.litcoffee Item.Camera#0()
         Optional `config.aspect` is array not number"""
       (oo3d) -> new Item.Camera oo3d, 0, 
         aspect: []
@@ -130,7 +113,7 @@
 
       "If set, config.aspect must be greater than zero"
       """
-      /src/item/class-item-camera.litcoffee:Item.Camera:constructor()
+      /oo3d/src/item/class-item-camera.litcoffee Item.Camera#0()
         Optional `config.aspect` is -3 not greater than zero"""
       (oo3d) -> new Item.Camera oo3d, 0, 
         aspect: -3

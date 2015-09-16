@@ -1,6 +1,6 @@
 {
   "name": "oo3d",
-  "version": "0.0.51",
+  "version": "0.0.52",
   "description": "The Oopish WebGL engine",
   "main": "build/oo3d.js",
   "directories": {
@@ -25,7 +25,7 @@
   ],
   "scripts": {
     "hi": "open .; open index.html; open test/run-test.html; subl .",
-    "make": "node bin/akaybe-build -w /src/renderer",
+    "make": "node bin/akaybe-build",
     "index": "node_modules/apage/bin/apage -i README.md doc/*.md -o index.html -p \"`cat node_modules/apage/build/plugin/*.js`\"",
     "test": "node test/run-test.js"
   },
