@@ -187,8 +187,7 @@ Otherwise, throw an exception.
 - `delta <object|string>`  (optional) modify properties
 - `<object>`               this Item, to allow chaining
 
-Modifies the Item’s current state.  
-@todo on error, restore state (need tests for this)
+Modifies the Item’s current state. 
 
       edit: (set, delta) ->
         M = "/oo3d/src/item/base-item.litcoffee

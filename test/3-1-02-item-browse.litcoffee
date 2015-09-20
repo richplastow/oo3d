@@ -20,16 +20,22 @@
 
       "`item.browse()` is a function"
       ªF
-      (oo3d, item) -> item.browse
+      (oo3d) ->
+        item = new Item oo3d, 0
+        item.browse
 
       "`item.browse()` returns an array"
       ªA
-      (oo3d, item) -> item.browse()
+      (oo3d) ->
+        item = new Item oo3d, 0
+        item.browse()
 
 
       "`item.browse('abc')` returns an array"
       ªA
-      (oo3d, item) -> item.browse 'abc'
+      (oo3d) ->
+        item = new Item oo3d, 0
+        item.browse 'abc'
 
 
 

@@ -53,13 +53,11 @@
         `main` is number not object"""
       (oo3d) -> new Item 123
 
-
       "`config.main` must be an Oo3d instance"
       """
       /oo3d/src/item/base-item.litcoffee Item#NaN()
         `main` is '[object Object]' not '[object Oo3d]'"""
       (oo3d) -> new Item {}
-
 
       "`index` must be a number"
       """
@@ -67,13 +65,11 @@
         `index` is boolean not number"""
       (oo3d) -> new Item oo3d, true
 
-
       "`index` must be an integer"
       """
       /oo3d/src/item/base-item.litcoffee Item#3.5()
         `index` is 3.5 not 0 or a positive integer below 2^53"""
       (oo3d) -> new Item oo3d, 3.5
-
 
       "`index` must be positive"
       """
@@ -81,13 +77,11 @@
         `index` is -44 not 0 or a positive integer below 2^53"""
       (oo3d) -> new Item oo3d, -44
 
-
       "`index` must be below 2^53"
       """
       /oo3d/src/item/base-item.litcoffee Item#9007199254740992()
         `index` is 9007199254740992 not 0 or a positive integer below 2^53"""
       (oo3d) -> new Item oo3d, 9007199254740992
-
 
       "`config` must be an object"
       """

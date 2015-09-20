@@ -45,36 +45,40 @@ Instantiation Arguments
 -----------------------
 
 
-#### `color <Float32Array>`
-A color which can act as an ID. Useful for picking. 
-
-        @color = pick.indexToColor @index # defined in /src/pick.coffee
-        #ª @index, (Math.round(channel*255) for channel in @color)
-
-
-#### `positionBuffer <Buffer.Position>`
+#### `bP <Buffer.Position>`
 Xx. @todo describe
 
-        @positionBuffer = @main._all[config.positionI or 0]
-        if ! @positionBuffer then throw Error "
-          #{M}`config.positionI` #{config.positionI} does not exist"
+        if ªU == type = ( ªtype (val = config.positionI) )
+          @bP = @main._all[0] # use Oo3d’s default Buffer.Position
+        else
+          @bP = @main._all[val]
+          if ! @bP
+            if ªN != type then throw TypeError "
+              #{M}Optional `config.positionI` is #{type} not number"
+            if ªMAX < val or val % 1 or 0 > val then throw RangeError "
+              #{M}`config.positionI` is #{val} not 0 or a +ve int < 2^53"
+            throw RangeError "
+              #{M}`config.positionI` no such instance `main._all[#{val}]`"
+          if 'Buffer.Position' != @bP.C then throw TypeError "
+            #{M}`config.positionI` refs #{@bP.C} at `main._all[#{val}]`"
 
 
-#### `colorBuffer <Buffer.Color>`
-Xx. @todo describe  
-@todo make optional
-
-        @colorBuffer = @main._all[config.colorI or 1]
-        if ! @colorBuffer then throw Error "
-          #{M}`config.colorI` #{config.colorI} does not exist"
-
-
-#### `count <integer>`
+#### `bC <Buffer.Color>`
 Xx. @todo describe
 
-        if @positionBuffer.count != @colorBuffer.count then throw Error "
-          #{M}`config.positionI` mismatches config.colorI"
-        @count = @positionBuffer.count
+        if ªU == type = ( ªtype (val = config.colorI) )
+          @bC = @main._all[1] # use Oo3d’s default Buffer.Color
+        else
+          @bC = @main._all[val]
+          if ! @bC
+            if ªN != type then throw TypeError "
+              #{M}Optional `config.colorI` is #{type} not number"
+            if ªMAX < val or val % 1 or 0 > val then throw RangeError "
+              #{M}`config.colorI` is #{val} not 0 or a +ve int < 2^53"
+            throw RangeError "
+              #{M}`config.colorI` no such instance `main._all[#{val}]`"
+          if 'Buffer.Color' != @bC.C then throw TypeError "
+            #{M}`config.colorI` refs #{@bC.C} at `main._all[#{val}]`"
 
 
 #### `renderMode <string>`
@@ -111,18 +115,191 @@ Self-Assigned Properties
 ------------------------
 
 
+#### `count <integer>`
+Xx. @todo describe  
+@todo delete `count` as it always == `bP`
+
+        if @bP.count != @bC.count then throw Error "
+          #{M}`config.positionI` mismatches config.colorI"
+        @count = @bP.count
 
 
-Methods
--------
+#### `color <Float32Array>`
+A color which can act as an ID. Useful for picking. 
+
+        @color = pick.indexToColor @index # defined in /src/pick.coffee
 
 
-#### `xx()`
-- xx `<xx>`  (optional) xx
 
-@todo describe
 
-      xx: (xx) ->
+Method Overrides
+----------------
+
+
+#### `read()`
+- `format <string>`  (optional) one of 'object' (default), 'log' or 'nwang'
+- `<object|string>`  xx @todo describe
+
+Creates an object or string which describes the Item’s current state. 
+
+      read: (format) ->
+        M = "/oo3d/src/item/class-item-mesh.litcoffee
+          Item.Mesh##{@index}:read()\n  "
+
+Call the base Item class’s `read()` method. 
+
+        out = super format
+
+If `format` is not set (or is the string 'object'), add Item.Mesh specific 
+properties to the output object. 
+
+        if ªU == typeof format or 'object' == format
+          out.bP = @bP.index
+          out.bC = @bC.index
+
+If `format` is 'log', add properties to the simple string snapshot. 
+
+        else if 'log' == format
+          out += " bP #{@bP.index} bC #{@bC.index}"
+
+If `format` is 'nwang', return an efficient UTF-16 snapshot. See the 
+[Nwang library](http://goo.gl/gaumPj) for details. 
+
+        else if 'nwang' == format
+          sf3 = @main.nwang.sf3
+          out += sf3(@bP.index) + sf3(@bC.index) #@todo use alternate nwang fn, to allow integers > 999
+
+The base Item class’s `read()` method will have dealt with an unexpected 
+`format` argument, so we can just return the output here. 
+
+        return out
+
+
+
+
+#### `edit()`
+- `set   <object|string>`  (optional) set properties
+- `delta <object|string>`  (optional) modify properties
+- `<object>`               this Item, to allow chaining
+
+Modifies the Item’s current state. 
+
+      edit: (set, delta) ->
+        M = "/oo3d/src/item/class-item-mesh.litcoffee
+          Item.Mesh##{@index}:edit()\n  "
+
+        tSet   = ªtype set
+        tmp    = {} # if an error is thrown, mesh state will not be changed
+
+If `set` is an object, make `tmp` refs to the Buffer instances identified by 
+its `bpi` and `bci` properties.  
+So to change an Item.Mesh’s Buffer.Position:  
+`oo3d.edit(myMeshI, { bpi:myNewBufferPositionI })`  
+Or to change an Item.Mesh’s Buffer.Color at the same time:  
+`oo3d.edit(myMeshI, { bpi:myNewBufferPositionI, bci:myNewColorPositionI })`
+
+        if ªO == tSet
+
+          if ªU != type = ( ªtype (val = set.bpi) )
+            tmp.bp = @main._all[val]
+            if ! tmp.bp
+              if ªN != type then throw TypeError "
+                #{M}Optional `set.bpi` is #{type} not number"
+              if ªMAX < val or val % 1 or 0 > val then throw RangeError "
+                #{M}Optional `set.bpi` is #{val} not 0 or a +ve int < 2^53"
+              throw RangeError "
+                #{M}Optional `set.bpi` no such instance `main._all[#{val}]`"
+            if 'Buffer.Position' != tmp.bp.C then throw TypeError "
+              #{M}Optional `set.bpi` refs #{tmp.bp.C} at `main._all[#{val}]`"
+
+          if ªU != type = ( ªtype (val = set.bci) )
+            tmp.bc = @main._all[val]
+            if ! tmp.bc
+              if ªN != type then throw TypeError "
+                #{M}Optional `set.bci` is #{type} not number"
+              if ªMAX < val or val % 1 or 0 > val then throw RangeError "
+                #{M}Optional `set.bci` is #{val} not 0 or a +ve int < 2^53"
+              throw RangeError "
+                #{M}Optional `set.bci` no such instance `main._all[#{val}]`"
+            if 'Buffer.Color' != tmp.bc.C then throw TypeError "
+              #{M}Optional `set.bci` refs #{tmp.bc.C} at `main._all[#{val}]`"
+
+If `set` appears to be an 'nwang' string with `bpi` and `bci` values, remove 
+the last two characters and parse them into `tmp`. 
+
+        else if ªS == tSet
+          if 0xAFE8 < set.charCodeAt 0
+            sf3 = @main.nwang.sf3
+
+            if 11 == set.length
+              bpval = +(sf3 set.charAt 9)
+              bcval = +(sf3 set.charAt 10)
+              tmp.bp = @main._all[bpval]
+              tmp.bc = @main._all[bcval]
+              set = set.slice 0, 9
+
+            #@todo deal with 28-char nwang and test
+
+            if bpval
+              if ! tmp.bp
+                if bpval % 1 or 0 > bpval then throw RangeError "
+                  #{M}Nwang `bpi` value is #{bpval} not 0 or a +ve int"
+                throw RangeError "
+                  #{M}Nwang `bpi` no such instance `main._all[#{bpval}]`"
+              if 'Buffer.Position' != tmp.bp.C then throw TypeError "
+                #{M}Nwang `bpi` refs #{tmp.bp.C} at `main._all[#{bpval}]`"
+
+            if bcval
+              if ! tmp.bc
+                if bcval % 1 or 0 > bcval then throw RangeError "
+                  #{M}Nwang `bci` value is #{bcval} not 0 or a +ve int"
+                throw RangeError "
+                  #{M}Nwang `bci` no such instance `main._all[#{bcval}]`"
+              if 'Buffer.Color' != tmp.bc.C then throw TypeError "
+                #{M}Nwang `bci` refs #{tmp.bc.C} at `main._all[#{bcval}]`"
+
+If `set` appears to be a 'log' string with `bpi` and `bci` values, remove them 
+and parse them into `tmp`. 
+
+          else
+            vals = set.split ' '
+            #@todo complete this and write tests
+
+If the Buffer.Position or Buffer.Color have changed, ensure that the resulting 
+Mesh.Item does not have mismatched vertex-counts. 
+
+        if tmp.bp and tmp.bc
+          if tmp.bp.count != tmp.bc.count then throw Error "
+            #{M}`set.bpi` mismatches `set.bci`"
+        else if tmp.bp and (tmp.bp.count != @bC.count) then throw Error "
+            #{M}`set.bpi` mismatches the mesh’s Buffer.Color##{@bC.index}"
+        else if tmp.bc and (tmp.bc.count != @bP.count) then throw Error "
+            #{M}`set.bci` mismatches the mesh’s Buffer.Position##{@bP.index}"
+
+Call the base Item class’s `edit()` method. 
+
+        super set, delta
+
+No error thrown, so write new `bp` and `bc` values to the Item.Mesh’s state. 
+
+        if tmp.bp then @bP = tmp.bp
+        if tmp.bc then @bC = tmp.bc
+        @count = @bP.count #@todo delete `count` as it always == `bP`
+
+If `set` is the special 'reset' string, restore `bP` and `bC` to default.  
+@todo test
+
+        if 'reset' == set
+          @bP = 0
+          @bC = 1
+
+Allow chaining. 
+
+        return @
+
+
+
+
 
 
 

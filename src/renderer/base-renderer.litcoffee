@@ -87,7 +87,7 @@ the order they will be rendered.
           #{M}`config.meshIs` is #{tMIs} not array"
         else @meshes = for index,i in config.meshIs
           if ªN != typeof index then throw TypeError "
-            #{M}`config.meshIs[#{i}] is #{ªtype index} not number"
+            #{M}`config.meshIs[#{i}]` is #{ªtype index} not number"
           mesh = @main._all[index]
           if ! mesh or ! (mesh instanceof Item.Mesh) then throw TypeError "
             #{M}`config.meshIs[#{i}]` refs #{mesh.C} at `main._all[#{index}]`"
@@ -157,15 +157,15 @@ Set the mesh color.
               mesh.color
             )
 
-Set each mesh’s `positionBuffer` as the WebGLBuffer to be worked on. The 
+Set each mesh’s Buffer.Position as the WebGLBuffer to be worked on. The 
 previous binding is automatically broken. 
 
-- `target <integer>`        specify what `positionBuffer` contains: 
+- `target <integer>`        specify what Buffer.Position contains: 
   - `ARRAY_BUFFER`          contains vertex attributes — use `drawArrays()`
   - `ELEMENT_ARRAY_BUFFER`  contains only indices — use `drawElements()`
 - `buffer <WebGLBuffer>`    a WebGLBuffer object to bind to the target
 
-          gl.bindBuffer gl.ARRAY_BUFFER, mesh.positionBuffer.glData
+          gl.bindBuffer gl.ARRAY_BUFFER, mesh.bP.glData
 
 
 Specify the attribute-location and data-format for the newly bound mesh. 
@@ -193,7 +193,7 @@ Specify the attribute-location and data-format for the newly bound mesh.
 Repeat the two steps above for the vertex-colors, if the Program supports it. 
 
           if aVtxColorLoc
-            gl.bindBuffer gl.ARRAY_BUFFER, mesh.colorBuffer.glData
+            gl.bindBuffer gl.ARRAY_BUFFER, mesh.bC.glData
             gl.vertexAttribPointer aVtxColorLoc, 4, gl.FLOAT, false, 0, 0
 
 Apply the blend-mode, if any.  

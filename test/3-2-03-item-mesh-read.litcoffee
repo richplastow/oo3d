@@ -1,9 +1,9 @@
-3-1-03 `item.read()`
-====================
+3-2-03 `Item.Mesh:read()`
+=========================
 
 
     tudor.add [
-      "3-1-03 `item.read()`"
+      "3-2-03 `Item.Mesh:read()`"
       tudor.is
 
 
@@ -15,8 +15,8 @@
 
 
 
-      "(Directly create an Item instance)"
-      (oo3d) -> [(new Item oo3d, 0)]
+      "(Directly create an Item.Mesh instance)"
+      (oo3d) -> [(new Item.Mesh oo3d, 0)]
 
 
 
@@ -24,30 +24,30 @@
       "The method is a function and returns expected types"
 
 
-      "`item.read()` is a function"
+      "`mesh.read()` is a function"
       ªF
-      (item) -> item.read
+      (mesh) -> mesh.read
 
-      "`item.read()` returns an object"
+      "`mesh.read()` returns an object"
       ªO
-      (item) -> item.read()
+      (mesh) -> mesh.read()
 
-      "`item.read('object')` returns an object"
+      "`mesh.read('object')` returns an object"
       ªO
-      (item) -> item.read 'object'
+      (mesh) -> mesh.read 'object'
 
-      "`item.read('log')` returns a string"
+      "`mesh.read('log')` returns a string"
       ªS
-      (item) -> item.read 'log'
+      (mesh) -> mesh.read 'log'
 
-      "`item.read('nwang')` returns a string"
+      "`mesh.read('nwang')` returns a string"
       ªS
-      (item) -> item.read 'nwang'
+      (mesh) -> mesh.read 'nwang'
 
 
 
 
-      "`item.read()` exceptions"
+      "`mesh.read()` exceptions"
       tudor.throw
 
 
@@ -55,33 +55,33 @@
       """
       /oo3d/src/item/base-item.litcoffee Item#0:read()
         Optional `format` is boolean not string|object"""
-      (item) -> item.read(false)
+      (mesh) -> mesh.read(false)
 
 
       "`format` must not be null"
       """
       /oo3d/src/item/base-item.litcoffee Item#0:read()
         Optional `format` is null not string|object"""
-      (item) -> item.read(null)
+      (mesh) -> mesh.read(null)
 
 
       "`format` 'NOPE!' is not recognized"
       """
       /oo3d/src/item/base-item.litcoffee Item#0:read()
         Optional `format` is not 'object|log|nwang'"""
-      (item) -> item.read('NOPE!')
+      (mesh) -> mesh.read('NOPE!')
 
 
 
 
-      "`item.read()` usage"
+      "`mesh.read()` usage"
       tudor.equal
 
 
-      "Object from a default Item contains expected keys and values"
+      "Object from a default Item.Mesh contains expected keys and values"
       "i 0 mT 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 r 0 0 0 s 1 1 1 t 0 0 0"
-      (item) ->
-        obj = item.read()
+      (mesh) ->
+        obj = mesh.read()
         "i #{obj.index}
          mT #{obj.mT[0] } #{obj.mT[1] } #{obj.mT[2] } #{obj.mT[3] }
             #{obj.mT[4] } #{obj.mT[5] } #{obj.mT[6] } #{obj.mT[7] }
@@ -91,32 +91,32 @@
          s #{obj.sX} #{obj.sY} #{obj.sZ}
          t #{obj.tX} #{obj.tY} #{obj.tZ}"
 
-      "Object from a default Item contain only the expected keys"
-      "index mT rX rY rZ sX sY sZ tX tY tZ"
-      (item) ->
-        obj = item.read()
+      "Object from a default Item.Mesh contain only the expected keys"
+      "bC bP index mT rX rY rZ sX sY sZ tX tY tZ"
+      (mesh) ->
+        obj = mesh.read()
         (k for k,v of obj).sort().join ' '
 
-      "Dumped 'log' from a default Item as expected"
-      "i 0 mT 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 r 0 0 0 s 1 1 1 t 0 0 0"
-      (item) -> item.read 'log'
+      "Dumped 'log' from a default Item.Mesh as expected"
+      "i 0 mT 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 r 0 0 0 s 1 1 1 t 0 0 0 bP 0 bC 1"
+      (mesh) -> mesh.read 'log'
 
-      "Dumped 'nwang' from a default Item as expected"
-      "셼죨셼셼셼셼죨셼셼셼셼죨셼셼셼셼죨셼셼셼죨죨죨셼셼셼"
-      (item) -> item.read 'nwang'
+      "Dumped 'nwang' from a default Item.Mesh as expected"
+      "셼죨셼셼셼셼죨셼셼셼셼죨셼셼셼셼죨셼셼셼죨죨죨셼셼셼셼죨"
+      (mesh) -> mesh.read 'nwang'
 
 
-Transform the item. 
+Transform the mesh. 
 
-      (item) ->
-        item.edit
+      (mesh) ->
+        mesh.edit
           rX: 0.001, rY: (Math.PI * -2 / 2306) + 0.0001, rZ: (Math.PI / 6) + (Math.PI * 10)
           sX: 0.001, sY: -0.5000001, sZ: 12
           tX: 0.001, tY: -0.5000001, tZ: 12
-        [item]
+        [mesh]
 
 
-      "Dumped 'log' from a transformed Item as expected"
+      "Dumped 'log' from a transformed Item.Mesh as expected"
       "
       i 0 mT 0.0008660224266350269 0.0004999974626116455 0.0000027730632154998602 
       0 0.24999919533729553 -0.4330132305622101 0.00022316427202895284 
@@ -125,12 +125,13 @@ Transform the item.
       r 0.001 -0.0026247117550648683 31.93952531149623 
       s 0.001 -0.5000001 12 
       t 0.001 -0.5000001 12
+      bP 0 bC 1
       "
-      (item) -> item.read 'log'
+      (mesh) -> mesh.read 'log'
 
-      "Dumped 'nwang' from a transformed Item as expected"
-      '셼솅솁셼셼엺뱇셾셼쁁섄첀셼솆밄첀죨솆셢쵇솆밄첀솆밄첀'
-      (item) -> item.read 'nwang'
+      "Dumped 'nwang' from a transformed Item.Mesh as expected"
+      '셼솅솁셼셼엺뱇셾셼쁁섄첀셼솆밄첀죨솆셢쵇솆밄첀솆밄첀셼죨'
+      (mesh) -> mesh.read 'nwang'
 
 
 

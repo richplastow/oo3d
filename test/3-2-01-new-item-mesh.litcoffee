@@ -87,23 +87,65 @@
       "Item.Mesh Constructor exceptions"
 
 
-      "If set, config.positionI must refer to an actual positionBuffer"
+      "If set, config.positionI must be a number"
       """
       /oo3d/src/item/class-item-mesh.litcoffee Item.Mesh#0()
-        `config.positionI` foo does not exist""" # note, will not repeat 'foo'
+        Optional `config.positionI` is string not number"""
+      (oo3d) -> new Item.Mesh oo3d, 0,
+        positionI: '22'
+
+      "If set, config.positionI must be an integer"
+      """
+      /oo3d/src/item/class-item-mesh.litcoffee Item.Mesh#0()
+        `config.positionI` is 12.5 not 0 or a +ve int < 2^53"""
+      (oo3d) -> new Item.Mesh oo3d, 0,
+        positionI: 12.5
+
+      "If set, config.positionI must refer to an instance"
+      """
+      /oo3d/src/item/class-item-mesh.litcoffee Item.Mesh#0()
+        `config.positionI` no such instance `main._all[123]`"""
       (oo3d) -> new Item.Mesh oo3d, 0, 
-        positionI: 'foo'
+        positionI: 123
 
-
-      "If set, config.colorI must refer to an actual colorBuffer"
+      "If set, config.positionI must refer to a Buffer.Position instance"
       """
       /oo3d/src/item/class-item-mesh.litcoffee Item.Mesh#0()
-        `config.colorI` 123 does not exist"""
+        `config.positionI` refs Buffer.Color at `main._all[1]`"""
+      (oo3d) -> new Item.Mesh oo3d, 0, 
+        positionI: 1
+
+
+      "If set, config.colorI must be a number"
+      """
+      /oo3d/src/item/class-item-mesh.litcoffee Item.Mesh#0()
+        Optional `config.colorI` is array not number"""
+      (oo3d) -> new Item.Mesh oo3d, 0,
+        colorI: []
+
+      "If set, config.colorI must be a positive number"
+      """
+      /oo3d/src/item/class-item-mesh.litcoffee Item.Mesh#0()
+        `config.colorI` is -1 not 0 or a +ve int < 2^53"""
+      (oo3d) -> new Item.Mesh oo3d, 0,
+        colorI: -1
+
+      "If set, config.colorI must refer to an instance"
+      """
+      /oo3d/src/item/class-item-mesh.litcoffee Item.Mesh#0()
+        `config.colorI` no such instance `main._all[123]`"""
       (oo3d) -> new Item.Mesh oo3d, 0, 
         colorI: 123
 
+      "If set, config.colorI must refer to a Buffer.Position instance"
+      """
+      /oo3d/src/item/class-item-mesh.litcoffee Item.Mesh#0()
+        `config.colorI` refs Buffer.Position at `main._all[0]`"""
+      (oo3d) -> new Item.Mesh oo3d, 0, 
+        colorI: 0
 
-      "A positionBuffer with one coordinate does not match a colorBuffer with two"
+
+      "A Buffer.Position with one vertex does not match a Buffer.Color with two"
       """
       /oo3d/src/item/class-item-mesh.litcoffee Item.Mesh#0()
         `config.positionI` mismatches config.colorI"""
@@ -196,7 +238,7 @@
       (oo3d) ->
         mesh = new Item.Mesh oo3d, 0,
           positionI:  0
-          colorI:     0
+          colorI:     1
           renderMode: null # falsey, so defaults to 'TRIANGLES'
           blend:      null # falsey, so blending will be switched off
         mesh.renderMode + (ªtype mesh.sBlend) + (ªtype mesh.dBlend)
