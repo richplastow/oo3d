@@ -10,6 +10,12 @@ Buffer
 - A Buffer can be used by any number of Item.Meshes
 - All Buffers are stored in the `main._all` array
 
+@todo describe
+
+    class Buffer
+      C: 'Buffer'
+      toString: -> '[object Buffer]'
+
 
 
 
@@ -18,10 +24,7 @@ Buffer
 - `index <integer>`  this Buffer’s index in `main._all`
 - `config <object>`  (optional) configuration, and in particular, `data`
 
-    class Buffer
-      C: 'Buffer'
-      toString: -> '[object Buffer]'
-
+@todo describe
 
       constructor: (@main, @index, config={}) ->
         M = "/oo3d/src/buffer/base-buffer.litcoffee

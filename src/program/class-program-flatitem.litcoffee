@@ -4,6 +4,12 @@ Program.FlatItem
 
 #### Xx @todo describe
 
+@todo describe
+
+    class Program.FlatItem extends Program
+      C: 'Program.FlatItem'
+      toString: -> "[object FlatItem]"
+
 
 
 
@@ -12,10 +18,7 @@ Program.FlatItem
 - `index <integer>`  this Program.FlatItem’s index in `main._all`
 - `config <object>`  (optional) configuration and options
 
-    class Program.FlatItem extends Program
-      C: 'Program.FlatItem'
-      toString: -> "[object FlatItem]"
-
+@todo describe
 
       constructor: (main, index, config={}) ->
         M = "/oo3d/src/program/class-program-flatitem.litcoffee

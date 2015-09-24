@@ -4,6 +4,12 @@ Item
 
 #### The base class for discrete elements in 3D space, like Meshes and Cameras
 
+@todo describe
+
+    class Item
+      C: 'Item'
+      toString: -> '[object Item]'
+
 
 
 
@@ -12,10 +18,7 @@ Item
 - `index <integer>`  this Item’s index in `main._all`
 - `config <object>`  (optional) configuration and options
 
-    class Item
-      C: 'Item'
-      toString: -> '[object Item]'
-
+@todo describe
 
       constructor: (@main, @index, config={}) ->
         M = "/oo3d/src/item/base-item.litcoffee

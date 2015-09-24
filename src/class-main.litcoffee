@@ -45,10 +45,19 @@ Main Class
 
 #### The main class for Oo3d
 
+@todo describe
+
     class Main
       C: 'Oo3d'
       toString: -> "[object Oo3d]"
 
+
+
+
+#### `constructor()`
+- `config <object>`  (optional) configuration, and in particular, `data`
+
+@todo describe
 
       constructor: (config={}) ->
         M = "/oo3d/src/class-main.litcoffee

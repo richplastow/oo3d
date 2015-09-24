@@ -4,6 +4,12 @@ Program.Flat
 
 #### A simple Program for vertex-colored shapes with no shading
 
+@todo describe
+
+    class Program.Flat extends Program
+      C: 'Program.Flat'
+      toString: -> "[object Program.Flat]"
+
 
 
 
@@ -12,10 +18,7 @@ Program.Flat
 - `index <integer>`  this Program.Flat’s index in `main._all`
 - `config <object>`  (optional) configuration and options
 
-    class Program.Flat extends Program
-      C: 'Program.Flat'
-      toString: -> "[object Program.Flat]"
-
+@todo describe
 
       constructor: (main, index, config={}) ->
         M = "/oo3d/src/program/class-program-flat.litcoffee

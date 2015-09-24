@@ -4,6 +4,10 @@ Item.Mesh
 
 @todo describe
 
+    class Item.Mesh extends Item
+      C: 'Item.Mesh'
+      toString: -> "[object Item.Mesh]"
+
 
 
 
@@ -12,10 +16,7 @@ Item.Mesh
 - `index <integer>`  this Item.Mesh’s index in `main._all`
 - `config <object>`  (optional) configuration and options
 
-    class Item.Mesh extends Item
-      C: 'Item.Mesh'
-      toString: -> "[object Item.Mesh]"
-
+@todo describe
 
       constructor: (main, index, config={}) ->
         M = "/oo3d/src/item/class-item-mesh.litcoffee

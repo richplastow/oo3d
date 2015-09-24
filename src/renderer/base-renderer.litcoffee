@@ -9,6 +9,12 @@ Renderer
 - A Renderer can appear more than once in a layer’s `renderers` array
 - All Renderers are stored in the `main._all` array, whether they’re used or not
 
+@todo describe
+
+    class Renderer
+      C: 'Renderer'
+      toString: -> "[object Renderer]"
+
 
 
 
@@ -17,10 +23,7 @@ Renderer
 - `index <integer>`  this Renderer’s index in `main._all`
 - `config <object>`  (optional) configuration and options
 
-    class Renderer
-      C: 'Renderer'
-      toString: -> "[object Renderer]"
-
+@todo describe
 
       constructor: (@main, @index, config={}) ->
         M = "/oo3d/src/renderer/base-renderer.litcoffee

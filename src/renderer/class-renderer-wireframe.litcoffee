@@ -3,7 +3,13 @@ Renderer.Wireframe
 
 
 #### Renders shapes as wireframes
-@todo
+
+@todo describe  
+@todo render as wireframes
+
+    class Renderer.Wireframe extends Renderer
+      C: 'Renderer.Wireframe'
+      toString: -> '[object Renderer.Wireframe]'
 
 
 
@@ -13,10 +19,7 @@ Renderer.Wireframe
 - `index <integer>`  this Renderer.Wireframe’s index in `main._all`
 - `config <object>`  (optional) configuration and options
 
-    class Renderer.Wireframe extends Renderer
-      C: 'Renderer.Wireframe'
-      toString: -> '[object Renderer.Wireframe]'
-
+@todo describe
 
       constructor: (main, index, config={}) ->
         M = "/oo3d/src/renderer/class-renderer-wireframe.litcoffee

@@ -9,6 +9,12 @@ Buffer.Position
 - A Buffer.Position can be used by any number of Item.Meshes
 - All Buffer.Positions are stored in the `main._all` array
 
+@todo describe
+
+    class Buffer.Position extends Buffer
+      C: 'Buffer.Position'
+      toString: -> '[object Buffer.Position]'
+
 
 
 
@@ -17,10 +23,7 @@ Buffer.Position
 - `index <integer>`  this Buffer.Position’s index in `main._all`
 - `config <object>`  (optional) configuration, and in particular, `data`
 
-    class Buffer.Position extends Buffer
-      C: 'Buffer.Position'
-      toString: -> '[object Buffer.Position]'
-
+@todo describe
 
       constructor: (main, index, config={}) ->
         M = "/oo3d/src/buffer/class-buffer-position.litcoffee

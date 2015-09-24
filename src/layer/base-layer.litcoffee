@@ -9,6 +9,12 @@ Layer
 - A Layer can appear more than once in `main.layers`
 - All Layers are stored in the `main._all` array, whether they’re used or not
 
+@todo describe
+
+    class Layer
+      C: 'Layer'
+      toString: -> '[object Layer]'
+
 
 
 
@@ -17,10 +23,7 @@ Layer
 - `index <integer>`  this Layer’s index in `main._all`
 - `config <object>`  (optional) configuration and options
 
-    class Layer
-      C: 'Layer'
-      toString: -> '[object Layer]'
-
+@todo describe
 
       constructor: (@main, @index, config={}) ->
         M = "/oo3d/src/layer/base-layer.litcoffee

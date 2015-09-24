@@ -9,6 +9,12 @@ Program
 - A Program can be used by any number of Renderers
 - All Programs are stored in the main.programs array
 
+@todo describe
+
+    class Program
+      C: 'Program'
+      toString: -> "[object Program]"
+
 
 
 
@@ -17,10 +23,7 @@ Program
 - `index <integer>`  this Layer’s index in `main._all`
 - `config <object>`  (optional) configuration and options
 
-    class Program
-      C: 'Program'
-      toString: -> "[object Program]"
-
+@todo describe
 
       constructor: (@main, @index, config={}) ->
         M = "/oo3d/src/layer/base-layer.litcoffee

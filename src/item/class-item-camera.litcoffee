@@ -4,6 +4,10 @@ Item.Camera
 
 @todo describe
 
+    class Item.Camera extends Item
+      C: 'Item.Camera'
+      toString: -> '[object Item.Camera]'
+
 
 
 
@@ -12,10 +16,7 @@ Item.Camera
 - `index <integer>`  this Item.Camera’s index in `main._all`
 - `config <object>`  (optional) configuration and options
 
-    class Item.Camera extends Item
-      C: 'Item.Camera'
-      toString: -> '[object Item.Camera]'
-
+@todo describe
 
       constructor: (main, index, config={}) ->
         M = "/oo3d/src/item/class-item-camera.litcoffee

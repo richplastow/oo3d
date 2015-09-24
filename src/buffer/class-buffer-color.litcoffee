@@ -9,6 +9,12 @@ Buffer.Color
 - A Buffer.Color can be used by any number of Item.Meshes
 - All Buffer.Colors are stored in the `main._all` array
 
+@todo describe
+
+    class Buffer.Color extends Buffer
+      C: 'Buffer.Color'
+      toString: -> '[object Buffer.Color]'
+
 
 
 
@@ -17,10 +23,7 @@ Buffer.Color
 - `index <integer>`  this Buffer.Color’s index in `main._all`
 - `config <object>`  (optional) configuration, and in particular, `data`
 
-    class Buffer.Color extends Buffer
-      C: 'Buffer.Color'
-      toString: -> '[object Buffer.Color]'
-
+@todo describe
 
       constructor: (main, index, config={}) ->
         M = "/oo3d/src/buffer/class-buffer-color.litcoffee

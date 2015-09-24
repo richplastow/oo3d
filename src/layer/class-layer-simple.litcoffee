@@ -4,6 +4,12 @@ Layer.Simple
 
 #### A basic Layer
 
+@todo describe
+
+    class Layer.Simple extends Layer
+      C: 'Layer.Simple'
+      toString: -> '[object Layer.Simple]'
+
 
 
 
@@ -12,10 +18,7 @@ Layer.Simple
 - `index <integer>`  this Layer.Simple’s index in `main._all`
 - `config <object>`  (optional) configuration and options
 
-    class Layer.Simple extends Layer
-      C: 'Layer.Simple'
-      toString: -> '[object Layer.Simple]'
-
+@todo describe
 
       constructor: (main, index, config={}) ->
         M = "/oo3d/src/layer/class-layer-simple.litcoffee

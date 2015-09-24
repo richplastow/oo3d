@@ -4,6 +4,12 @@ Program.Flatwhite
 
 #### A simple Program for plain white shapes with no shading
 
+@todo describe
+
+    class Program.Flatwhite extends Program
+      C: 'Program.Flatwhite'
+      toString: -> "[object Flatwhite]"
+
 
 
 
@@ -12,10 +18,7 @@ Program.Flatwhite
 - `index <integer>`  this Program.Flatwhite’s index in `main._all`
 - `config <object>`  (optional) configuration and options
 
-    class Program.Flatwhite extends Program
-      C: 'Program.Flatwhite'
-      toString: -> "[object Flatwhite]"
-
+@todo describe
 
       constructor: (main, index, config={}) ->
         M = "/oo3d/src/program/class-program-flatwhite.litcoffee
