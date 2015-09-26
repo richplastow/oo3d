@@ -99,8 +99,56 @@ the order they will be rendered.
 
 
 
-Methods
--------
+BREAD API Methods
+-----------------
+
+
+#### `delete()`
+- `targetI <integer>`   (optional) if set, the program, camera or mesh to delete
+- `classParts <array>`  (required if `targetI` is set), eg `['Item','Mesh']`
+- `<this>`             allows chaining
+
+@todo describe  
+@todo delete itself if `targetI` is undefined
+@todo delete a program/camera or throw an exception if not recognised
+
+      delete: (targetI, classParts) ->
+        M = "/oo3d/src/renderer/base-renderer.litcoffee
+          Renderer##{@index}:delete()\n  "
+
+If `targetI` is an Item.Mesh, remove it from the `meshes` array without leaving 
+any gaps, so that `meshes` can still be rapidly traversed during `render()`. 
+
+        if 'Mesh' == classParts[1] # assume `'Item' == classParts[0]`
+          i = @meshes.length
+          while 0 <= --i
+            if targetI == @meshes[i].index
+              @meshes.splice i, 1
+              return @ # found and deleted the mesh, so immediately stop
+          return @ # some other mesh is being deleted
+
+Prevent this renderer’s camera from being deleted. 
+
+        if 'Camera' == classParts[1] # eg `['Item','Camera']`
+          if @camera.index == targetI then throw RangeError "
+            #{M}Cannot delete Camera##{targetI}` - used by Renderer##{@index}`"
+          else return @ # some other camera is being deleted, so not an error
+
+Prevent this renderer’s program from being deleted. 
+
+        if 'Program' == classParts[0] # eg `['Program','Wireframe']`
+          if @program.index == targetI then throw RangeError "
+            #{M}Cannot delete Program##{targetI}` - used by Renderer##{@index}`"
+          else return @ # some other program is being deleted, so not an error
+
+        throw RangeError "
+          #{M}`main._all[#{targetI}]` is '#{classParts.join '.'}' not 'Program|Item.Camera|Item.Mesh"
+
+
+
+
+Other Methods
+-------------
 
 
 #### `render()`

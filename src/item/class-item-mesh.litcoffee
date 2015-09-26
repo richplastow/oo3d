@@ -301,6 +301,17 @@ Allow chaining.
 
 
 
+#### `delete()`
+- `targetI <integer>`  (optional) if set, the buffer to delete
+- `<this>`             allows chaining
+
+@todo describe  
+@todo delete a buffer, or throw an exception if not recognised
+
+      delete: (targetI) ->
+        M = "/oo3d/src/item/class-item-mesh.litcoffee
+          Item.Mesh##{@index}:delete()\n  "
+        return @
 
 
 

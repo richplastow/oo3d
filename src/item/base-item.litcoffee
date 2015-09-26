@@ -554,6 +554,23 @@ Allow chaining.
 
 
 
+#### `delete()`
+- `<this>`  allows chaining
+
+@todo describe
+
+      delete: ->
+        M = "/oo3d/src/item/base-item.litcoffee
+          Item##{@index}:delete()\n  "
+        return @
+
+
+
+
+Other Methods
+-------------
+
+
 #### `reset()`
 - `subject <object>`  xx @todo describe
 - `<object>`          the reset object

@@ -7,7 +7,7 @@ Program
 - Contains a vertex shader and a fragment shader
 - Each Renderer must use one Program
 - A Program can be used by any number of Renderers
-- All Programs are stored in the main.programs array
+- All Programs are stored in the `main._all` array
 
 @todo describe
 
@@ -69,7 +69,8 @@ class will usually override the base `vertexSource()` method.
         gl.shaderSource @vertexShader, @vertexSource()
         gl.compileShader @vertexShader
         if ! gl.getShaderParameter @vertexShader, gl.COMPILE_STATUS
-          @cleanUp(); throw Error "#{@C}.vertexShader failed to compile"
+          @delete()
+          throw Error "#{@C}.vertexShader failed to compile"
 
 
 #### `fragmentShader <WebGLShader>`
@@ -80,7 +81,8 @@ class will usually override the base `fragmentSource()` method.
         gl.shaderSource @fragmentShader, @fragmentSource()
         gl.compileShader @fragmentShader
         if ! gl.getShaderParameter @fragmentShader, gl.COMPILE_STATUS
-          @cleanUp(); throw Error "#{@C}.fragmentShader failed to compile"
+          @delete()
+          throw Error "#{@C}.fragmentShader failed to compile"
 
 
 #### `program <WebGLProgram>`
@@ -91,24 +93,35 @@ Xx.
         gl.attachShader @program, @fragmentShader
         gl.linkProgram @program
         if ! gl.getProgramParameter @program, gl.LINK_STATUS
-          @cleanUp(); throw Error "#{@C}.program failed to link"
+          @delete()
+          throw Error "#{@C}.program failed to link"
 
 
 
 
-Methods
--------
+BREAD API Methods
+-----------------
 
 
-#### `cleanUp()`
-Xx. 
+#### `delete()`
+- `<this>`  allows chaining
 
-      cleanUp: ->
+@todo describe  
+@todo test whether shaders and program are garbage collected
+
+      delete: ->
+        M = "/oo3d/src/program/base-program.litcoffee
+          Program:delete()\n  "
         if @vertexShader   then @main.gl.deleteShader @vertexShader
         if @fragmentShader then @main.gl.deleteShader @fragmentShader
         if @program        then @main.gl.deleteProgram @program
+        return @
 
 
+
+
+Other Methods
+-------------
 
 
 #### `vertexSource()`

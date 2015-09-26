@@ -354,16 +354,31 @@ append a reference to the `main.layers` array, to be used by `main.render()`.
 
 
 #### `delete()`
-- `target <int|array|null>`  xx @todo describe
-- `<this>`                   allows chaining
+- `targets <int|string|array of ints>`  xx @todo describe
+- `<this>`                              allows chaining
 
-Xx. 
+@todo describe 
 
-      delete: (target) ->
+      delete: (targets) ->
         M = "/oo3d/src/class-main.litcoffee
           Main:delete()\n  "
-        ª "#{M}@todo"
-        return @ # allows chaining
+        tTargets = typeof targets
+
+If `targets` is an integer, and the index of an instance in `_all`, delete it. 
+
+        if ªN == tTargets
+          if ªMAX < targets or targets % 1 or 0 > targets then throw RangeError "
+            #{M}`targets` is #{targets} not 0 or a positive integer below 2^53"
+          if ! @_all[targets] then throw TypeError "
+            #{M}`_all[#{targets}]` does not exist"
+          deleteOne @, targets
+
+Deal with an unexpected `targets` type. Otherwise return this Oo3d instance to 
+[allow chaining](https://en.wikipedia.org/wiki/Method_chaining). 
+
+        else throw TypeError "
+          #{M}`targets` is #{ªtype targets} not number|string|array"
+        return @
 
 
 
@@ -850,6 +865,60 @@ Draw each layer to the canvas.
 Return this Oo3d instance (allows chaining). 
 
         return @
+
+
+
+
+Private Functions
+-----------------
+
+
+#### `deleteOne()`
+- `main <Oo3d>`        xx
+- `targetI <integer>`  the index, in `main._all`, of the instance to delete
+- `<xx>`               xx
+
+Delete a single instance from `main`. Deletion is complete, meaning that the 
+instance can be [garbage-collected](https://goo.gl/vKLC27). If the app which 
+implements Oo3d has stored a direct reference to an instance in `main._all`, 
+eg `var directRef = oo3d._all[5];`, then `oo3d.delete(5)` will not be enough to 
+trigger garbage-collection. 
+
+      deleteOne = (main, targetI) ->
+
+Get a ref to the instance to be deleted, and split its class-name into parts. 
+
+        instance   = main._all[targetI]
+        classParts = instance.C.split '.' # eg `['Item','Mesh']`
+
+Often, an instance will be referenced by one or more other instances. Or in the 
+case of a Layer, referenced in `main.layers`. 
+
+        switch classParts[0]
+
+          when 'Buffer'
+            for mesh in main._all
+              if mesh and (mesh instanceof Item.Mesh)
+                mesh.delete targetI
+
+          when 'Item', 'Program'
+            for renderer in main._all
+              if renderer and (renderer instanceof Renderer)
+                renderer.delete targetI, classParts
+
+          when 'Renderer'
+            for layer in main.layers #@todo `_layers`
+              layer.delete targetI
+
+          when 'Layer'
+            for layer in main.layers #@todo `_layers`
+              1 #@todo
+
+Tell the instance that it has been deleted, and remove it from `main._all`. 
+
+        instance.delete()
+        delete main._all[targetI]
+
 
 
 
